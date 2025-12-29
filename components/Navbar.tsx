@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
   return (
     <nav className="fixed top-0 left-0 w-full z-[100] flex justify-center pointer-events-none pt-8 px-4">
-      <div className="pointer-events-auto bg-black/90 backdrop-blur-md border border-white/10 px-6 py-3 flex items-center justify-between gap-6 md:gap-10 rounded-none shadow-2xl w-full max-w-2xl">
+      <div className="pointer-events-auto bg-black/90 backdrop-blur-md border border-white/10 px-6 py-3 flex items-center justify-between gap-6 md:gap-10 rounded-none shadow-2xl w-full max-w-5xl">
 
         {/* Logo Image */}
         <a
@@ -57,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               key={item.label}
               href={item.href}
               onClick={(e) => handleLinkClick(e, item)}
-              className="text-[10px] font-mono font-black text-white/60 hover:text-white transition-all duration-300 uppercase tracking-[0.2em] relative group"
+              className="text-[10px] font-mono font-black text-white/60 hover:text-white transition-all duration-300 uppercase tracking-[0.2em] relative group whitespace-nowrap"
             >
               {item.label}
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-tech-accent group-hover:w-full transition-all duration-300" />
