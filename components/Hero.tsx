@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, extend, useThree, ThreeElement } from '@react-three/fiber';
 import { shaderMaterial, useVideoTexture, Html, PerspectiveCamera, Environment } from '@react-three/drei';
+import { motion } from 'framer-motion';
 
 // --- Material Definition ---
 const ImageRevealMaterial = shaderMaterial(
@@ -14,6 +15,7 @@ const ImageRevealMaterial = shaderMaterial(
         uAspect: 1.0,
         uInfluence: 1.0,
         uGlobalOpacity: 0.0,
+        uIntroProgress: 0.0,
         uIntroFlash: 0.0,
         uVideoSize: new THREE.Vector2(1, 1),
     },
@@ -44,6 +46,7 @@ const ImageRevealMaterial = shaderMaterial(
     uniform float uTime;
     uniform float uInfluence;
     uniform float uGlobalOpacity;
+    uniform float uIntroProgress;
     uniform vec2 uMouse;
     uniform vec2 uVelocity;
     uniform float uAspect;
@@ -100,22 +103,16 @@ const ImageRevealMaterial = shaderMaterial(
       float mask = smoothstep(dynamicRadius - 0.04, dynamicRadius + 0.04, liquidEdge);
       
       float fresnel = 0.02 + 0.98 * pow(1.0 - max(0.0, dot(viewDir, normal)), 4.0);
-      vec3 deepBlack = vec3(0.01, 0.01, 0.015);
-      vec3 chromeHighlight = vec3(1.0, 1.0, 1.2);
       
-      // Add a virtual light following the mouse for better definition
+      // Premium dark tech look: anthracite base with bright liquid chrome
+      vec3 baseColor = vec3(0.12, 0.12, 0.15); // Tactical Anthracite Base
+      vec3 liquidColor = vec3(0.95, 0.95, 1.0); // Silver Chrome
+      
       float mouseLight = smoothstep(0.7, 0.0, dist);
-      vec3 envColor = mix(deepBlack, chromeHighlight, fresnel * 1.2);
-      envColor += chromeHighlight * mouseLight * 0.25;
-      
-      float streak = smoothstep(0.48, 0.52, sin(vUv.y * 20.0 + t * 2.0));
-      envColor += vec3(0.15, 0.15, 0.2) * streak * (1.0 - mask);
+      vec3 envColor = mix(baseColor, liquidColor, fresnel * 0.7);
       
       vec2 uv = vUv;
-      float r = (uVideoSize.x / uVideoSize.y) < 1.0 ? 1.0 / (uVideoSize.x / uVideoSize.y) : (uVideoSize.x / uVideoSize.y);
-      // Simplify UV mapping for the example, though previous logic was more robust
-      // Keeping original video mapping logic
-      float videoAspect = uVideoSize.x / uVideoSize.y;
+      float videoAspect = uVideoSize.x / max(0.001, uVideoSize.y);
       float faceAspect = 1.0; 
       float aspectR = faceAspect / videoAspect;
       if (aspectR < 1.0) { 
@@ -124,18 +121,33 @@ const ImageRevealMaterial = shaderMaterial(
           uv.y = (uv.y - 0.5) * (1.0/aspectR) + 0.5;
       }
       
-      vec3 img = texture2D(uTexture, uv).rgb * 1.1;
-      vec3 finalColor = mix(img, envColor, mask);
+      vec3 img = texture2D(uTexture, uv).rgb;
+      // Show full color video on the faces - boost for clarity
+      vec3 finalImg = img * 1.5;
+
+      // Combine Video and Liquid Chrome: Default is primarily the video, with liquid chrome ripple
+      // When mask is high (far from mouse), we show the chrome-glazed video
+      // When mask is low (at mouse), we reveal the interior (transparency)
+      vec3 surfaceColor = mix(finalImg, envColor, 0.4 + flow * 0.2);
+      vec3 finalColor = surfaceColor;
       
       // Enhanced rim light for liquid
       float rim = (1.0 - mask) * smoothstep(0.0, 0.15, mask);
-      finalColor += vec3(0.5, 0.5, 0.6) * rim * 0.5; 
+      finalColor += vec3(0.4, 0.4, 0.5) * rim * 0.6; 
       
       // Global silhouette rim for background separation
       float silhouetteRim = pow(1.0 - max(0.0, dot(viewDir, normal)), 3.0);
-      finalColor += vec3(0.4, 0.4, 0.5) * silhouetteRim * 0.4;
+      finalColor += vec3(0.2, 0.2, 0.25) * silhouetteRim * 0.3;
+
+      // BLACKOUT LOGIC
+      finalColor *= uIntroProgress;
       
-      gl_FragColor = vec4(finalColor, uGlobalOpacity);
+      // Alpha Logic: Front face gets a hole (where mouse is), Back face stays opaque (video visible inside)
+      float alpha = uGlobalOpacity;
+      if (gl_FrontFacing) {
+          alpha *= mask; // Mouse area (where mask is 0) becomes transparent
+      }
+      gl_FragColor = vec4(finalColor, alpha);
     }
   `
 );
@@ -157,6 +169,9 @@ declare module '@react-three/fiber' {
         };
     }
 }
+
+// --- Global State for Intro ---
+let introPlayed = false;
 
 // --- Components ---
 const VideoFace = React.forwardRef<any, { url: string; attach: string; startTime?: number }>(({ url, attach, startTime = 0 }, ref) => {
@@ -183,19 +198,19 @@ const VideoFace = React.forwardRef<any, { url: string; attach: string; startTime
         }
     }, [texture, startTime]);
 
-    return <imageRevealMaterial ref={ref} attach={attach} uTexture={texture} uVideoSize={videoSize} transparent={true} depthWrite={true} />;
+    return <imageRevealMaterial ref={ref} attach={attach} uTexture={texture} uVideoSize={videoSize} transparent={true} side={THREE.DoubleSide} depthWrite={true} />;
 });
 
 const ChevronGeometry = () => {
-    const thickness = 0.035;
+    const thickness = 0.08; // Thicker as requested
     const length = 0.45;
     const h = length / 2;
     return (
         <group>
-            <mesh position={[-h, 0, 0]}><boxGeometry args={[length, thickness, thickness]} /><meshStandardMaterial color="white" emissive="white" emissiveIntensity={2} toneMapped={false} /></mesh>
-            <mesh position={[0, -h, 0]}><boxGeometry args={[thickness, length, thickness]} /><meshStandardMaterial color="white" emissive="white" emissiveIntensity={2} toneMapped={false} /></mesh>
-            <mesh position={[0, 0, -h]}><boxGeometry args={[thickness, thickness, length]} /><meshStandardMaterial color="white" emissive="white" emissiveIntensity={2} toneMapped={false} /></mesh>
-            <mesh position={[0, 0, 0]}><boxGeometry args={[thickness, thickness, thickness]} /><meshStandardMaterial color="white" emissive="white" emissiveIntensity={2} toneMapped={false} /></mesh>
+            <mesh position={[-h, 0, 0]}><boxGeometry args={[length, thickness, thickness]} /><meshStandardMaterial color="white" /></mesh>
+            <mesh position={[0, -h, 0]}><boxGeometry args={[thickness, length, thickness]} /><meshStandardMaterial color="white" /></mesh>
+            <mesh position={[0, 0, -h]}><boxGeometry args={[thickness, thickness, length]} /><meshStandardMaterial color="white" /></mesh>
+            <mesh position={[0, 0, 0]}><boxGeometry args={[thickness, thickness, thickness]} /><meshStandardMaterial color="white" /></mesh>
         </group>
     )
 };
@@ -208,29 +223,112 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
     )
 });
 
-const TacticalText: React.FC<{ text: string; visible: boolean; className?: string }> = ({ text, visible, className = "" }) => {
+const INNER_CUBE_VIDEO = "/assets/cube_video.mp4";
+
+const InnerVideoFace = ({ url, attach, offset }: { url: string; attach: string; offset: number }) => {
+    // Unique URL per instance to force separate video textures for staggering
+    const instanceUrl = useMemo(() => `${url}#t=${offset}`, [url, offset]);
+    const texture = useVideoTexture(instanceUrl, {
+        unsuspend: 'canplay',
+        muted: true,
+        loop: true,
+        start: true,
+        crossOrigin: 'Anonymous',
+        playsInline: true
+    });
+
+    useEffect(() => {
+        const video = texture.image;
+        if (video instanceof HTMLVideoElement) {
+            video.currentTime = offset;
+
+            const handleResize = () => {
+                if (video.videoWidth && video.videoHeight) {
+                    const videoAspect = video.videoWidth / video.videoHeight;
+                    const targetAspect = 1.0; // Square face
+
+                    if (videoAspect > targetAspect) {
+                        // Landscape video - crop sides
+                        texture.repeat.set(targetAspect / videoAspect, 1);
+                        texture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
+                    } else {
+                        // Portrait video - crop top/bottom
+                        texture.repeat.set(1, videoAspect / targetAspect);
+                        texture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
+                    }
+                    texture.matrixAutoUpdate = false;
+                    texture.updateMatrix();
+                }
+            };
+
+            if (video.readyState >= 1) handleResize();
+            video.addEventListener('loadedmetadata', handleResize);
+            return () => video.removeEventListener('loadedmetadata', handleResize);
+        }
+    }, [texture, offset]);
+
+    return <meshStandardMaterial attach={attach} map={texture} metalness={0.1} roughness={0.2} />;
+};
+
+const InnerCube = React.forwardRef<THREE.Mesh>((_, ref) => {
+    return (
+        <mesh ref={ref} scale={[0.99, 0.99, 0.99]}>
+            <boxGeometry args={[3.0, 3.0, 3.0]} />
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+                <InnerVideoFace key={i} url={INNER_CUBE_VIDEO} attach={`material-${i}`} offset={i * 10} />
+            ))}
+        </mesh>
+    );
+});
+
+const TacticalText: React.FC<{ children: React.ReactNode; visible: boolean; className?: string }> = ({ children, visible, className = "" }) => {
     return (
         <div className={`relative inline-block ${className}`}>
-            <span className="opacity-0 whitespace-nowrap font-light tracking-wider text-2xl md:text-3xl font-tactical">{text}</span>
-            <div className={`absolute top-0 left-0 h-full overflow-hidden whitespace-nowrap transition-[width] duration-500 ease-linear ${visible ? 'w-full' : 'w-0'}`}>
-                <span className="font-light tracking-wider text-2xl md:text-3xl text-white font-tactical">{text}</span>
+            <div className={`relative overflow-hidden transition-[width] duration-500 ease-[0.16,1,0.3,1] ${visible ? 'w-full' : 'w-0'}`}>
+                <span className="font-bold tracking-tighter text-xl md:text-3xl text-white uppercase leading-none font-sans whitespace-nowrap drop-shadow-md">
+                    {children}
+                </span>
             </div>
         </div>
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null> }> = ({ videos = [], scale = 1, sectionRef }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
+    const innerMeshRef = useRef<THREE.Mesh>(null);
     const materialRefs = useRef<any[]>([]);
     const chevronRefs = useRef<THREE.Group[]>([]);
-    const [isAssembled, setIsAssembled] = useState(false);
+    const isAssembled = useRef(false); // Start as false to see the expansion effect
     const [currentPhase, setCurrentPhase] = useState(0);
+    const [loadProgress, setLoadProgress] = useState(0);
+    const loadProgressRef = useRef(0);
 
     const { viewport } = useThree();
 
     const timer = useRef(0);
     const introPhase = useRef(0);
+
+    // Skip intro if already played in this session (reset on refresh)
+    useEffect(() => {
+        if (introPlayed) {
+            timer.current = 10.0;
+            introPhase.current = 1.0;
+            setLoadProgress(101);
+            loadProgressRef.current = 101;
+        } else {
+            // Lock scroll for 3 seconds during the loading phase + expansion
+            document.body.style.overflow = 'hidden';
+            const unlockTimer = setTimeout(() => {
+                document.body.style.overflow = '';
+            }, 3000);
+            return () => {
+                clearTimeout(unlockTimer);
+                document.body.style.overflow = '';
+            };
+        }
+    }, []);
+
     const globalOpacity = useRef(0.0);
     const lastScrollTime = useRef(0);
     const globalMouse = useRef(new THREE.Vector2(0, 0));
@@ -243,6 +341,9 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         mouseVel: new THREE.Vector2(0, 0),
         prevMouse: new THREE.Vector2(0, 0),
         lerpMouse: new THREE.Vector2(0, 0),
+        phase1Mouse: new THREE.Vector2(-0.1, 0),
+        phase2Mouse: new THREE.Vector2(0.3, 0),
+        tempVec: new THREE.Vector2(0, 0),
     });
 
     useEffect(() => {
@@ -257,17 +358,15 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             if (!sectionRef.current) return;
+            // Block interaction during loading phase (first 3 seconds) unless already played
+            if (timer.current < 3.0 && !introPlayed) return;
 
             const rect = sectionRef.current.getBoundingClientRect();
-            // Only trap if the section is at the top of the viewport (within a small margin)
             const isAtTop = Math.abs(rect.top) < 10;
 
             const now = Date.now();
             const direction = Math.sign(e.deltaY);
 
-            // Trap conditions:
-            // 1. We are at the top and scrolling down through phases (including phase 3)
-            // 2. We are at the top and scrolling up to earlier phases
             const shouldTrap = isAtTop && (
                 (direction > 0 && currentPhase < 4) ||
                 (direction < 0 && currentPhase > 0)
@@ -276,7 +375,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             if (shouldTrap) {
                 if (e.cancelable) e.preventDefault();
 
-                if (now - lastScrollTime.current > 800) {
+                if (now - lastScrollTime.current > 1200) {
                     setCurrentPhase(prev => Math.max(0, Math.min(4, prev + direction)));
                     lastScrollTime.current = now;
                 }
@@ -301,19 +400,46 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const easeInOutQuart = (t: number) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
 
     useFrame((state, delta) => {
-        const dt = Math.min(delta, 0.1);
+        const dt = Math.max(0.0001, Math.min(delta, 0.05));
         const time = state.clock.elapsedTime;
         const s = stateRef.current;
         timer.current += dt;
 
-        if (timer.current > 0.5 && introPhase.current < 1) {
-            introPhase.current = Math.min(1, introPhase.current + dt * 1.5);
-            if (introPhase.current >= 1 && !isAssembled) setIsAssembled(true);
+        // Cinematic Start Sequencer
+        // 0.0s - 2.0s: Total Silence (Invisible)
+        // 2.0s - 4.0s: Small Cube + Tactical Loading
+        // 4.0s+: Full Expansion
+
+        const elapsed = timer.current;
+
+        // Visibility Logic
+        globalOpacity.current = 1.0;
+
+        // Intro Expansion Logic (Starts at 2.0s)
+        if (elapsed > 2.0 && introPhase.current < 1) {
+            introPhase.current += dt * 1.5;
+            if (introPhase.current >= 1) {
+                introPhase.current = 1;
+                introPlayed = true; // Mark as played only when finished
+            }
         }
 
-        const p = introPhase.current;
-        const easedP = easeInOutQuart(p);
-        globalOpacity.current = p;
+        // Tactical erratic loader logic (Starts at 0.0s, ends at 1.0s, holds until 2.0s)
+        if (elapsed < 2.0) {
+            let targetP = 0;
+            if (elapsed < 0.2) targetP = Math.min(15, elapsed * 75);
+            else if (elapsed < 0.5) targetP = 45;
+            else if (elapsed < 0.6) targetP = 48;
+            else if (elapsed < 0.9) targetP = 88;
+            else if (elapsed < 1.1) targetP = 98;
+            else targetP = 100;
+
+            loadProgressRef.current = THREE.MathUtils.lerp(loadProgressRef.current, targetP, dt * 10.0);
+            const displayP = Math.floor(loadProgressRef.current);
+            if (displayP !== loadProgress) setLoadProgress(displayP);
+        } else if (elapsed >= 2.0 && loadProgress !== 101) {
+            setLoadProgress(101); // Hide at 2.0s
+        }
 
         s.lerpPhase = THREE.MathUtils.lerp(s.lerpPhase, currentPhase, dt * 5.0);
 
@@ -321,22 +447,26 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         let targetInfluence = 1.0;
 
         if (currentPhase === 1) {
-            activeMouse = new THREE.Vector2(-0.1, 0);
+            activeMouse = s.phase1Mouse;
             targetInfluence = 1.5;
         } else if (currentPhase === 2) {
-            activeMouse = new THREE.Vector2(0.3, 0);
+            activeMouse = s.phase2Mouse;
             targetInfluence = 1.5;
         }
 
         s.lerpMouse.lerp(activeMouse, dt * 5.0);
-        const moveVel = new THREE.Vector2().subVectors(activeMouse, s.prevMouse).divideScalar(dt);
+        const moveVel = s.tempVec.subVectors(activeMouse, s.prevMouse).divideScalar(dt);
         s.mouseVel.lerp(moveVel, dt * 8.0);
         s.prevMouse.copy(activeMouse);
 
-        let targetScale = isAssembled ? 1.0 : easedP;
+        // Calculate base scale: starts at 0.15 (small cube) during delay, then expands to 1.0
+        const easedP = easeInOutQuart(introPhase.current);
+        let targetScale = 0.15 + easedP * 0.85;
+
+        // Phase 3+ additional expansion
         if (s.lerpPhase > 2.2) {
             const p3 = Math.min(1, (s.lerpPhase - 2.2) * 2);
-            targetScale = 1.0 + p3 * 0.3;
+            targetScale = 1.0 + p3 * 0.15;
         }
 
         const force = (targetScale - s.springScale) * 80.0;
@@ -345,9 +475,10 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
         if (groupRef.current && meshRef.current) {
             meshRef.current.scale.setScalar(s.springScale);
+            if (innerMeshRef.current) innerMeshRef.current.scale.setScalar(s.springScale * 0.99);
 
             let posX = 0;
-            const offset = viewport.width * 0.15;
+            const offset = viewport.width * 0.18;
             const P = s.lerpPhase;
 
             if (P < 1) {
@@ -358,8 +489,13 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 posX = THREE.MathUtils.lerp(offset, 0, Math.min(1, P - 2));
             }
 
+            let posY = s.lerpMouse.y * 0.2 + Math.sin(time * 0.4) * 0.05;
+            if (P > 2) {
+                posY -= Math.min(1, P - 2) * 0.3;
+            }
+
             groupRef.current.position.x = posX + s.lerpMouse.x * 0.2;
-            groupRef.current.position.y = s.lerpMouse.y * 0.2 + Math.sin(time * 0.4) * 0.05;
+            groupRef.current.position.y = posY;
 
             let rotX = 0.15;
             let rotY = 0.4;
@@ -382,20 +518,12 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             chevronRefs.current.forEach((ref, i) => {
                 if (!ref) return;
                 const data = cornerData[i];
-                if (p <= 0) {
-                    ref.position.set(data.pos[0] * 0.1, data.pos[1] * 0.1, 0);
-                    ref.scale.set(0.05, 0.05, 0.01).multiply(new THREE.Vector3(...data.sign));
-                } else if (!isAssembled) {
-                    ref.position.set(
-                        THREE.MathUtils.lerp(data.pos[0] * 0.1, data.pos[0], easedP),
-                        THREE.MathUtils.lerp(data.pos[1] * 0.1, data.pos[1], easedP),
-                        THREE.MathUtils.lerp(0, data.pos[2], easedP)
-                    );
-                    ref.scale.setScalar(THREE.MathUtils.lerp(0.05, 1.0, easedP)).multiply(new THREE.Vector3(...data.sign));
-                } else {
-                    const expand = 1.0 + (Math.sin(time * 1.5 + i) * 0.02);
-                    ref.position.set(data.pos[0] * expand, data.pos[1] * expand, data.pos[2] * expand);
-                }
+                const expand = (1.0 + (Math.sin(time * 1.5 + i) * 0.02)) * s.springScale;
+                ref.position.set(data.pos[0] * expand, data.pos[1] * expand, data.pos[2] * expand);
+
+                // Dynamic thickness: start super thin (0.3) and expand to full thickness (1.0)
+                const thicknessScale = 0.3 + introPhase.current * 0.7;
+                ref.scale.set(thicknessScale, thicknessScale, thicknessScale).multiply(new THREE.Vector3(...data.sign));
             });
         }
 
@@ -406,6 +534,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 mat.uniforms.uVelocity.value.copy(s.mouseVel);
                 mat.uniforms.uAspect.value = viewport.width / viewport.height;
                 mat.uniforms.uGlobalOpacity.value = globalOpacity.current;
+                // Give it a tiny bit of visibility (0.05) even when black
+                mat.uniforms.uIntroProgress.value = 0.05 + introPhase.current * 0.95;
                 mat.uniforms.uInfluence.value = THREE.MathUtils.lerp(mat.uniforms.uInfluence.value, targetInfluence, dt * 2.0);
             }
         });
@@ -419,20 +549,49 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         <group ref={groupRef} scale={scale}>
             <Html fullscreen portal={undefined} zIndexRange={[100, 200]}>
                 <div className="w-full h-full relative pointer-events-none">
+
+                    {/* Minimalist Tactical Loader - Appears at 0s, Disappears at 2s */}
+                    {loadProgress < 101 && (
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-24 opacity-100">
+                            <span className="font-mono text-[12px] text-white font-black tracking-widest">
+                                {loadProgress < 101 && loadProgress > 100 ? 100 : loadProgress}%
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Discrete Scroll Indicator - Visible only in Phase 0 after loading */}
+                    <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 transition-opacity duration-1000 ${currentPhase === 0 && loadProgress >= 101 ? 'opacity-40' : 'opacity-0'}`}>
+                        <span className="font-mono text-[9px] text-white tracking-[0.5em] uppercase">Scroll Down</span>
+                        <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-px h-8 bg-gradient-to-b from-white to-transparent"
+                        />
+                    </div>
+
                     {/* Phase 1: Right */}
-                    <div className="absolute top-1/2 -translate-y-1/2 right-12 md:right-44 max-w-2xl text-right">
-                        <TacticalText text="WE DON'T JUST BUILD BRANDS" visible={isPhase1} />
+                    <div className="absolute top-1/2 -translate-y-1/2 right-12 md:right-44 max-w-4xl text-right">
+                        <TacticalText visible={isPhase1}>
+                            We Don't Just Build <span className="text-[#FF5000]">Brands</span>
+                        </TacticalText>
                     </div>
 
                     {/* Phase 2: Left */}
-                    <div className="absolute top-1/2 -translate-y-1/2 left-12 md:left-44 max-w-2xl text-left">
-                        <TacticalText text="WE BUILD GROWTH ENGINES" visible={isPhase2} />
+                    <div className="absolute top-1/2 -translate-y-1/2 left-12 md:left-44 max-w-4xl text-left">
+                        <TacticalText visible={isPhase2}>
+                            We Build <span className="text-[#FF5000]">Growth Engines</span>
+                        </TacticalText>
                     </div>
 
                     {/* Phase 3+: Center Button */}
-                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-32 flex flex-col items-center transition-opacity duration-1000 ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                        <button className="px-14 py-6 text-white font-black font-tactical pointer-events-auto border-none cursor-pointer text-xl tracking-[0.2em] uppercase bg-orange-tactical">
-                            LET'S BUILD SOMETHING REAL
+                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-28 flex flex-col items-center transition-opacity duration-600 ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        <button
+                            onClick={onContactClick}
+                            className="relative px-10 py-5 border border-white bg-white pointer-events-auto"
+                        >
+                            <span className="relative z-10 text-sm font-bold tracking-[0.3em] uppercase text-black">
+                                LET'S BUILD SOMETHING REAL
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -445,6 +604,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 ))}
             </mesh>
 
+            <InnerCube ref={innerMeshRef} />
+
             <group>
                 {cornerData.map((data, i) => (
                     <TechChevron key={i} position={[0, 0, 0]} scaleSign={data.sign} ref={(el) => { if (el) chevronRefs.current[i] = el; }} />
@@ -455,41 +616,35 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 };
 
 // --- Main Hero Component ---
-const CUBE_VIDEO_URL = "https://vjs.zencdn.net/v/oceans.mp4";
+const CUBE_VIDEO_URL = "/assets/cube_video.mp4";
 
-export const Hero: React.FC = () => {
-    const [videos, setVideos] = useState<string[]>([]);
+export const Hero: React.FC<{ onContactClick?: () => void }> = ({ onContactClick }) => {
+    const videos = useMemo(() => [
+        CUBE_VIDEO_URL,
+        CUBE_VIDEO_URL,
+        CUBE_VIDEO_URL,
+        CUBE_VIDEO_URL,
+        CUBE_VIDEO_URL,
+        CUBE_VIDEO_URL
+    ], []);
     const sectionRef = useRef<HTMLElement>(null);
 
-    useEffect(() => {
-        setVideos([
-            CUBE_VIDEO_URL,
-            CUBE_VIDEO_URL,
-            CUBE_VIDEO_URL,
-            CUBE_VIDEO_URL,
-            CUBE_VIDEO_URL,
-            CUBE_VIDEO_URL
-        ]);
-    }, []);
-
-    if (videos.length === 0) return (
-        <div className="h-screen w-full bg-tech-black flex items-center justify-center text-white font-mono text-xs tracking-widest">
-            INITIALIZING_NEURAL_LINK...
-        </div>
-    );
-
     return (
-        <section id="home" ref={sectionRef} className="h-screen w-full relative bg-transparent overflow-hidden">
-            <Canvas dpr={[1, 1.5]} gl={{ alpha: true, antialias: true }} onCreated={({ gl }) => {
-                gl.setClearColor(0x000000, 0);
+        <section id="home" ref={sectionRef} className="h-screen w-full relative bg-[#050505] overflow-hidden">
+            <Canvas dpr={[1, 1.5]} gl={{ alpha: false, antialias: true }} onCreated={({ gl }) => {
+                gl.setClearColor(0x050505, 1);
             }}>
                 <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />
                 <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={1.5} />
-                <pointLight position={[-10, 5, 10]} intensity={1} color="#FF3300" />
+                <pointLight position={[10, 10, 10]} intensity={2.5} />
+                <pointLight position={[-10, 5, 10]} intensity={1.5} color="#ffffff" />
                 <Environment preset="city" />
-                <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} />
+                <Suspense fallback={null}>
+                    <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} onContactClick={onContactClick} />
+                </Suspense>
             </Canvas>
+
+            {/* Scroll Indicator Removed */}
         </section>
     );
 };

@@ -1,0 +1,139 @@
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Zap, Activity, ShieldCheck, Clock, ArrowUpRight } from 'lucide-react';
+
+const SPRINT_LOGS = [
+  { step: "01", name: "STRATEGY", status: "COMPLETED", log: "Hypothesis defined. Narrative core localized." },
+  { step: "02", name: "PLAN", status: "COMPLETED", log: "Resource allocation mapping finalized." },
+  { step: "03", name: "ROLL", status: "ACTIVE", log: "Current phase: Raw material acquisition." },
+  { step: "04", name: "INITIATE", status: "PENDING", log: "Post-production sequence queued." },
+  { step: "05", name: "NOTIFY", status: "PENDING", log: "Feedback loop parameters initialized." },
+  { step: "06", name: "LAUNCH", status: "PENDING", log: "Final distribution protocol on standby." },
+];
+
+export const ProcessPage: React.FC = () => {
+  return (
+    <div className="bg-white text-black min-h-screen pt-40 pb-20 px-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+
+        {/* Header Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-3 bg-white border border-gray-100 rounded-[2rem] p-10 flex flex-col justify-center">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-px w-8 bg-[#FF5000]" />
+              <span className="text-[10px] font-mono text-[#FF5000] uppercase tracking-[0.4em] font-bold">Operational Pipeline</span>
+            </div>
+            <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase mb-6">
+              THE <span className="text-[#FF5000]">SPRINT</span>
+            </h1>
+            <p className="text-black/40 max-w-xl text-lg font-light leading-relaxed">
+              A high-velocity production system engineered to convert abstract vision into quantifiable visual assets within 30-day cycles.
+            </p>
+          </div>
+
+          <div className="bg-black rounded-[2rem] p-10 flex flex-col items-center justify-center text-center">
+            <div className="bg-white/10 p-4 rounded-full mb-6">
+              <Zap size={32} className="text-white" />
+            </div>
+            <div className="text-5xl font-black tracking-tighter mb-2 text-white">30</div>
+            <div className="text-[10px] font-mono uppercase tracking-widest opacity-70 text-white">Day Cycle Velocity</div>
+          </div>
+        </div>
+
+        {/* The Logistics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          {/* Main Blueprint */}
+          <div className="lg:col-span-8 bg-white border border-gray-100 rounded-[2rem] p-10 overflow-hidden relative">
+            <div className="absolute top-10 right-10 text-[10px] font-mono text-black/20">BLUEPRINT_V2.04</div>
+            <h3 className="text-xl font-bold tracking-tight mb-12 uppercase">Sprint Roadmap</h3>
+
+            <div className="space-y-4">
+              {SPRINT_LOGS.map((log, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-center gap-6 p-6 rounded-2xl bg-gray-50 border border-gray-100 group hover:border-black/30 transition-colors"
+                >
+                  <span className="text-2xl font-black text-black/10 group-hover:text-black transition-colors">{log.step}</span>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-bold text-sm tracking-widest uppercase">{log.name}</h4>
+                      <span className={`text-[8px] font-mono px-2 py-0.5 rounded-full ${log.status === 'COMPLETED' ? 'bg-green-500/10 text-green-600' : log.status === 'ACTIVE' ? 'bg-black text-white' : 'bg-black/5 text-black/20'}`}>
+                        {log.status}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-mono text-black/40 uppercase">{log.log}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Side Metrics */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-10">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="font-bold tracking-tight uppercase">Efficiency Index</h3>
+                <Activity size={20} className="text-black" />
+              </div>
+              <div className="flex items-end gap-2 mb-6">
+                <span className="text-6xl font-black tracking-tighter">98.2</span>
+                <span className="text-black/20 font-mono text-sm mb-2">%</span>
+              </div>
+              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '98.2%' }}
+                  className="h-full bg-black"
+                />
+              </div>
+              <p className="mt-6 text-[10px] font-mono text-black/30 uppercase tracking-widest">Minimal Friction Ratio Detected</p>
+            </div>
+
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-10 flex flex-col justify-between min-h-[300px]">
+              <ShieldCheck size={40} className="text-black" />
+              <div>
+                <h3 className="text-3xl font-black tracking-tighter leading-none mb-4 uppercase">Reliability Protocol</h3>
+                <p className="text-xs font-sans opacity-60 leading-relaxed">
+                  Every asset is stress-tested across 12 different visual neural networks before deployment to ensure maximum aesthetic impact.
+                </p>
+              </div>
+              <button className="group relative mt-8 flex items-center justify-between gap-4 py-4 text-[10px] font-mono uppercase tracking-widest text-black/40 transition-all duration-500 overflow-hidden">
+                <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-2">View Validation Standards</span>
+                <ArrowUpRight size={14} className="relative z-10 transition-all duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
+                <div className="absolute left-0 bottom-0 w-full h-px bg-black origin-right scale-x-0 group-hover:scale-x-100 group-hover:origin-left transition-transform duration-700 ease-[0.16,1,0.3,1]" />
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Global Action */}
+        <div className="bg-white border border-gray-100 rounded-[2rem] p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="bg-gray-50 p-4 rounded-2xl">
+              <Clock size={24} className="text-black/40" />
+            </div>
+            <div>
+              <h3 className="font-bold uppercase tracking-tight">System Initialization Ready</h3>
+              <p className="text-[10px] font-mono text-black/40">Next Sprint Start: Monday, 09:00 AM</p>
+            </div>
+          </div>
+          <button className="group relative flex items-center gap-6 py-6 px-12 border border-black/10 text-black font-black transition-all duration-700 overflow-hidden">
+            <span className="relative z-10 text-[11px] uppercase tracking-[0.4em] group-hover:translate-x-2 transition-transform duration-500">START 30-DAY SPRINT</span>
+            <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
+            <div className="absolute inset-x-0 bottom-0 h-0 bg-black group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" />
+            <span className="absolute inset-0 z-20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-700 text-[11px] uppercase tracking-[0.4em] font-black">
+              START 30-DAY SPRINT
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};

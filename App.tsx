@@ -4,34 +4,46 @@ import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion';
 import { ContactPage } from './components/ContactPage';
 import { About } from './components/About';
 import { Navbar } from './components/Navbar';
-import { PerspectiveGrid } from './components/PerspectiveGrid';
-import { Projects } from './components/Projects';
-import { VideoSection } from './components/VideoSection';
-import { Footer } from './components/Footer';
 import { Hero } from './components/Hero';
 import { Brands } from './components/Brands';
+import { VideoSection } from './components/VideoSection';
+import { PerspectiveGrid } from './components/PerspectiveGrid';
+import { Projects } from './components/Projects';
+import { Footer } from './components/Footer';
+import { WorksPage } from './components/WorksPage';
+import { Testimonials } from './components/Testimonials';
 
 function App() {
   const [showContact, setShowContact] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showWorks, setShowWorks] = useState(false);
 
   // Scroll to top when switching pages
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [showContact, showAbout]);
+  }, [showContact, showAbout, showWorks]);
 
   const handleHomeClick = () => {
     setShowContact(false);
     setShowAbout(false);
+    setShowWorks(false);
   };
 
   const handleContactClick = () => {
     setShowContact(true);
     setShowAbout(false);
+    setShowWorks(false);
   };
 
   const handleAboutClick = () => {
     setShowAbout(true);
+    setShowContact(false);
+    setShowWorks(false);
+  };
+
+  const handleWorksClick = () => {
+    setShowWorks(true);
+    setShowAbout(false);
     setShowContact(false);
   };
 
@@ -43,8 +55,13 @@ function App() {
   };
 
   return (
-    <div className={`selection:bg-tech-accent selection:text-white ${showContact ? 'bg-white' : 'bg-tech-black'}`}>
-      <Navbar onContactClick={handleContactClick} onHomeClick={handleHomeClick} onAboutClick={handleAboutClick} />
+    <div className="selection:bg-black selection:text-white bg-[#050505] min-h-screen">
+      <Navbar
+        onContactClick={handleContactClick}
+        onHomeClick={handleHomeClick}
+        onAboutClick={handleAboutClick}
+        onWorksClick={handleWorksClick}
+      />
 
       <AnimatePresence mode="wait">
         {showContact ? (
@@ -54,7 +71,7 @@ function App() {
             className="min-h-screen"
           >
             <ContactPage onBack={handleHomeClick} />
-            <Footer />
+            <Footer onContactClick={handleContactClick} />
           </motion.div>
         ) : showAbout ? (
           <motion.div
@@ -63,7 +80,16 @@ function App() {
             className="min-h-screen"
           >
             <About onContactClick={handleContactClick} onHomeClick={handleHomeClick} />
-            <Footer />
+            <Footer onContactClick={handleContactClick} />
+          </motion.div>
+        ) : showWorks ? (
+          <motion.div
+            key="works"
+            {...(pageTransition as any)}
+            className="min-h-screen"
+          >
+            <WorksPage onContactClick={handleContactClick} />
+            <Footer onContactClick={handleContactClick} />
           </motion.div>
         ) : (
           <motion.div
@@ -71,13 +97,14 @@ function App() {
             {...(pageTransition as any)}
             className="min-h-screen text-white font-sans font-light"
           >
-            <div className="relative z-20">
-              <Hero />
+            <div className="relative z-20 flex flex-col">
+              <Hero onContactClick={handleContactClick} />
               <Brands />
               <VideoSection />
               <PerspectiveGrid />
-              <Projects />
-              <Footer />
+              <Projects onWorksClick={handleWorksClick} />
+              <Testimonials />
+              <Footer onContactClick={handleContactClick} />
             </div>
           </motion.div>
         )}

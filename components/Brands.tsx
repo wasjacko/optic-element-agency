@@ -43,35 +43,38 @@ const itemVariants: any = {
 
 export const Brands: React.FC = () => {
   return (
-    <section className="bg-tech-black py-32 relative overflow-hidden z-20 border-t border-dashed border-white/[0.03]">
-
-      {/* Subtle Vertical Guide */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-full border-l border-dashed border-white/[0.01] pointer-events-none" />
+    <section className="bg-[#050505] py-48 relative overflow-hidden z-20 border-t border-white/5">
+      {/* Simplified High-Visibility Grid */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:400px_400px]" />
+        {/* Fade Out Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050505]" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
 
-        {/* Header Section */}
-        <div className="flex flex-col items-center mb-20">
+        {/* Tactical Header */}
+        <div className="flex flex-col items-center mb-24 text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col items-center gap-2"
+            className="relative inline-block"
           >
-            <span className="text-tech-accent font-mono text-[10px] tracking-[1.2em] uppercase font-black mb-2">
+            <h2 className="text-white font-mono text-xs md:text-sm tracking-[0.5em] uppercase font-black relative z-10">
               BRANDS WE SERVE
-            </span>
+            </h2>
+            <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#FF5000]" />
           </motion.div>
-          <div className="w-px h-10 bg-gradient-to-b from-white/[0.05] to-transparent mt-6" />
         </div>
 
-        {/* Minimal Staggered Grid */}
+        {/* Simple List Grid - Compact & Small */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="flex flex-wrap justify-center items-center gap-x-10 gap-y-8 md:gap-x-16 md:gap-y-12"
+          className="flex flex-wrap justify-center gap-x-12 gap-y-12 max-w-5xl mx-auto relative"
         >
           {LOGO_LIST.map((name, i) => (
             <motion.div
@@ -79,26 +82,11 @@ export const Brands: React.FC = () => {
               variants={itemVariants}
               className="relative"
             >
-              <span className="text-[10px] md:text-[11px] font-mono font-black tracking-[0.3em] uppercase text-white/50 whitespace-nowrap cursor-default hover:text-white transition-colors">
+              <span className="text-[11px] md:text-xs font-bold tracking-[0.2em] uppercase text-white/50 transition-colors duration-300">
                 {name}
               </span>
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Technical Footer Logs */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 1.0 }}
-          className="mt-24 flex justify-center"
-        >
-          <div className="flex items-center gap-8 font-mono text-[6px] text-white/[0.03] uppercase tracking-[0.8em]">
-            <span>REF_ARCHIVE</span>
-            <div className="w-[1px] h-2 bg-white/[0.03]" />
-            <span>STABLE</span>
-          </div>
         </motion.div>
 
       </div>

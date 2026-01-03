@@ -1,131 +1,132 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Plus, Terminal } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import { useScroll, useTransform, useSpring } from 'framer-motion';
 
 const PROJECTS = [
   {
-    id: "LOG_01",
-    title: "NEURAL INTERFACE",
-    client: "NEURALINK",
-    category: "BIOMETRIC_VISUALIZATION",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    title: "MEXICO HOUSE",
+    subtitle: "NUMERO 0738",
+    video: "https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/1080p/mp4/file.mp4"
   },
   {
-    id: "LOG_02",
-    title: "ORBITAL LOGISTICS",
-    client: "SPACEX",
-    category: "AEROSPACE_TELEMETRY",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    title: "LGCY SOLAR",
+    subtitle: "NUMERO 0435",
+    video: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/480p/mp4/file.mp4"
   },
   {
-    id: "LOG_03",
-    title: "AUTONOMOUS FLEET",
-    client: "TESLA",
-    category: "ML_VISUAL_ENGINEERING",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-  },
-  {
-    id: "LOG_04",
-    title: "DEFENSE GRID",
-    client: "ANDURIL",
-    category: "TACTICAL_OS_INTERFACE",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+    title: "KOFFEE CO.",
+    subtitle: "NUMERO 0348",
+    video: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4"
   }
 ];
 
-const ProjectCard: React.FC<{ project: typeof PROJECTS[0], index: number }> = ({ project, index }) => {
+const ProjectCard = ({ project, index }: { project: typeof PROJECTS[0], index: number }) => {
+  const cardRef = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+
+  const springY = useSpring(y, { stiffness: 100, damping: 30 });
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.8 }}
-      className="group relative flex flex-col bg-[#080808] border border-white/[0.05] hover:border-white/20 transition-all duration-500 overflow-hidden"
+      ref={cardRef}
+      style={{ opacity }}
+      className="w-full"
     >
-      {/* Visual Container */}
-      <div className="aspect-video relative overflow-hidden bg-black">
-        <video
-          src={project.video}
-          autoPlay loop muted playsInline
-          className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 scale-105 group-hover:scale-100"
-        />
-
-        {/* Minimal Overlay - Only icon */}
-        <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white">
-            <Plus size={14} />
-          </div>
-        </div>
-      </div>
-
-      {/* Info Container */}
-      <div className="p-8">
-        <div className="flex justify-between items-start">
-          <div className="space-y-2">
-            <div className="text-[9px] font-mono text-white/40 tracking-[0.2em] font-medium uppercase">{project.category.replace(/_/g, ' ')}</div>
-            <h3 className="text-2xl font-light tracking-tight text-white uppercase group-hover:text-tech-accent transition-colors">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Project Meta - Subtle Column */}
+        <motion.div
+          style={{ y: springY }}
+          className="lg:col-span-4 self-center pr-12"
+        >
+          <div className="space-y-4">
+            <h3 className="text-4xl md:text-5xl font-black tracking-tight text-black uppercase leading-[0.9]">
               {project.title}
             </h3>
+            <p className="font-mono text-[10px] text-black/20 tracking-[0.4em] uppercase font-bold">
+              {project.subtitle}
+            </p>
           </div>
-          <ArrowUpRight size={20} className="text-white/20 group-hover:text-tech-accent transition-colors" />
+        </motion.div>
+
+        {/* Video Column - High Quality Simplicty */}
+        <div className="lg:col-span-8 relative">
+          <motion.div
+            style={{ scale }}
+            className="aspect-video bg-gray-50 overflow-hidden relative group shadow-2xl"
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover transition-all duration-1000 ease-out"
+            >
+              <source src={project.video} type="video/mp4" />
+            </video>
+
+            {/* Subtle Tactical Markers */}
+            <div className="absolute top-4 left-4 w-4 h-[1px] bg-white/40" />
+            <div className="absolute top-4 left-4 w-[1px] h-4 bg-white/40" />
+            <div className="absolute bottom-4 right-4 w-4 h-[1px] bg-white/40" />
+            <div className="absolute bottom-4 right-4 w-[1px] h-4 bg-white/40" />
+          </motion.div>
         </div>
       </div>
-
-      {/* Hover corner markers */}
-      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-tech-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-      <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-tech-accent opacity-0 group-hover:opacity-100 transition-opacity" />
     </motion.div>
   );
 };
 
-export const Projects: React.FC = () => {
+export const Projects: React.FC<{ onWorksClick?: () => void }> = ({ onWorksClick }) => {
   return (
-    <section id="works" className="bg-tech-black py-40 border-t border-white/[0.03] relative">
+    <section id="works" className="relative w-full bg-white py-24 md:py-48 px-6 md:px-12 z-20">
+      <div className="max-w-7xl mx-auto">
 
-      {/* Background technical text */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 opacity-[0.02] pointer-events-none select-none">
-        <span className="text-[20rem] font-black tracking-tighter uppercase italic">ARCHIVE</span>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-
-        {/* Simplified Header */}
-        <div className="mb-24">
-          <h2 className="text-7xl md:text-9xl font-light tracking-tighter text-white uppercase leading-none">
-            SELECTED <span className="text-white/10 italic" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.05)' }}>WORKS.</span>
-          </h2>
+        {/* Tactical Header - Matching your Sprint Style */}
+        <div className="flex flex-col items-center mb-32 md:mb-64 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative inline-block"
+          >
+            <h2 className="text-black font-mono text-sm md:text-base tracking-[1em] uppercase font-black relative z-10">
+              SELECTED WORKS
+            </h2>
+            <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#FF5000]" />
+          </motion.div>
         </div>
 
-        {/* 2-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/5 border border-white/5">
+        {/* Vertical List of Projects */}
+        <div className="flex flex-col gap-32 md:gap-64">
           {PROJECTS.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
+            <ProjectCard key={i} project={project} index={i} />
           ))}
         </div>
 
-        {/* Section Footer */}
-        <div className="mt-32 flex justify-center">
+        {/* Final Simple CTA */}
+        <div className="mt-40 md:mt-60 flex flex-col items-center">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-white text-black px-12 py-5 font-mono text-[11px] font-medium uppercase tracking-[0.3em] hover:bg-tech-accent hover:text-white transition-colors duration-300"
+            onClick={onWorksClick}
+            className="group relative px-8 py-4 bg-black border border-black text-white overflow-hidden shadow-xl"
           >
-            View More Works
+            <div className="relative z-10 flex items-center gap-3">
+              <span className="font-mono text-[11px] font-black tracking-[0.4em] uppercase">
+                SEE MORE WORKS
+              </span>
+              <ArrowUpRight size={18} />
+            </div>
           </motion.button>
         </div>
-      </div>
 
-      {/* Dashed Grid Overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
-        <svg width="100%" height="100%">
-          <defs>
-            <pattern id="work-grid" width="100" height="100" patternUnits="userSpaceOnUse">
-              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="2,8" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#work-grid)" />
-        </svg>
       </div>
     </section>
   );

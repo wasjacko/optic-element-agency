@@ -1,47 +1,53 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Zap, Target, Users, Plus, Image as ImageIcon } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 interface AboutProps {
   onContactClick: () => void;
   onHomeClick: () => void;
 }
 
-const ImageSoon = ({ className }: { className?: string }) => (
-  <div className={`flex flex-col items-center justify-center bg-white/[0.03] border border-white/5 ${className}`}>
-    <ImageIcon size={24} className="text-white/10 mb-2" />
-    <span className="text-[10px] font-mono tracking-[0.4em] text-white/20 uppercase">Image Soon</span>
-  </div>
-);
-
-const ImageSoonLight = ({ className }: { className?: string }) => (
-  <div className={`flex flex-col items-center justify-center bg-black/[0.03] border border-black/5 ${className}`}>
-    <ImageIcon size={24} className="text-black/10 mb-2" />
-    <span className="text-[10px] font-mono tracking-[0.4em] text-black/20 uppercase">Image Soon</span>
-  </div>
-);
-
 const TEAM_MEMBERS = [
-  { name: "SANTIAGO CASTRO", role: "Founder & CEO", img: "" },
-  { name: "SANTIAGO MORALES", role: "Creative Lead", img: "" },
-  { name: "STHEFANIA CASTANO", role: "Ops Director", img: "" },
-  { name: "LEONARDO GOMEZ", role: "Tech Lead", img: "" },
-  { name: "DANIELLA POSADA", role: "Brand Strategist", img: "" },
-  { name: "JHONATAN GOMEZ", role: "Account Manager", img: "" },
-  { name: "JUAN DIEGO BOTERO", role: "Dev Lead", img: "" },
-  { name: "ESTEBAN CORREA", role: "Creative", img: "" },
-  { name: "JULIAN AGUDELO", role: "Designer", img: "" },
-  { name: "ALEJANDRA OSPINA", role: "Visual Designer", img: "" },
-  { name: "MATEO URREGO", role: "Video Editor", img: "" }
+  { name: "PERSONA 1", role: "Founder & CEO", img: "" },
+  { name: "PERSONA 2", role: "Creative Lead", img: "" },
+  { name: "PERSONA 3", role: "Ops Director", img: "" },
+  { name: "PERSONA 4", role: "Tech Lead", img: "" },
+  { name: "PERSONA 5", role: "Brand Strategist", img: "" },
+  { name: "PERSONA 6", role: "Account Manager", img: "" },
+  { name: "PERSONA 7", role: "Dev Lead", img: "" },
+  { name: "PERSONA 8", role: "Creative", img: "" },
+  { name: "PERSONA 9", role: "Designer", img: "" },
+  { name: "PERSONA 10", role: "Visual Designer", img: "" },
+  { name: "PERSONA 11", role: "Developer", img: "" }
 ];
 
 const VALUES = [
-  { title: "INTEGRITY", desc: "Honesty and ethics are at our core. We build trust through transparency.", icon: Shield },
-  { title: "RELENTLESS", desc: "We don't stop until we achieve the impossible for our clients.", icon: Zap },
-  { title: "GROWTH MINDED", desc: "Constantly evolving. We thrive on challenges and continuous learning.", icon: Target },
-  { title: "INTENTIONAL", desc: "Every decision is calculated for maximum brand impact.", icon: Users }
+  { title: "INTEGRITY", desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam." },
+  { title: "RELENTLESS", desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam." },
+  { title: "GROWTH MINDED", desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam." },
+  { title: "INTENTIONAL", desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam." }
 ];
+
+const BarRevealText: React.FC<{ text: string; className?: string }> = ({ text, className = "" }) => {
+  return (
+    <div className={`relative inline-block ${className}`}>
+      {/* Skeleton for space */}
+      <span className="opacity-10 whitespace-nowrap font-mono tracking-[0.3em] text-[10px] uppercase text-black">{text}</span>
+
+      {/* Hidden container that expands for reveal effect */}
+      <motion.div
+        initial={{ width: 0 }}
+        whileInView={{ width: '100%' }}
+        viewport={{ once: true }}
+        transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className="absolute top-0 left-0 h-full overflow-hidden whitespace-nowrap bg-black"
+      >
+        <span className="font-mono tracking-[0.3em] text-[10px] text-white uppercase ml-0 p-1">{text}</span>
+      </motion.div>
+    </div>
+  );
+};
 
 export const About: React.FC<AboutProps> = ({ onContactClick, onHomeClick }) => {
   useEffect(() => {
@@ -49,212 +55,203 @@ export const About: React.FC<AboutProps> = ({ onContactClick, onHomeClick }) => 
   }, []);
 
   return (
-    <div className="min-h-screen font-sans overflow-x-hidden">
+    <div className="min-h-screen font-sans bg-white overflow-x-hidden pt-24 selection:bg-black selection:text-white">
 
-      {/* SECTION 1: DARK HEADER */}
-      <section className="bg-tech-black text-white pt-40 pb-40 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
-
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="space-y-8"
+      {/* SECTION 1: HEADER (BOLD) */}
+      <section className="relative pt-24 pb-12 bg-white">
+        <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center">
+          <h1
+            className="text-6xl md:text-9xl font-light tracking-tighter text-black mb-12 uppercase text-center"
           >
-            <span className="text-[10px] font-mono tracking-[1em] text-tech-accent uppercase block">Collective // 01</span>
-            <h1 className="text-7xl md:text-[11rem] font-thin tracking-[-0.05em] uppercase leading-[0.8] text-white">
-              BEYOND <br />
-              <span className="text-white/10 italic">SYSTEMS.</span>
-            </h1>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="mt-24 flex flex-col items-center gap-8"
-          >
-            <div className="w-px h-32 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-            <p className="max-w-3xl text-xl md:text-2xl font-light text-white/40 tracking-tight leading-relaxed italic mx-auto">
-              We are a high-performance visual strategy agency. Our mission is to architect digital dominance for brands that refuse to be ignored.
-            </p>
-          </motion.div>
+            About<br />
+            <span className="font-black italic text-black/5">Collective_</span>
+          </h1>
         </div>
       </section>
 
-      {/* SECTION 2: WHITE CONTENT (TEAM & METHODOLOGY) */}
-      <section className="bg-white text-black py-60 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(to right, black 1px, transparent 1px), linear-gradient(to bottom, black 1px, transparent 1px)', backgroundSize: '80px 80px' }} />
+      {/* SECTION 2: TEAM PHOTO SECTION */}
+      <section className="relative bg-white pt-0 pb-0">
+        <div className="max-w-[1600px] mx-auto px-6 relative z-10">
+          <div
+            className="w-full aspect-[21/9] md:aspect-[21/8] overflow-hidden border border-gray-100"
+          >
+            <img
+              src="https://static.wixstatic.com/media/8fb0bb_c5fa54381baf47ccb388a184609da19e~mv2.jpg/v1/fill/w_2330,h_1260,al_b,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/8fb0bb_c5fa54381baf47ccb388a184609da19e~mv2.jpg"
+              alt="Team Collective"
+              className="w-full h-full object-cover grayscale"
+            />
+          </div>
+        </div>
+      </section>
 
+      {/* SECTION 3: MEET THE TEAM (Straight Transition) */}
+      <section className="bg-white text-black pt-48 pb-48 relative overflow-hidden border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col items-center mb-24">
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-black font-mono text-[10px] tracking-[0.8em] uppercase font-bold text-center"
+            >
+              CORE ADVISORY GROUP
+            </motion.h2>
+            <div className="mt-8 mb-16 h-px w-12 bg-black" />
 
-          {/* Methodology Header */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-60 items-end">
-            <div>
-              <span className="text-[10px] font-mono tracking-[0.5em] text-black/40 uppercase mb-6 block">// OUR_METHODOLOGY</span>
-              <h2 className="text-5xl md:text-8xl font-thin tracking-tighter uppercase leading-none">
-                TECHNICAL <br />
-                <span className="text-black/20 italic">PRECISION.</span>
-              </h2>
-            </div>
-            <div className="space-y-8">
-              <p className="text-xl font-light text-black/60 leading-relaxed max-w-lg">
-                We've refined a process that merges creative intuition with engineering logic. Every pixel is intentional, every frame is calculated.
-              </p>
-              <div className="flex gap-12">
-                <div className="flex flex-col gap-2">
-                  <span className="text-3xl font-thin tracking-tighter">14+</span>
-                  <span className="text-[9px] font-mono text-black/40 uppercase tracking-widest">Global Partners</span>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <span className="text-3xl font-thin tracking-tighter">250+</span>
-                  <span className="text-[9px] font-mono text-black/40 uppercase tracking-widest">Projects Sync</span>
-                </div>
-              </div>
-            </div>
+            <BarRevealText text="COLLABORATION_DRIVES_INNOVATION" className="text-black/40" />
           </div>
 
-          {/* Methodology Blocks */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-black/10 border border-black/10 mb-80">
-            {[
-              { id: "01", title: "Visual Engineering", desc: "Deep architectural logic applied to brand aesthetics. We don't just design, we build frameworks for scalability." },
-              { id: "02", title: "Temporal Logic", desc: "Optimizing the consumer's time spent with your brand. Maximum visual impact in sub-second interactions." },
-              { id: "03", title: "Market dominance", desc: "Aggressive visual strategies that position your brand as the undisputed leader in your vertical." }
-            ].map((item, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-16">
+            {TEAM_MEMBERS.map((member, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: i * 0.1 }}
-                className="bg-white p-12 space-y-8 group hover:bg-black hover:text-white transition-all duration-700 cursor-default"
+                transition={{ delay: i * 0.05, duration: 0.8 }}
+                className="group flex flex-col items-center"
               >
-                <span className="text-[10px] font-mono text-black/30 group-hover:text-white/40 block tracking-widest uppercase italic">{item.id}_SYNAPSE</span>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-thin tracking-widest uppercase">{item.title}</h3>
-                  <p className="text-sm font-light leading-relaxed opacity-60 group-hover:opacity-100 uppercase tracking-tight">{item.desc}</p>
+                <div className="relative aspect-[3/4] w-full bg-gray-50 border border-gray-100 overflow-hidden mb-8">
+                  <div className="absolute inset-0 bg-black/5 opacity-40 group-hover:opacity-0 transition-opacity duration-700" />
+                  <div className="w-full h-full grayscale transition-all duration-1000 group-hover:scale-105" />
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase text-black">{member.name}</h3>
+                  <p className="text-[9px] font-mono text-black/40 tracking-[0.3em] uppercase">{member.role}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Group Image Placeholder */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.5 }}
-            className="mb-80"
+            className="flex justify-center mt-48"
           >
-            <ImageSoonLight className="w-full aspect-[21/9] border border-black/5" />
-            <div className="mt-6 flex justify-between items-center text-[10px] font-mono text-black/20 uppercase tracking-[0.4em]">
-              <span>Perspective // 01</span>
-              <span>Studio_Environment_v2</span>
-            </div>
+            <button
+              onClick={onContactClick}
+              className="group relative flex items-center gap-6 py-6 px-16 border border-black/10 text-black transition-all duration-700 overflow-hidden hover:border-black"
+            >
+              <span className="relative z-10 text-[11px] font-bold uppercase tracking-[0.5em] group-hover:translate-x-2 transition-transform duration-500">JOIN_THE_TEAM</span>
+              <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
+              <div className="absolute inset-x-0 bottom-0 h-0 bg-black group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" />
+              <span className="absolute inset-0 z-20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-700 text-[11px] font-bold uppercase tracking-[0.5em]">
+                JOIN_THE_TEAM
+              </span>
+            </button>
           </motion.div>
+        </div>
+      </section>
 
-          {/* Operatives Header */}
-          <div className="flex flex-col items-center text-center mb-32">
-            <h2 className="text-6xl md:text-[10rem] font-thin tracking-[-0.04em] uppercase leading-none mb-8">OPERATIVES_</h2>
-            <div className="w-24 h-px bg-black/20" />
+      {/* SECTION 4: DIFFERENT */}
+      <section className="bg-white text-black py-48 border-t border-gray-100 relative">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col items-center mb-32">
+            <motion.h2
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-black font-mono text-[10px] tracking-[0.8em] uppercase font-bold text-center"
+            >
+              THE_DIFFERENTIATOR
+            </motion.h2>
+            <div className="mt-8 mb-16 h-px w-12 bg-black" />
           </div>
 
-          {/* Operatives Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-40">
-            {TEAM_MEMBERS.map((member, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "FULL SPECTRUM INTEGRATION",
+                text: "We provide comprehensive solutions that unify brand strategy, digital development, and creative direction into a single technical workflow."
+              },
+              {
+                title: "TECHNICAL PRECISION",
+                text: "Our methodology is documentation-driven, ensuring absolute clarity and scalability for every asset we deliver to your team."
+              },
+              {
+                title: "OPERATIONAL SCALE",
+                text: "We don't just create visuals; we build systems that help your brand maintain consistency and performance at every consumer touchpoint."
+              }
+            ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 1, delay: i * 0.05 }}
-                className="group"
+                transition={{ delay: i * 0.2 }}
+                className="bg-white border border-gray-100 p-12 space-y-8 hover:border-black/20 transition-all duration-500 group"
               >
-                <div className="relative aspect-[3/4] mb-8 overflow-hidden bg-black/[0.02] border border-black/[0.05] group-hover:border-black/20 transition-all duration-700">
-                  {member.img ? (
-                    <img
-                      src={member.img}
-                      alt={member.name}
-                      className="w-full h-full object-cover grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-1000"
-                    />
-                  ) : (
-                    <ImageSoonLight className="w-full h-full" />
-                  )}
-                  <div className="absolute top-4 left-4 text-[8px] font-mono text-black/20 uppercase tracking-[0.5em] group-hover:text-black/60 transition-colors">
-                    Sync_0{i + 1}
-                  </div>
-                </div>
-                <div className="space-y-1 text-center">
-                  <h3 className="text-[11px] font-black tracking-[0.2em] text-black uppercase">{member.name}</h3>
-                  <p className="text-[9px] font-mono text-black/30 uppercase tracking-widest">{member.role}</p>
+                <div className="space-y-6">
+                  <h3 className="text-xl font-bold tracking-[0.1em] text-black leading-snug">{item.title}</h3>
+                  <p className="text-[13px] font-light text-black/40 leading-relaxed uppercase tracking-[0.05em] group-hover:text-black/60 transition-colors">
+                    {item.text}
+                  </p>
                 </div>
               </motion.div>
             ))}
-
-            <motion.div
-              onClick={onContactClick}
-              className="flex flex-col items-center justify-center aspect-[3/4] bg-black text-white cursor-pointer group hover:bg-tech-accent transition-all duration-500"
-            >
-              <Plus size={32} className="mb-4 opacity-20 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500" />
-              <span className="text-[12px] font-thin tracking-[0.6em] uppercase">Connect</span>
-            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: DARK VALUES & CTA */}
-      <section className="bg-tech-black text-white py-60 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)', backgroundSize: '100px 100px' }} />
-
-        {/* Horizontal Guide */}
-        <div className="absolute top-0 left-0 w-full h-px bg-white/5" />
-
+      {/* SECTION 5: VALUES (WHITE BACKGROUND) */}
+      <section className="bg-white text-black pt-24 pb-72 relative border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-
-          <div className="flex flex-col items-center text-center mb-32">
-            <span className="text-[10px] font-mono tracking-[0.6em] text-white/20 uppercase mb-8">Our Core Principles</span>
-            <h2 className="text-4xl md:text-7xl font-thin tracking-tighter uppercase italic">ENGINEERED VALUES</h2>
+          <div className="flex flex-col items-center mb-40">
+            <motion.h2
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-black font-mono text-[10px] tracking-[0.8em] uppercase font-bold text-center"
+            >
+              OPERATING_VALUES
+            </motion.h2>
+            <div className="mt-8 mb-16 h-px w-12 bg-black" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/5 border border-white/5 mb-60">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 md:gap-12">
             {VALUES.map((val, i) => (
-              <div key={i} className="bg-tech-black p-20 space-y-10 group hover:bg-white/[0.02] transition-colors duration-700">
-                <div className="flex justify-between items-start">
-                  <val.icon size={22} className="text-white/20 group-hover:text-white transition-colors duration-500" />
-                  <span className="text-[9px] font-mono text-white/10 italic">VALUE_{i + 1}</span>
+              <motion.div
+                key={i}
+                className="space-y-6 flex flex-col items-center text-center md:items-start md:text-left"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-xl font-bold tracking-tight uppercase text-black leading-tight">
+                    {val.title}
+                  </h3>
                 </div>
-                <div className="space-y-6">
-                  <h3 className="text-3xl font-thin tracking-wider uppercase text-white/90">{val.title}</h3>
-                  <p className="text-sm font-light text-white/30 uppercase leading-relaxed tracking-widest max-w-sm">{val.desc}</p>
-                </div>
-              </div>
+                <p className="text-[13px] font-light text-black/40 leading-relaxed uppercase tracking-wide">
+                  {val.desc}
+                </p>
+              </motion.div>
             ))}
           </div>
 
-          {/* Final Large CTA */}
-          <div className="flex flex-col items-center border-t border-white/10 pt-60 text-center">
-            <h3 className="text-5xl md:text-8xl font-thin tracking-[-0.04em] uppercase leading-none mb-24 max-w-4xl">
-              READY TO <br />
-              <span className="text-tech-accent italic">SYNCHRONIZE?</span>
-            </h3>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex justify-center mt-56"
+          >
             <button
               onClick={onContactClick}
-              className="group relative px-20 py-10 bg-white text-black text-[12px] font-mono tracking-[0.6em] uppercase hover:bg-tech-accent hover:text-white transition-all duration-700"
+              className="group relative flex items-center gap-6 py-6 px-20 border border-black/10 text-black font-bold transition-all duration-700 overflow-hidden hover:border-black"
             >
-              <span className="relative z-10">Initialize Contact</span>
-              <div className="absolute inset-x-0 bottom-0 h-0.5 bg-tech-accent translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500" />
+              <span className="relative z-10 text-[12px] uppercase tracking-[0.7em] group-hover:translate-x-2 transition-transform duration-500">SCHEDULE_INITIATION</span>
+              <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
+              <div className="absolute inset-x-0 bottom-0 h-0 bg-black group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" />
+              <span className="absolute inset-0 z-20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-700 text-[12px] uppercase tracking-[0.7em] font-bold">
+                SCHEDULE_INITIATION
+              </span>
             </button>
-
-            <div className="mt-40 text-[9px] font-mono text-white/10 uppercase tracking-[1em] select-none">
-              Transmission // End of report
-            </div>
-          </div>
+          </motion.div>
         </div>
       </section>
+
 
     </div>
   );

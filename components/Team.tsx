@@ -11,16 +11,16 @@ const TEAM = [
 
 export const Team: React.FC = () => {
   return (
-    <section className="bg-tech-black pt-40 pb-20 border-t border-dashed border-white/10 relative z-10" id="team">
+    <section className="bg-white pt-40 pb-20 border-t border-gray-100 relative z-10" id="team">
       <DashedContainer width="lg" noBorderTop noBorderBottom>
         <div className="flex flex-col items-center mb-24">
-          <h2 className="text-4xl md:text-6xl font-light tracking-tighter text-white uppercase mb-4">THE TEAM</h2>
-          <div className="w-12 h-px bg-tech-accent" />
+          <h2 className="text-4xl md:text-6xl font-light tracking-tighter text-black uppercase mb-4">THE TEAM</h2>
+          <div className="w-12 h-px bg-black" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {TEAM.map((member, i) => (
-            <motion.div 
+            <motion.div
               key={i}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -28,21 +28,21 @@ export const Team: React.FC = () => {
               transition={{ delay: i * 0.1 }}
               className="group flex flex-col items-center text-center"
             >
-              <div className="relative w-full aspect-[4/5] mb-8 overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700 bg-tech-gray">
-                <img 
-                  src={member.img} 
-                  alt={member.name} 
-                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+              <div className="relative w-full aspect-[4/5] mb-8 overflow-hidden bg-gray-50 border border-gray-100">
+                <img
+                  src={member.img}
+                  alt={member.name}
+                  className="w-full h-full object-cover grayscale brightness-95 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-700 opacity-80 group-hover:opacity-100"
                 />
                 {/* Corner details */}
-                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-white/20" />
-                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-white/20" />
+                <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-black/10 transition-colors group-hover:border-black/30" />
+                <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-black/10 transition-colors group-hover:border-black/30" />
               </div>
-              
-              <h3 className="text-sm font-light tracking-[0.3em] text-white uppercase mb-2">
+
+              <h3 className="text-sm font-bold tracking-[0.3em] text-black uppercase mb-2">
                 {member.name}
               </h3>
-              <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">
+              <p className="text-[10px] font-mono text-black/40 uppercase tracking-[0.2em]">
                 {member.role}
               </p>
             </motion.div>

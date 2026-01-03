@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: 'Tactic Sans';
   src: url('/TacticSans-Thn.otf') format('opentype');
@@ -126,8 +130,65 @@
   font-style: normal;
 }
 
-body {
-  font-family: 'Tactic Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  body {
+    font-family: 'Tactic Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-[#050505] text-white selection:bg-white selection:text-black;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Documentation-style Technical Grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    background-position: top left;
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  .tech-card {
+    @apply bg-white border border-gray-100 transition-all duration-300;
+  }
+
+  .tech-button {
+    @apply px-6 py-2 bg-black text-white text-xs font-mono uppercase tracking-widest hover:bg-zinc-800 transition-colors duration-300;
+  }
+
+  .tech-divider {
+    @apply h-px w-full bg-gray-100;
+  }
+
+  .system-dot {
+    @apply w-1.5 h-1.5 bg-black rounded-full;
+  }
+}
+
+@layer utilities {
+  .text-tactical {
+    font-family: 'Tactic Sans Exd', sans-serif;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .bg-tech-black {
+    background-color: #000000;
+  }
+
+  .bg-tech-paper {
+    background-color: #ffffff;
+  }
+
+  .text-tech-accent {
+    color: #000000;
+  }
 }
