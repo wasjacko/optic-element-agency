@@ -304,6 +304,8 @@ export const WorksPage: React.FC<WorksPageProps> = ({ onContactClick }) => {
                                  <img
                                     src={img}
                                     alt={`Gallery image ${idx + 1}`}
+                                    loading="lazy"
+                                    decoding="async"
                                     className={`w-full object-cover rounded-sm transition-opacity duration-300 hover:opacity-90 ${SERVICES[activeService].id === 'digital'
                                        ? 'aspect-square'
                                        : idx % 3 === 0 ? 'aspect-[3/4]' : idx % 3 === 1 ? 'aspect-[1/1]' : 'aspect-[9/16]'

@@ -104,12 +104,12 @@ const ImageRevealMaterial = shaderMaterial(
       
       float fresnel = 0.02 + 0.98 * pow(1.0 - max(0.0, dot(viewDir, normal)), 4.0);
       
-      // Premium dark tech look: anthracite base with bright liquid chrome
-      vec3 baseColor = vec3(0.12, 0.12, 0.15); // Tactical Anthracite Base
-      vec3 liquidColor = vec3(0.95, 0.95, 1.0); // Silver Chrome
+      // Premium dark tech look: DARK ANTHRACITE with subtle chrome
+      vec3 baseColor = vec3(0.02, 0.02, 0.03); 
+      vec3 liquidColor = vec3(0.1, 0.1, 0.12); // Dark Gunmetal
       
       float mouseLight = smoothstep(0.7, 0.0, dist);
-      vec3 envColor = mix(baseColor, liquidColor, fresnel * 0.7);
+      vec3 envColor = mix(baseColor, liquidColor, fresnel * 0.5);
       
       vec2 uv = vUv;
       float videoAspect = uVideoSize.x / max(0.001, uVideoSize.y);
@@ -122,22 +122,21 @@ const ImageRevealMaterial = shaderMaterial(
       }
       
       vec3 img = texture2D(uTexture, uv).rgb;
-      // Show full color video on the faces - boost for clarity
-      vec3 finalImg = img * 1.5;
+      // Normal brightness for dark mood
+      vec3 finalImg = img;
 
-      // Combine Video and Liquid Chrome: Default is primarily the video, with liquid chrome ripple
-      // When mask is high (far from mouse), we show the chrome-glazed video
-      // When mask is low (at mouse), we reveal the interior (transparency)
-      vec3 surfaceColor = mix(finalImg, envColor, 0.4 + flow * 0.2);
+      // Combine Video and Dark Metal surface
+      // OPAQUE MODE: Solid metal surface, no video bleed-through
+      vec3 surfaceColor = envColor + flow * 0.03; 
       vec3 finalColor = surfaceColor;
       
-      // Enhanced rim light for liquid
+      // Subtle rim for shape definition
       float rim = (1.0 - mask) * smoothstep(0.0, 0.15, mask);
-      finalColor += vec3(0.4, 0.4, 0.5) * rim * 0.6; 
+      finalColor += vec3(0.3, 0.3, 0.35) * rim * 0.5; 
       
       // Global silhouette rim for background separation
       float silhouetteRim = pow(1.0 - max(0.0, dot(viewDir, normal)), 3.0);
-      finalColor += vec3(0.2, 0.2, 0.25) * silhouetteRim * 0.3;
+      finalColor += vec3(0.1, 0.1, 0.15) * silhouetteRim * 0.2;
 
       // BLACKOUT LOGIC
       finalColor *= uIntroProgress;
@@ -174,31 +173,24 @@ declare module '@react-three/fiber' {
 let hasIntroPlayed = false;
 
 // --- Components ---
-const VideoFace = React.forwardRef<any, { url: string; attach: string; startTime?: number }>(({ url, attach, startTime = 0 }, ref) => {
-    const texture = useVideoTexture(url || '', { unsuspend: 'canplay', muted: true, loop: true, start: true, crossOrigin: 'Anonymous', playsInline: true });
+const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: string }>(({ texture, attach }, ref) => {
+    // Clone texture to allow independent UVs if needed, or primarily to ensure shader access without conflict
+    const localTexture = useMemo(() => texture.clone(), [texture]);
     const [videoSize, setVideoSize] = useState(new THREE.Vector2(1, 1));
 
     useEffect(() => {
-        const video = texture.image;
+        const video = localTexture.image;
         if (video instanceof HTMLVideoElement) {
             const updateSize = () => {
                 if (video.videoWidth && video.videoHeight) setVideoSize(new THREE.Vector2(video.videoWidth, video.videoHeight));
             };
-            updateSize();
+            if (video.readyState >= 1) updateSize();
             video.addEventListener('loadedmetadata', updateSize);
-            video.currentTime = startTime;
-            const handleTimeUpdate = () => {
-                if (video.currentTime >= startTime + 30) video.currentTime = startTime;
-            };
-            video.addEventListener('timeupdate', handleTimeUpdate);
-            return () => {
-                video.removeEventListener('timeupdate', handleTimeUpdate);
-                video.removeEventListener('loadedmetadata', updateSize);
-            };
+            return () => video.removeEventListener('loadedmetadata', updateSize);
         }
-    }, [texture, startTime]);
+    }, [localTexture]);
 
-    return <imageRevealMaterial ref={ref} attach={attach} uTexture={texture} uVideoSize={videoSize} transparent={true} side={THREE.DoubleSide} depthWrite={true} />;
+    return <imageRevealMaterial ref={ref} attach={attach} uTexture={localTexture} uVideoSize={videoSize} transparent={true} side={THREE.DoubleSide} depthWrite={true} />;
 });
 
 const ChevronGeometry = () => {
@@ -225,57 +217,38 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
 
 const INNER_CUBE_VIDEO = "/assets/cube_video.mp4";
 
-const InnerVideoFace = ({ url, attach, offset }: { url: string; attach: string; offset: number }) => {
-    // Unique URL per instance to force separate video textures for staggering
-    const instanceUrl = useMemo(() => `${url}#t=${offset}`, [url, offset]);
-    const texture = useVideoTexture(instanceUrl, {
-        unsuspend: 'canplay',
-        muted: true,
-        loop: true,
-        start: true,
-        crossOrigin: 'Anonymous',
-        playsInline: true
-    });
+const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
+    const localTexture = useMemo(() => texture.clone(), [texture]);
 
     useEffect(() => {
-        const video = texture.image;
+        const video = localTexture.image;
         if (video instanceof HTMLVideoElement) {
-            video.currentTime = offset;
-
             const handleResize = () => {
                 if (video.videoWidth && video.videoHeight) {
                     const videoAspect = video.videoWidth / video.videoHeight;
-                    const targetAspect = 1.0; // Square face
-
+                    const targetAspect = 1.0;
                     if (videoAspect > targetAspect) {
-                        // Landscape video - crop sides
-                        texture.repeat.set(targetAspect / videoAspect, 1);
-                        texture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
+                        localTexture.repeat.set(targetAspect / videoAspect, 1);
+                        localTexture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
                     } else {
-                        // Portrait video - crop top/bottom
-                        texture.repeat.set(1, videoAspect / targetAspect);
-                        texture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
+                        localTexture.repeat.set(1, videoAspect / targetAspect);
+                        localTexture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
                     }
-                    texture.matrixAutoUpdate = false;
-                    texture.updateMatrix();
+                    localTexture.matrixAutoUpdate = false;
+                    localTexture.updateMatrix();
                 }
             };
-
             if (video.readyState >= 1) handleResize();
             video.addEventListener('loadedmetadata', handleResize);
             return () => video.removeEventListener('loadedmetadata', handleResize);
         }
-    }, [texture, offset]);
+    }, [localTexture]);
 
-    return <meshStandardMaterial attach={attach} map={texture} metalness={0.1} roughness={0.2} />;
-};
-
-const InnerCube = React.forwardRef<THREE.Mesh>((_, ref) => {
     return (
         <mesh ref={ref} scale={[0.99, 0.99, 0.99]}>
             <boxGeometry args={[3.0, 3.0, 3.0]} />
             {[0, 1, 2, 3, 4, 5].map((i) => (
-                <InnerVideoFace key={i} url={INNER_CUBE_VIDEO} attach={`material-${i}`} offset={i * 10} />
+                <meshStandardMaterial key={i} attach={`material-${i}`} map={localTexture} metalness={0.1} roughness={0.2} />
             ))}
         </mesh>
     );
@@ -299,6 +272,16 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const innerMeshRef = useRef<THREE.Mesh>(null);
     const materialRefs = useRef<any[]>([]);
     const chevronRefs = useRef<THREE.Group[]>([]);
+
+    // LOAD VIDEO ONCE (SHARED) - Optimization for fast loading & Shader Fix
+    const sharedTexture = useVideoTexture(INNER_CUBE_VIDEO, {
+        unsuspend: 'canplay',
+        muted: true,
+        loop: true,
+        start: true,
+        crossOrigin: 'Anonymous',
+        playsInline: true
+    });
     const isAssembled = useRef(false); // Start as false to see the expansion effect
     const [currentPhase, setCurrentPhase] = useState(0);
     const [loadProgress, setLoadProgress] = useState(0);
@@ -601,12 +584,12 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
             <mesh ref={meshRef}>
                 <boxGeometry args={[3, 3, 3]} />
-                {videos.slice(0, 6).map((url, index) => (
-                    <VideoFace key={index} url={url} attach={`material-${index}`} startTime={index * 40} ref={(el) => { materialRefs.current[index] = el; }} />
+                {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <VideoFace key={index} texture={sharedTexture} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
                 ))}
             </mesh>
 
-            <InnerCube ref={innerMeshRef} />
+            <InnerCube ref={innerMeshRef} texture={sharedTexture} />
 
             <group>
                 {cornerData.map((data, i) => (

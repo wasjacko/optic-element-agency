@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { Brands } from './components/Brands';
-import { Projects } from './components/Projects';
-import { Testimonials } from './components/Testimonials';
-import { About } from './components/About';
-import { ContactPage } from './components/ContactPage';
-import { Footer } from './components/Footer';
-import { WorksPage } from './components/WorksPage';
-import { ProcessPage } from './components/ProcessPage';
-import { DataMetrics } from './components/DataMetrics';
-import { VideoSection } from './components/VideoSection';
-import { ProcessSprint } from './components/ProcessSprint';
+
+// --- Lazy Loaded Components for Performance Optimization ---
+const Brands = React.lazy(() => import('./components/Brands').then(module => ({ default: module.Brands })));
+const Projects = React.lazy(() => import('./components/Projects').then(module => ({ default: module.Projects })));
+const Testimonials = React.lazy(() => import('./components/Testimonials').then(module => ({ default: module.Testimonials })));
+const About = React.lazy(() => import('./components/About').then(module => ({ default: module.About })));
+const ContactPage = React.lazy(() => import('./components/ContactPage').then(module => ({ default: module.ContactPage })));
+const Footer = React.lazy(() => import('./components/Footer').then(module => ({ default: module.Footer })));
+const WorksPage = React.lazy(() => import('./components/WorksPage').then(module => ({ default: module.WorksPage })));
+const ProcessPage = React.lazy(() => import('./components/ProcessPage').then(module => ({ default: module.ProcessPage })));
+const DataMetrics = React.lazy(() => import('./components/DataMetrics').then(module => ({ default: module.DataMetrics })));
+const VideoSection = React.lazy(() => import('./components/VideoSection').then(module => ({ default: module.VideoSection })));
+const ProcessSprint = React.lazy(() => import('./components/ProcessSprint').then(module => ({ default: module.ProcessSprint })));
 
 type Page = 'home' | 'about' | 'work' | 'process' | 'contact';
 
@@ -43,12 +45,6 @@ export default function App() {
   const handleAboutClick = () => navigateTo('about');
   const handleWorksClick = () => navigateTo('work');
 
-  const handleCloseContact = () => {
-    // Return to previous or home? Defaulting to home for simplicity or back to where they were?
-    // User requested "Pages", so Home is a safe fallback for general close.
-    navigateTo('home');
-  };
-
   const pageTransition = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -75,31 +71,39 @@ export default function App() {
         {/* 1. PROCESS PAGE */}
         {activePage === 'process' && (
           <motion.div key="process" {...pageTransition} className="pt-20">
-            <ProcessPage onContactClick={handleContactClick} />
-            <Footer onContactClick={handleContactClick} />
+            <Suspense fallback={<div className="h-screen bg-black" />}>
+              <ProcessPage onContactClick={handleContactClick} />
+              <Footer onContactClick={handleContactClick} />
+            </Suspense>
           </motion.div>
         )}
 
         {/* 2. CONTACT PAGE */}
         {activePage === 'contact' && (
           <motion.div key="contact" {...pageTransition} className="pt-20">
-            <ContactPage onBack={handleHomeClick} />
+            <Suspense fallback={<div className="h-screen bg-black" />}>
+              <ContactPage onBack={handleHomeClick} />
+            </Suspense>
           </motion.div>
         )}
 
         {/* 3. ABOUT PAGE */}
         {activePage === 'about' && (
           <motion.div key="about" {...pageTransition} className="pt-24">
-            <About onContactClick={handleContactClick} />
-            <Footer onContactClick={handleContactClick} />
+            <Suspense fallback={<div className="h-screen bg-black" />}>
+              <About onContactClick={handleContactClick} />
+              <Footer onContactClick={handleContactClick} />
+            </Suspense>
           </motion.div>
         )}
 
         {/* 4. WORKS PAGE */}
         {activePage === 'work' && (
           <motion.div key="work" {...pageTransition} className="pt-24">
-            <WorksPage onContactClick={handleContactClick} />
-            <Footer onContactClick={handleContactClick} />
+            <Suspense fallback={<div className="h-screen bg-black" />}>
+              <WorksPage onContactClick={handleContactClick} />
+              <Footer onContactClick={handleContactClick} />
+            </Suspense>
           </motion.div>
         )}
 
@@ -109,13 +113,16 @@ export default function App() {
             <div id="home">
               <Hero onContactClick={handleContactClick} onIntroComplete={() => setIntroCompleted(true)} />
             </div>
-            <Brands />
-            <VideoSection />
-            <ProcessSprint />
-            <Projects />
-            <DataMetrics />
-            <Testimonials />
-            <Footer onContactClick={handleContactClick} />
+            {/* Lazy Load Below-Fold Content */}
+            <Suspense fallback={<div className="h-20" />}>
+              <Brands />
+              <VideoSection />
+              <ProcessSprint />
+              <Projects />
+              <DataMetrics />
+              <Testimonials />
+              <Footer onContactClick={handleContactClick} />
+            </Suspense>
           </motion.div>
         )}
 
