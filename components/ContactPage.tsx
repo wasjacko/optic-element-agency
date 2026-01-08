@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Sparkles, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 
 interface ContactPageProps {
    onBack: () => void;
@@ -20,8 +20,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onBack }) => {
    }, []);
 
    return (
-      <div className="bg-white text-black min-h-screen relative overflow-x-hidden pt-24 selection:bg-black selection:text-white">
-         <div className="max-w-7xl mx-auto px-6 pt-24 pb-20">
+      <div className="bg-white text-black min-h-screen relative overflow-x-hidden pt-12 selection:bg-black selection:text-white">
+         <div className="max-w-7xl mx-auto px-6 pb-20">
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
 
                {/* Content side */}

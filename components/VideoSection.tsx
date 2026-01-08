@@ -19,8 +19,8 @@ export const VideoSection: React.FC = () => {
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
+    stiffness: 120,
+    damping: 50,
     restDelta: 0.001
   });
 
@@ -93,7 +93,7 @@ export const VideoSection: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#050505] h-[350vh] overflow-visible"
+      className="relative w-full bg-[#050505] h-[200vh] overflow-visible"
     >
       <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden">
 
@@ -130,6 +130,12 @@ export const VideoSection: React.FC = () => {
               <motion.div style={{ width, scaleX: containerScale }} className="absolute inset-0 mx-auto">
                 <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
                 <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.2)]" />
+
+                {/* Corner Hinges */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#FF5000] z-50" />
+                <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#FF5000] z-50" />
+                <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#FF5000] z-50" />
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#FF5000] z-50" />
               </motion.div>
             </motion.div>
 
@@ -140,6 +146,7 @@ export const VideoSection: React.FC = () => {
                   width,
                   scale: containerScale,
                   opacity,
+                  willChange: "width, transform",
                 }}
                 onClick={() => togglePlay()}
                 className="relative aspect-video max-w-none bg-[#050505] group cursor-pointer shadow-[0_0_120px_rgba(0,0,0,0.9)] z-20"

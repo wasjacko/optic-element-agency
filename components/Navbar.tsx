@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { label: 'HOME', href: '#home' },
   { label: 'ABOUT US', href: '#about' },
   { label: 'WORKS', href: '#works' },
-  { label: 'THE LAB', href: '#process' },
+  { label: 'OUR PROCESS', href: '#process' },
 ];
 
 interface NavbarProps {
@@ -15,9 +15,13 @@ interface NavbarProps {
   onHomeClick: () => void;
   onAboutClick: () => void;
   onWorksClick: () => void;
+  onProcessClick: () => void;
+  isScrolled: boolean;
+  introCompleted?: boolean;
+  activePage: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onProcessClick, isScrolled, introCompleted = false, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLinkClick = (e: React.MouseEvent, item: typeof NAV_ITEMS[0]) => {
@@ -27,6 +31,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
     } else if (item.href === '#works') {
       e.preventDefault();
       onWorksClick();
+    } else if (item.href === '#process') {
+      e.preventDefault();
+      onProcessClick();
     } else if (item.href === '#home') {
       e.preventDefault();
       onHomeClick();
@@ -52,8 +59,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
+
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-[0.16,1,0.3,1] ${isVisible ? 'translate-y-0' : '-translate-y-full'} bg-[#050505] border-b border-white/5`}>
+    <motion.nav
+      initial={{ y: "-100%" }}
+      animate={{ y: isVisible && introCompleted ? "0%" : "-100%" }}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-0 left-0 w-full z-[999] bg-[#050505] border-b border-white/5`}
+    >
       {/* Noise Texture */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
 
@@ -80,19 +94,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-10">
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => handleLinkClick(e, item)}
-                  className="relative group flex flex-col items-center justify-center py-1"
-                >
-                  <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
-                    {item.label}
-                  </span>
-                  <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-[#FF5000] group-hover:w-full transition-all duration-300 ease-[0.16,1,0.3,1]" />
-                </a>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const isActive =
+                  (item.label === 'HOME' && activePage === 'home') ||
+                  (item.label === 'ABOUT US' && activePage === 'about') ||
+                  (item.label === 'WORKS' && activePage === 'work') ||
+                  (item.label === 'OUR PROCESS' && activePage === 'process');
+
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => handleLinkClick(e, item)}
+                    className="relative group flex flex-col items-center justify-center py-1"
+                  >
+                    <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
+                      {item.label}
+                    </span>
+                    <span className={`absolute bottom-0 left-0 h-[1px] bg-[#FF5000] transition-all duration-300 ease-[0.16,1,0.3,1] ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -155,6 +177,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
           </motion.div>
         )}
       </AnimatePresence>
-    </nav >
+    </motion.nav>
   );
 };

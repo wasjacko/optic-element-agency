@@ -171,7 +171,7 @@ declare module '@react-three/fiber' {
 }
 
 // --- Global State for Intro ---
-let introPlayed = false;
+let hasIntroPlayed = false;
 
 // --- Components ---
 const VideoFace = React.forwardRef<any, { url: string; attach: string; startTime?: number }>(({ url, attach, startTime = 0 }, ref) => {
@@ -293,7 +293,7 @@ const TacticalText: React.FC<{ children: React.ReactNode; visible: boolean; clas
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
@@ -311,11 +311,12 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
     // Skip intro if already played in this session (reset on refresh)
     useEffect(() => {
-        if (introPlayed) {
+        if (hasIntroPlayed) {
             timer.current = 10.0;
             introPhase.current = 1.0;
             setLoadProgress(101);
             loadProgressRef.current = 101;
+            if (onIntroComplete) onIntroComplete();
         } else {
             // Lock scroll for 3 seconds during the loading phase + expansion
             document.body.style.overflow = 'hidden';
@@ -359,7 +360,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         const handleWheel = (e: WheelEvent) => {
             if (!sectionRef.current) return;
             // Block interaction during loading phase (first 3 seconds) unless already played
-            if (timer.current < 3.0 && !introPlayed) return;
+            if (timer.current < 3.0 && !hasIntroPlayed) return;
 
             const rect = sectionRef.current.getBoundingClientRect();
             const isAtTop = Math.abs(rect.top) < 10;
@@ -420,7 +421,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             introPhase.current += dt * 1.5;
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
-                introPlayed = true; // Mark as played only when finished
+                hasIntroPlayed = true; // Mark as played only when finished
+                if (onIntroComplete) onIntroComplete();
             }
         }
 
@@ -618,7 +620,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 // --- Main Hero Component ---
 const CUBE_VIDEO_URL = "/assets/cube_video.mp4";
 
-export const Hero: React.FC<{ onContactClick?: () => void }> = ({ onContactClick }) => {
+export const Hero: React.FC<{ onContactClick?: () => void, onIntroComplete?: () => void }> = ({ onContactClick, onIntroComplete }) => {
     const videos = useMemo(() => [
         CUBE_VIDEO_URL,
         CUBE_VIDEO_URL,
@@ -640,7 +642,7 @@ export const Hero: React.FC<{ onContactClick?: () => void }> = ({ onContactClick
                 <pointLight position={[-10, 5, 10]} intensity={1.5} color="#ffffff" />
                 <Environment preset="city" />
                 <Suspense fallback={null}>
-                    <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} onContactClick={onContactClick} />
+                    <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} onContactClick={onContactClick} onIntroComplete={onIntroComplete} />
                 </Suspense>
             </Canvas>
 

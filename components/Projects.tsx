@@ -31,7 +31,7 @@ const ProjectCard = ({ project, index }: { project: typeof PROJECTS[0], index: n
 
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.05, 0.9, 1], [0, 1, 1, 0]);
 
   const springY = useSpring(y, { stiffness: 100, damping: 30 });
 
