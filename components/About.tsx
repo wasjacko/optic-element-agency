@@ -97,6 +97,7 @@ export const About: React.FC<AboutProps> = ({ onContactClick }) => {
               loop
               muted
               playsInline
+              preload="auto"
               className="w-full h-full object-cover grayscale"
             />
           </div>

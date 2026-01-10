@@ -172,6 +172,7 @@ declare module '@react-three/fiber' {
 // --- Global State for Intro ---
 let hasIntroPlayed = false;
 
+
 // --- Components ---
 const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: string }>(({ texture, attach }, ref) => {
     // Clone texture to allow independent UVs if needed, or primarily to ensure shader access without conflict
@@ -283,7 +284,9 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         playsInline: true
     });
     const isAssembled = useRef(false); // Start as false to see the expansion effect
-    const [currentPhase, setCurrentPhase] = useState(0);
+
+    // START DIRECTLY AT PHASE 3 IF INTRO ALREADY PLAYED
+    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
     const [loadProgress, setLoadProgress] = useState(0);
     const loadProgressRef = useRef(0);
 
@@ -293,7 +296,13 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const introPhase = useRef(0);
 
     // Skip intro if already played in this session (reset on refresh)
+    // Skip intro if already played in this session (reset on refresh)
     useEffect(() => {
+        // Prevent browser from restoring scroll position, ensuring we start at top
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         if (hasIntroPlayed) {
             timer.current = 10.0;
             introPhase.current = 1.0;
@@ -301,14 +310,45 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             loadProgressRef.current = 101;
             if (onIntroComplete) onIntroComplete();
         } else {
-            // Lock scroll for 3 seconds during the loading phase + expansion
+            // Force start at top
+            window.scrollTo(0, 0);
+
+            // Lock scroll interactions completely
+            const preventDefault = (e: Event) => {
+                if (e.cancelable) e.preventDefault();
+            };
+
+            const preventKeys = (e: KeyboardEvent) => {
+                const keys = ['ArrowDown', 'ArrowUp', 'Space', 'PageDown', 'PageUp', 'Home', 'End'];
+                if (keys.includes(e.code) || keys.includes(e.key)) {
+                    if (e.cancelable) e.preventDefault();
+                }
+            };
+
+            // Block scrolling via wheel, touch, and keys
+            document.addEventListener('wheel', preventDefault, { passive: false });
+            document.addEventListener('touchmove', preventDefault, { passive: false });
+            document.addEventListener('keydown', preventKeys, { passive: false });
+
+            // Force overflow hidden on body/html as backup
             document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+
             const unlockTimer = setTimeout(() => {
                 document.body.style.overflow = '';
-            }, 3000);
+                document.documentElement.style.overflow = '';
+                document.removeEventListener('wheel', preventDefault);
+                document.removeEventListener('touchmove', preventDefault);
+                document.removeEventListener('keydown', preventKeys);
+            }, 4500);
+
             return () => {
                 clearTimeout(unlockTimer);
                 document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+                document.removeEventListener('wheel', preventDefault);
+                document.removeEventListener('touchmove', preventDefault);
+                document.removeEventListener('keydown', preventKeys);
             };
         }
     }, []);
@@ -318,9 +358,9 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const globalMouse = useRef(new THREE.Vector2(0, 0));
 
     const stateRef = useRef({
-        lerpPhase: 0,
+        lerpPhase: hasIntroPlayed ? 3 : 0,
         rotation: new THREE.Euler(0, 0, 0),
-        springScale: 0,
+        springScale: hasIntroPlayed ? 1.15 : 0,
         springVel: 0,
         mouseVel: new THREE.Vector2(0, 0),
         prevMouse: new THREE.Vector2(0, 0),
@@ -342,11 +382,13 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
             if (!sectionRef.current) return;
-            // Block interaction during loading phase (first 3 seconds) unless already played
-            if (timer.current < 3.0 && !hasIntroPlayed) return;
+            // Block interaction during loading phase (first 3 seconds)
+            if (timer.current < 3.0) {
+                if (e.cancelable) e.preventDefault();
+                return;
+            }
 
-            const rect = sectionRef.current.getBoundingClientRect();
-            const isAtTop = Math.abs(rect.top) < 10;
+            const isAtTop = window.scrollY < 50; // More robust top check
 
             const now = Date.now();
             const direction = Math.sign(e.deltaY);
@@ -367,6 +409,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
+        // Add touch listener for mobile swipe trapping if needed, but wheel is primary for desktop "phases"
         return () => window.removeEventListener('wheel', handleWheel);
     }, [currentPhase, sectionRef]);
 
@@ -404,7 +447,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             introPhase.current += dt * 1.5;
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
-                hasIntroPlayed = true; // Mark as played only when finished
+                hasIntroPlayed = true;
                 if (onIntroComplete) onIntroComplete();
             }
         }
@@ -616,7 +659,7 @@ export const Hero: React.FC<{ onContactClick?: () => void, onIntroComplete?: () 
 
     return (
         <section id="home" ref={sectionRef} className="h-screen w-full relative bg-[#050505] overflow-hidden">
-            <Canvas dpr={[1, 1.5]} gl={{ alpha: false, antialias: true }} onCreated={({ gl }) => {
+            <Canvas dpr={[1, 1.5]} gl={{ alpha: false, antialias: false, powerPreference: "high-performance", stencil: false, depth: true }} onCreated={({ gl }) => {
                 gl.setClearColor(0x050505, 1);
             }}>
                 <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />

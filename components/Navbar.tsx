@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { label: 'HOME', href: '#home' },
   { label: 'ABOUT US', href: '#about' },
   { label: 'WORKS', href: '#works' },
+  { label: 'BOOK THE STUDIO', href: '#lab' },
   { label: 'OUR PROCESS', href: '#process' },
 ];
 
@@ -15,13 +16,14 @@ interface NavbarProps {
   onHomeClick: () => void;
   onAboutClick: () => void;
   onWorksClick: () => void;
+  onLabClick: () => void;
   onProcessClick: () => void;
   isScrolled: boolean;
   introCompleted?: boolean;
   activePage: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onProcessClick, isScrolled, introCompleted = false, activePage }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, isScrolled, introCompleted = false, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLinkClick = (e: React.MouseEvent, item: typeof NAV_ITEMS[0]) => {
@@ -34,6 +36,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
     } else if (item.href === '#process') {
       e.preventDefault();
       onProcessClick();
+    } else if (item.href === '#lab') {
+      e.preventDefault();
+      onLabClick();
     } else if (item.href === '#home') {
       e.preventDefault();
       onHomeClick();
@@ -64,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
   return (
     <motion.nav
       initial={{ y: "-100%" }}
-      animate={{ y: isVisible && introCompleted ? "0%" : "-100%" }}
+      animate={{ y: isVisible && (introCompleted || activePage !== 'home') ? "0%" : "-100%" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 left-0 w-full z-[999] bg-[#050505] border-b border-white/5`}
     >
@@ -98,6 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                 const isActive =
                   (item.label === 'HOME' && activePage === 'home') ||
                   (item.label === 'ABOUT US' && activePage === 'about') ||
+                  (item.label === 'BOOK THE STUDIO' && activePage === 'lab') ||
                   (item.label === 'WORKS' && activePage === 'work') ||
                   (item.label === 'OUR PROCESS' && activePage === 'process');
 
