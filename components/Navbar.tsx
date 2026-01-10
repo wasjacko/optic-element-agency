@@ -18,12 +18,13 @@ interface NavbarProps {
   onWorksClick: () => void;
   onLabClick: () => void;
   onProcessClick: () => void;
+  onPreload?: (page: string) => void;
   isScrolled: boolean;
   introCompleted?: boolean;
   activePage: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, isScrolled, introCompleted = false, activePage }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, onPreload, isScrolled, introCompleted = false, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLinkClick = (e: React.MouseEvent, item: typeof NAV_ITEMS[0]) => {
@@ -112,6 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                     key={item.label}
                     href={item.href}
                     onClick={(e) => handleLinkClick(e, item)}
+                    onMouseEnter={() => onPreload?.(item.href.replace('#', ''))}
                     className="relative group flex flex-col items-center justify-center py-1"
                   >
                     <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
