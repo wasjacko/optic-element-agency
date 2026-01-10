@@ -42,7 +42,7 @@ const ImageRevealMaterial = shaderMaterial(
   `,
     // Fragment Shader
     `
-    precision highp float;
+    precision mediump float;
     uniform float uTime;
     uniform float uInfluence;
     uniform float uGlobalOpacity;
@@ -283,6 +283,14 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         crossOrigin: 'Anonymous',
         playsInline: true
     });
+
+    useEffect(() => {
+        sharedTexture.minFilter = THREE.LinearFilter;
+        sharedTexture.magFilter = THREE.LinearFilter;
+        sharedTexture.generateMipmaps = false;
+        sharedTexture.needsUpdate = true;
+    }, [sharedTexture]);
+
     const isAssembled = useRef(false); // Start as false to see the expansion effect
 
     // START DIRECTLY AT PHASE 3 IF INTRO ALREADY PLAYED
