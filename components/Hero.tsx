@@ -58,59 +58,32 @@ const ImageRevealMaterial = shaderMaterial(
     varying vec3 vViewPosition;
     varying vec2 vScreenPos;
 
-    float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
-    
-    float noise(vec2 x) {
-        vec2 i = floor(x);
-        vec2 f = fract(x);
-        float a = hash(i);
-        float b = hash(i + vec2(1.0, 0.0));
-        float c = hash(i + vec2(0.0, 1.0));
-        float d = hash(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-    }
-
-    float fbm(vec3 p) {
-        float v = 0.0; float a = 0.5;
-        vec2 p2 = p.xy;
-        float shift = vec2(100.0).x;
-        mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-        for (int i = 0; i < 2; i++) {
-            v += a * noise(p2);
-            p2 = rot * p2 * 2.0 + vec2(shift);
-            a *= 0.5;
-        }
-        return v;
-    }
-
     void main() {
       vec3 viewDir = normalize(vViewPosition);
       vec3 normal = normalize(vNormal);
       vec2 aspectVec = vec2(uAspect, 1.0);
-      float t = uTime * 0.3; 
-      vec3 p1 = vec3(vUv.x * 1.0, vUv.y * 15.0, t); 
-      float flow = fbm(p1);
       
-      vec2 distortedScreenPos = vScreenPos + (vec2(flow, flow * 0.2) - vec2(0.5)) * 0.15;
+      // Simple distortion without heavy noise
+      float t = uTime * 0.5;
+      vec2 distortedScreenPos = vScreenPos + vec2(sin(vUv.y * 10.0 + t), cos(vUv.x * 10.0 + t)) * 0.01;
+      
       float dist = distance(distortedScreenPos * aspectVec, uMouse * aspectVec);
       float speed = length(uVelocity);
       
       float bulge = smoothstep(0.0, 1.0, dot(normalize((vScreenPos - uMouse) * aspectVec), speed > 0.001 ? normalize(uVelocity) : vec2(0.0))) * speed * 0.3;
       float dynamicRadius = (0.38 * uInfluence) * (1.0 + bulge); 
-      float ripple = sin(distortedScreenPos.y * 30.0 - uTime * 5.0) * 0.005;
-      float liquidEdge = dist + (flow * 0.12) + ripple;
+      float liquidEdge = dist; // Simplified edge
       float mask = smoothstep(dynamicRadius - 0.04, dynamicRadius + 0.04, liquidEdge);
       
-      float fresnel = 0.02 + 0.98 * pow(1.0 - max(0.0, dot(viewDir, normal)), 4.0);
+      float fresnel = 0.05 + 0.95 * pow(1.0 - max(0.0, dot(viewDir, normal)), 3.0);
       
-      // Premium dark tech look: DARK ANTHRACITE with subtle chrome
+      // Simplified Lighting Colors
       vec3 baseColor = vec3(0.02, 0.02, 0.03); 
-      vec3 liquidColor = vec3(0.1, 0.1, 0.12); // Dark Gunmetal
+      vec3 liquidColor = vec3(0.1, 0.1, 0.12);
       
-      float mouseLight = smoothstep(0.7, 0.0, dist);
-      vec3 envColor = mix(baseColor, liquidColor, fresnel * 0.5);
+      vec3 envColor = mix(baseColor, liquidColor, fresnel);
       
+      // Video UV mapping
       vec2 uv = vUv;
       float videoAspect = uVideoSize.x / max(0.001, uVideoSize.y);
       float faceAspect = 1.0; 
@@ -122,29 +95,18 @@ const ImageRevealMaterial = shaderMaterial(
       }
       
       vec3 img = texture2D(uTexture, uv).rgb;
-      // Normal brightness for dark mood
-      vec3 finalImg = img;
 
-      // Combine Video and Dark Metal surface
-      // OPAQUE MODE: Solid metal surface, no video bleed-through
-      vec3 surfaceColor = envColor + flow * 0.03; 
-      vec3 finalColor = surfaceColor;
+      vec3 finalColor = envColor;
       
-      // Subtle rim for shape definition
+      // Simple rim
       float rim = (1.0 - mask) * smoothstep(0.0, 0.15, mask);
       finalColor += vec3(0.3, 0.3, 0.35) * rim * 0.5; 
       
-      // Global silhouette rim for background separation
-      float silhouetteRim = pow(1.0 - max(0.0, dot(viewDir, normal)), 3.0);
-      finalColor += vec3(0.1, 0.1, 0.15) * silhouetteRim * 0.2;
-
-      // BLACKOUT LOGIC
       finalColor *= uIntroProgress;
       
-      // Alpha Logic: Front face gets a hole (where mouse is), Back face stays opaque (video visible inside)
       float alpha = uGlobalOpacity;
       if (gl_FrontFacing) {
-          alpha *= mask; // Mouse area (where mask is 0) becomes transparent
+          alpha *= mask;
       }
       gl_FragColor = vec4(finalColor, alpha);
     }
@@ -671,10 +633,9 @@ export const Hero: React.FC<{ onContactClick?: () => void, onIntroComplete?: () 
                 gl.setClearColor(0x050505, 1);
             }}>
                 <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />
-                <ambientLight intensity={0.4} />
-                <pointLight position={[10, 10, 10]} intensity={2.5} />
-                <pointLight position={[-10, 5, 10]} intensity={1.5} color="#ffffff" />
-                <Environment preset="city" />
+                <ambientLight intensity={0.6} />
+                <pointLight position={[10, 10, 10]} intensity={2.0} />
+                <pointLight position={[-10, 5, 10]} intensity={1.0} color="#ffffff" />
                 <Suspense fallback={null}>
                     <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} onContactClick={onContactClick} onIntroComplete={onIntroComplete} />
                 </Suspense>
