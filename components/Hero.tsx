@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame, extend, useThree, ThreeElement } from '@react-three/fiber';
 import { shaderMaterial, useVideoTexture, Html, PerspectiveCamera, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
+import homeContent from '../src/data/homeContent.json';
 
 // --- Material Definition ---
 const ImageRevealMaterial = shaderMaterial(
@@ -17,6 +18,7 @@ const ImageRevealMaterial = shaderMaterial(
         uGlobalOpacity: 0.0,
         uIntroProgress: 0.0,
         uIntroFlash: 0.0,
+        uWhiteOut: 1.0,
         uVideoSize: new THREE.Vector2(1, 1),
     },
     // Vertex Shader
@@ -52,6 +54,8 @@ const ImageRevealMaterial = shaderMaterial(
     uniform float uAspect;
     uniform sampler2D uTexture;
     uniform vec2 uVideoSize;
+    uniform float uIntroFlash;
+    uniform float uWhiteOut;
     
     varying vec2 vUv;
     varying vec3 vNormal;
@@ -61,48 +65,50 @@ const ImageRevealMaterial = shaderMaterial(
     void main() {
       vec3 viewDir = normalize(vViewPosition);
       vec3 normal = normalize(vNormal);
-      vec2 aspectVec = vec2(uAspect, 1.0);
       
-      // Simple distortion without heavy noise
-      float t = uTime * 0.5;
-      vec2 distortedScreenPos = vScreenPos + vec2(sin(vUv.y * 10.0 + t), cos(vUv.x * 10.0 + t)) * 0.01;
+      // OPTIMIZATION: Simplified distortion
+      vec2 distortedScreenPos = vScreenPos + vec2(sin(vUv.y * 5.0 + uTime * 0.5), cos(vUv.x * 5.0)) * 0.005;
       
-      float dist = distance(distortedScreenPos * aspectVec, uMouse * aspectVec);
+      // OPTIMIZATION: Cheaper distance/mask
+      float dist = distance(distortedScreenPos * vec2(uAspect, 1.0), uMouse * vec2(uAspect, 1.0));
+      // Simplified bulge/radius calc
       float speed = length(uVelocity);
+      float dynamicRadius = (0.25 * uInfluence) * (1.0 + speed * 0.1); 
+      float mask = smoothstep(dynamicRadius - 0.04, dynamicRadius + 0.04, dist);
       
-      float bulge = smoothstep(0.0, 1.0, dot(normalize((vScreenPos - uMouse) * aspectVec), speed > 0.001 ? normalize(uVelocity) : vec2(0.0))) * speed * 0.3;
-      float dynamicRadius = (0.38 * uInfluence) * (1.0 + bulge); 
-      float liquidEdge = dist; // Simplified edge
-      float mask = smoothstep(dynamicRadius - 0.04, dynamicRadius + 0.04, liquidEdge);
+      // OPTIMIZATION: Cheaper Fresnel
+      float NdV = max(0.0, dot(viewDir, normal));
+      float fresnel = 0.02 + 0.98 * (1.0 - NdV); 
       
-      float fresnel = 0.05 + 0.95 * pow(1.0 - max(0.0, dot(viewDir, normal)), 3.0);
+      // OPTIMIZATION: Single pass reflection gradient
+      vec3 refDir = reflect(-viewDir, normal);
+      float refY = refDir.y * 0.5 + 0.5;
+      vec3 envColor = mix(vec3(0.01), vec3(0.8), smoothstep(0.4, 0.6, refY));
+          
+      // OPTIMIZATION: Single light specular
+      vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+      float spec = pow(max(dot(normal, normalize(lightDir + viewDir)), 0.0), 30.0);
       
-      // Simplified Lighting Colors
-      vec3 baseColor = vec3(0.02, 0.02, 0.03); 
-      vec3 liquidColor = vec3(0.1, 0.1, 0.12);
+      vec3 finalBase = vec3(0.005) + envColor * fresnel + spec;
       
-      vec3 envColor = mix(baseColor, liquidColor, fresnel);
-      
-      // Video UV mapping
+      // Video mapping
       vec2 uv = vUv;
       float videoAspect = uVideoSize.x / max(0.001, uVideoSize.y);
-      float faceAspect = 1.0; 
-      float aspectR = faceAspect / videoAspect;
-      if (aspectR < 1.0) { 
-          uv.x = (uv.x - 0.5) * aspectR + 0.5;
+      if (videoAspect > 1.0) {
+          uv.x = (uv.x - 0.5) * (1.0/videoAspect) + 0.5;
       } else {
-          uv.y = (uv.y - 0.5) * (1.0/aspectR) + 0.5;
+          uv.y = (uv.y - 0.5) * videoAspect + 0.5;
       }
       
-      vec3 img = texture2D(uTexture, uv).rgb;
-
-      vec3 finalColor = envColor;
+      vec3 finalColor = finalBase;
       
-      // Simple rim
+      // Rim
       float rim = (1.0 - mask) * smoothstep(0.0, 0.15, mask);
-      finalColor += vec3(0.3, 0.3, 0.35) * rim * 0.5; 
+      finalColor += vec3(0.3) * rim; 
       
+      finalColor = mix(finalColor, vec3(1.0), uWhiteOut);
       finalColor *= uIntroProgress;
+      finalColor += vec3(uIntroFlash);
       
       float alpha = uGlobalOpacity;
       if (gl_FrontFacing) {
@@ -127,6 +133,8 @@ declare module '@react-three/fiber' {
             uAspect?: number;
             uInfluence?: number;
             uGlobalOpacity?: number;
+            uIntroProgress?: number;
+            uIntroFlash?: number;
         };
     }
 }
@@ -157,15 +165,15 @@ const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: s
 });
 
 const ChevronGeometry = () => {
-    const thickness = 0.08; // Thicker as requested
+    const thickness = 0.04; // Thinner
     const length = 0.45;
     const h = length / 2;
     return (
         <group>
-            <mesh position={[-h, 0, 0]}><boxGeometry args={[length, thickness, thickness]} /><meshStandardMaterial color="white" /></mesh>
-            <mesh position={[0, -h, 0]}><boxGeometry args={[thickness, length, thickness]} /><meshStandardMaterial color="white" /></mesh>
-            <mesh position={[0, 0, -h]}><boxGeometry args={[thickness, thickness, length]} /><meshStandardMaterial color="white" /></mesh>
-            <mesh position={[0, 0, 0]}><boxGeometry args={[thickness, thickness, thickness]} /><meshStandardMaterial color="white" /></mesh>
+            <mesh position={[-h, 0, 0]}><boxGeometry args={[length, thickness, thickness]} /><meshBasicMaterial color="white" toneMapped={false} /></mesh>
+            <mesh position={[0, -h, 0]}><boxGeometry args={[thickness, length, thickness]} /><meshBasicMaterial color="white" toneMapped={false} /></mesh>
+            <mesh position={[0, 0, -h]}><boxGeometry args={[thickness, thickness, length]} /><meshBasicMaterial color="white" toneMapped={false} /></mesh>
+            <mesh position={[0, 0, 0]}><boxGeometry args={[thickness, thickness, thickness]} /><meshBasicMaterial color="white" toneMapped={false} /></mesh>
         </group>
     )
 };
@@ -211,17 +219,17 @@ const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(
         <mesh ref={ref} scale={[0.99, 0.99, 0.99]}>
             <boxGeometry args={[3.0, 3.0, 3.0]} />
             {[0, 1, 2, 3, 4, 5].map((i) => (
-                <meshStandardMaterial key={i} attach={`material-${i}`} map={localTexture} metalness={0.1} roughness={0.2} />
+                <meshBasicMaterial key={i} attach={`material-${i}`} map={localTexture} toneMapped={false} />
             ))}
         </mesh>
     );
 });
 
-const TacticalText: React.FC<{ children: React.ReactNode; visible: boolean; className?: string }> = ({ children, visible, className = "" }) => {
+const TacticalText: React.FC<{ children: React.ReactNode, visible: boolean, className?: string, color?: string, weight?: string, size?: string, tracking?: string, noAnimation?: boolean }> = ({ children, visible, className = "", color, weight = "font-black", size = "text-xl md:text-4xl", tracking = "tracking-tighter", noAnimation = false }) => {
     return (
         <div className={`relative inline-block ${className}`}>
-            <div className={`relative overflow-hidden transition-[width] duration-500 ease-[0.16,1,0.3,1] ${visible ? 'w-full' : 'w-0'}`}>
-                <span className="font-bold tracking-tighter text-xl md:text-3xl text-white uppercase leading-none font-sans whitespace-nowrap drop-shadow-md">
+            <div className={`relative overflow-hidden ${noAnimation ? '' : 'transition-[width] duration-1000 ease-[0.16,1,0.3,1]'} ${visible ? 'w-full' : 'w-0'}`}>
+                <span className={`${weight} ${tracking} ${size} uppercase leading-none font-sans whitespace-nowrap drop-shadow-md`} style={{ color: color || '#ffffff' }}>
                     {children}
                 </span>
             </div>
@@ -229,12 +237,54 @@ const TacticalText: React.FC<{ children: React.ReactNode; visible: boolean; clas
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete }) => {
+const GlitchReveal: React.FC<{ text: string, delay?: number, className?: string, speed?: number, style?: React.CSSProperties }> = ({ text, delay = 0, className = "", speed = 15, style }) => {
+    const [displayText, setDisplayText] = useState("");
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setVisible(true), delay);
+        return () => clearTimeout(timer);
+    }, [delay]);
+
+    useEffect(() => {
+        if (!visible) return;
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&[]{}<>";
+        let iterations = 0;
+
+        const interval = setInterval(() => {
+            setDisplayText(
+                text.split("").map((char, index) => {
+                    if (char === " ") return " ";
+                    if (index < iterations) return text[index];
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join("")
+            );
+
+            if (iterations >= text.length) {
+                clearInterval(interval);
+                setDisplayText(text);
+            }
+            iterations += 1 / 2;
+        }, speed);
+
+        return () => clearInterval(interval);
+    }, [visible, text, speed]);
+
+    return (
+        <div className={`${className} ${visible ? 'opacity-100' : 'opacity-0'}`} style={style}>
+            {displayText || "\u00A0"}
+        </div>
+    );
+};
+
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete, content, theme, currentPhase }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
     const materialRefs = useRef<any[]>([]);
     const chevronRefs = useRef<THREE.Group[]>([]);
+    const flashRef = useRef(0);
 
     // LOAD VIDEO ONCE (SHARED) - Optimization for fast loading & Shader Fix
     const sharedTexture = useVideoTexture(INNER_CUBE_VIDEO, {
@@ -256,10 +306,6 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const isAssembled = useRef(false); // Start as false to see the expansion effect
 
     // START DIRECTLY AT PHASE 3 IF INTRO ALREADY PLAYED
-    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
-    const [loadProgress, setLoadProgress] = useState(0);
-    const loadProgressRef = useRef(0);
-
     const { viewport } = useThree();
 
     const timer = useRef(0);
@@ -268,60 +314,12 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     // Skip intro if already played in this session (reset on refresh)
     // Skip intro if already played in this session (reset on refresh)
     useEffect(() => {
-        // Prevent browser from restoring scroll position, ensuring we start at top
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
         if (hasIntroPlayed) {
             timer.current = 10.0;
             introPhase.current = 1.0;
-            setLoadProgress(101);
-            loadProgressRef.current = 101;
             if (onIntroComplete) onIntroComplete();
-        } else {
-            // Force start at top
-            window.scrollTo(0, 0);
-
-            // Lock scroll interactions completely
-            const preventDefault = (e: Event) => {
-                if (e.cancelable) e.preventDefault();
-            };
-
-            const preventKeys = (e: KeyboardEvent) => {
-                const keys = ['ArrowDown', 'ArrowUp', 'Space', 'PageDown', 'PageUp', 'Home', 'End'];
-                if (keys.includes(e.code) || keys.includes(e.key)) {
-                    if (e.cancelable) e.preventDefault();
-                }
-            };
-
-            // Block scrolling via wheel, touch, and keys
-            document.addEventListener('wheel', preventDefault, { passive: false });
-            document.addEventListener('touchmove', preventDefault, { passive: false });
-            document.addEventListener('keydown', preventKeys, { passive: false });
-
-            // Force overflow hidden on body/html as backup
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-
-            const unlockTimer = setTimeout(() => {
-                document.body.style.overflow = '';
-                document.documentElement.style.overflow = '';
-                document.removeEventListener('wheel', preventDefault);
-                document.removeEventListener('touchmove', preventDefault);
-                document.removeEventListener('keydown', preventKeys);
-            }, 4500);
-
-            return () => {
-                clearTimeout(unlockTimer);
-                document.body.style.overflow = '';
-                document.documentElement.style.overflow = '';
-                document.removeEventListener('wheel', preventDefault);
-                document.removeEventListener('touchmove', preventDefault);
-                document.removeEventListener('keydown', preventKeys);
-            };
         }
-    }, []);
+    }, [onIntroComplete]);
 
     const globalOpacity = useRef(0.0);
     const lastScrollTime = useRef(0);
@@ -330,7 +328,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const stateRef = useRef({
         lerpPhase: hasIntroPlayed ? 3 : 0,
         rotation: new THREE.Euler(0, 0, 0),
-        springScale: hasIntroPlayed ? 1.15 : 0,
+        springScale: hasIntroPlayed ? 1.0 : 0, // Direct to full size if visited
         springVel: 0,
         mouseVel: new THREE.Vector2(0, 0),
         prevMouse: new THREE.Vector2(0, 0),
@@ -349,39 +347,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    useEffect(() => {
-        const handleWheel = (e: WheelEvent) => {
-            if (!sectionRef.current) return;
-            // Block interaction during loading phase (first 3 seconds)
-            if (timer.current < 3.0) {
-                if (e.cancelable) e.preventDefault();
-                return;
-            }
 
-            const isAtTop = window.scrollY < 50; // More robust top check
-
-            const now = Date.now();
-            const direction = Math.sign(e.deltaY);
-
-            const shouldTrap = isAtTop && (
-                (direction > 0 && currentPhase < 4) ||
-                (direction < 0 && currentPhase > 0)
-            );
-
-            if (shouldTrap) {
-                if (e.cancelable) e.preventDefault();
-
-                if (now - lastScrollTime.current > 1200) {
-                    setCurrentPhase(prev => Math.max(0, Math.min(4, prev + direction)));
-                    lastScrollTime.current = now;
-                }
-            }
-        };
-
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        // Add touch listener for mobile swipe trapping if needed, but wheel is primary for desktop "phases"
-        return () => window.removeEventListener('wheel', handleWheel);
-    }, [currentPhase, sectionRef]);
 
     const cornerData = useMemo(() => {
         const s = 1.62;
@@ -395,26 +361,55 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     }, []);
 
     const easeInOutQuart = (t: number) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+    const bgGroupRef = useRef<THREE.Group>(null);
+
+    // Dynamic Material for Background Grid
+    const gridMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "white", transparent: true, opacity: 0.05, depthWrite: false }), []);
 
     useFrame((state, delta) => {
         const dt = Math.max(0.0001, Math.min(delta, 0.05));
-        const time = state.clock.elapsedTime;
+        const time = state.clock.getElapsedTime();
         const s = stateRef.current;
         timer.current += dt;
 
-        // Cinematic Start Sequencer
-        // 0.0s - 2.0s: Total Silence (Invisible)
-        // 2.0s - 4.0s: Small Cube + Tactical Loading
-        // 4.0s+: Full Expansion
+        // ... (standard logic) ...
+
+        // Mouse Parallax for HTML overlays
+        const mx = s.lerpMouse.x * 30; // 30px max movement
+        const my = s.lerpMouse.y * 30;
+
+
+
+
+
+        // Cinematic Start Sequencer (COHESIVE SYSTEM)
+        // 0.0s: System Init (Text 1) -> BAM
+        // 0.6s: System Verification (Text 2) -> BAM
+        // 1.2s: LOADER START (Right Side + Cube Init) -> BAM
+        // 2.5s: ACTIVATION (Expansion + UI Clear)
+        // 4.0s: Interaction Ready
 
         const elapsed = timer.current;
+        const CUBE_START = 0.5;
+        const LOADER_START = 0.5;
+        const INTRO_START = 2.8; // Slower loading phase
+        const EXIT_TIME = 4.3;
+
+        // Background Grid: TACTICAL GLITCH (Digital System Reaction)
+        // Stable State
+        if (bgGroupRef.current) {
+            bgGroupRef.current.position.set(0, 0, -2);
+            bgGroupRef.current.scale.set(1, 1, 1);
+            bgGroupRef.current.rotation.z = 0;
+        }
+        gridMaterial.opacity = 0.05;
 
         // Visibility Logic
         globalOpacity.current = 1.0;
 
-        // Intro Expansion Logic (Starts at 2.0s)
-        if (elapsed > 2.0 && introPhase.current < 1) {
-            introPhase.current += dt * 1.5;
+        // Intro Expansion Logic (Starts at 2.5s)
+        if (elapsed > INTRO_START && introPhase.current < 1) {
+            introPhase.current += dt * 4.0; // Hyper fast expansion
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
                 hasIntroPlayed = true;
@@ -422,22 +417,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             }
         }
 
-        // Tactical erratic loader logic (Starts at 0.0s, ends at 1.0s, holds until 2.0s)
-        if (elapsed < 2.0) {
-            let targetP = 0;
-            if (elapsed < 0.2) targetP = Math.min(15, elapsed * 75);
-            else if (elapsed < 0.5) targetP = 45;
-            else if (elapsed < 0.6) targetP = 48;
-            else if (elapsed < 0.9) targetP = 88;
-            else if (elapsed < 1.1) targetP = 98;
-            else targetP = 100;
 
-            loadProgressRef.current = THREE.MathUtils.lerp(loadProgressRef.current, targetP, dt * 10.0);
-            const displayP = Math.floor(loadProgressRef.current);
-            if (displayP !== loadProgress) setLoadProgress(displayP);
-        } else if (elapsed >= 2.0 && loadProgress !== 101) {
-            setLoadProgress(101); // Hide at 2.0s
-        }
 
         s.lerpPhase = THREE.MathUtils.lerp(s.lerpPhase, currentPhase, dt * 5.0);
 
@@ -457,18 +437,40 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         s.mouseVel.lerp(moveVel, dt * 8.0);
         s.prevMouse.copy(activeMouse);
 
-        // Calculate base scale: starts at 0.15 (small cube) during delay, then expands to 1.0
-        const easedP = easeInOutQuart(introPhase.current);
-        let targetScale = 0.15 + easedP * 0.85;
+        // Flash Logic
+        if (elapsed > INTRO_START && flashRef.current === 0) {
+            flashRef.current = 1.0;
+        }
+        flashRef.current = THREE.MathUtils.lerp(flashRef.current, 0, dt * 5.0);
 
-        // Phase 3+ additional expansion
-        if (s.lerpPhase > 2.2) {
-            const p3 = Math.min(1, (s.lerpPhase - 2.2) * 2);
-            targetScale = 1.0 + p3 * 0.15;
+        // WhiteOut Logic
+        const whiteOutVal = elapsed < INTRO_START ? 1.0 : Math.max(0, 1.0 - (elapsed - INTRO_START) * 4.0);
+
+        // Calculate base scale
+        const easedP = easeInOutQuart(introPhase.current);
+
+        let targetScale = 0.001;
+        if (elapsed > CUBE_START - 0.2) {
+            const appear = Math.min(1, (elapsed - CUBE_START + 0.2) * 5.0); // Fast initial small appearance
+            targetScale = 0.15 * appear;
         }
 
-        const force = (targetScale - s.springScale) * 80.0;
-        s.springVel += (force - s.springVel * 15.0) * dt;
+        targetScale += easedP * 0.85;
+
+        // Dynamic Shockwave on Cube Scale during Intro
+        if (elapsed > INTRO_START && elapsed < INTRO_START + 0.2) { // Shorter shock
+            const shock = Math.sin((elapsed - INTRO_START) * Math.PI * 4.0) * 0.15;
+            targetScale += shock;
+        }
+
+        // Phase 3+ modification: Cube smaller and higher
+        if (s.lerpPhase > 2.0) {
+            const p3 = Math.min(1, (s.lerpPhase - 2.0) * 2);
+            targetScale = 1.0 - p3 * 0.15; // Make it smaller
+        }
+
+        const force = (targetScale - s.springScale) * 90.0; // Smoother Force (was 120)
+        s.springVel += (force - s.springVel * 25.0) * dt; // Higher Damping (was 15)
         s.springScale += s.springVel * dt;
 
         if (groupRef.current && meshRef.current) {
@@ -476,7 +478,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             if (innerMeshRef.current) innerMeshRef.current.scale.setScalar(s.springScale * 0.99);
 
             let posX = 0;
-            const offset = viewport.width * 0.18;
+            const offset = viewport.width * 0.08;
             const P = s.lerpPhase;
 
             if (P < 1) {
@@ -489,7 +491,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
             let posY = s.lerpMouse.y * 0.2 + Math.sin(time * 0.4) * 0.05;
             if (P > 2) {
-                posY -= Math.min(1, P - 2) * 0.3;
+                // Move higher in phase 3
+                posY += Math.min(1, P - 2) * 0.5;
             }
 
             groupRef.current.position.x = posX + s.lerpMouse.x * 0.2;
@@ -509,8 +512,14 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 rotX = 0.2 - (s.lerpPhase - 2) * 0.1;
             }
 
-            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotX + (-s.lerpMouse.y * 0.08), dt * 3.0);
-            groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, rotY + (s.lerpMouse.x * 0.08), dt * 3.0);
+            // JITTER during loading (Only when visible)
+            if (elapsed > CUBE_START && elapsed < INTRO_START) {
+                rotX += (Math.random() - 0.5) * 0.05;
+                rotY += (Math.random() - 0.5) * 0.05;
+            }
+
+            groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, rotX + (-s.lerpMouse.y * 0.3), dt * 3.0);
+            groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, rotY + (s.lerpMouse.x * 0.3), dt * 3.0);
             groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0.02, dt * 3.0);
 
             chevronRefs.current.forEach((ref, i) => {
@@ -534,89 +543,63 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 mat.uniforms.uGlobalOpacity.value = globalOpacity.current;
                 // Give it a tiny bit of visibility (0.05) even when black
                 mat.uniforms.uIntroProgress.value = 0.05 + introPhase.current * 0.95;
+                if (mat.uniforms.uIntroFlash) mat.uniforms.uIntroFlash.value = flashRef.current;
+                if (mat.uniforms.uWhiteOut) mat.uniforms.uWhiteOut.value = whiteOutVal;
                 mat.uniforms.uInfluence.value = THREE.MathUtils.lerp(mat.uniforms.uInfluence.value, targetInfluence, dt * 2.0);
             }
         });
     });
 
-    const isPhase1 = currentPhase === 1;
-    const isPhase2 = currentPhase === 2;
-    const isPhase3Plus = currentPhase >= 3;
+
 
     return (
-        <group ref={groupRef} scale={scale}>
-            <Html fullscreen portal={undefined} zIndexRange={[100, 200]}>
-                <div className="w-full h-full relative pointer-events-none">
-
-                    {/* Minimalist Tactical Loader - Appears at 0s, Disappears at 2s */}
-                    {loadProgress < 101 && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-24 opacity-100">
-                            <span className="font-mono text-[12px] text-white font-black tracking-widest">
-                                {loadProgress < 101 && loadProgress > 100 ? 100 : loadProgress}%
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Discrete Scroll Indicator - Visible only in Phase 0 after loading */}
-                    <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 transition-opacity duration-1000 ${currentPhase === 0 && loadProgress >= 101 ? 'opacity-40' : 'opacity-0'}`}>
-                        <span className="font-mono text-[9px] text-white tracking-[0.5em] uppercase">Scroll Down</span>
-                        <motion.div
-                            animate={{ y: [0, 8, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-px h-8 bg-gradient-to-b from-white to-transparent"
-                        />
-                    </div>
-
-                    {/* Phase 1: Right */}
-                    <div className="absolute top-1/2 -translate-y-1/2 right-12 md:right-44 max-w-4xl text-right">
-                        <TacticalText visible={isPhase1}>
-                            We Don't Just Build <span className="text-[#FF5000]">Brands</span>
-                        </TacticalText>
-                    </div>
-
-                    {/* Phase 2: Left */}
-                    <div className="absolute top-1/2 -translate-y-1/2 left-12 md:left-44 max-w-4xl text-left">
-                        <TacticalText visible={isPhase2}>
-                            We Build <span className="text-[#FF5000]">Growth Engines</span>
-                        </TacticalText>
-                    </div>
-
-                    {/* Phase 3+: Center Button */}
-                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-28 flex flex-col items-center transition-opacity duration-600 ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                        <button
-                            onClick={onContactClick}
-                            className="relative px-10 py-5 border border-white bg-white pointer-events-auto"
-                        >
-                            <span className="relative z-10 text-sm font-bold tracking-[0.3em] uppercase text-black">
-                                LET'S BUILD SOMETHING REAL
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </Html>
-
-            <mesh ref={meshRef}>
-                <boxGeometry args={[3, 3, 3]} />
-                {[0, 1, 2, 3, 4, 5].map((index) => (
-                    <VideoFace key={index} texture={sharedTexture} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
+        <>
+            {/* Static 3D Background Grid (Behind Cube) */}
+            <group ref={bgGroupRef} position={[0, 0, -2]}>
+                {/* Vertical Lines (Left, Center, Right) */}
+                {[-6, 0, 6].map((x, i) => (
+                    <mesh key={`v-${i}`} position={[x, 0, 0]}>
+                        <planeGeometry args={[0.02, 100]} />
+                        <meshBasicMaterial color="white" transparent opacity={0.05} depthWrite={false} />
+                    </mesh>
                 ))}
-            </mesh>
 
-            <InnerCube ref={innerMeshRef} texture={sharedTexture} />
-
-            <group>
-                {cornerData.map((data, i) => (
-                    <TechChevron key={i} position={[0, 0, 0]} scaleSign={data.sign} ref={(el) => { if (el) chevronRefs.current[i] = el; }} />
-                ))}
+                {/* Horizontal Line (Horizon) */}
+                <mesh position={[0, 0, 0]}>
+                    <planeGeometry args={[100, 0.02]} />
+                    <meshBasicMaterial color="white" transparent opacity={0.05} depthWrite={false} />
+                </mesh>
             </group>
-        </group>
+
+            <group ref={groupRef} scale={scale}>
+
+
+                <mesh ref={meshRef}>
+                    <boxGeometry args={[3, 3, 3]} />
+                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                        <VideoFace key={index} texture={sharedTexture} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
+                    ))}
+                </mesh>
+
+                <InnerCube ref={innerMeshRef} texture={sharedTexture} />
+
+                <group>
+                    {cornerData.map((data, i) => (
+                        <TechChevron key={i} position={[0, 0, 0]} scaleSign={data.sign} ref={(el) => { if (el) chevronRefs.current[i] = el; }} />
+                    ))}
+                </group>
+            </group>
+        </>
     );
 };
 
 // --- Main Hero Component ---
 const CUBE_VIDEO_URL = "/assets/cube_video.mp4";
 
-export const Hero: React.FC<{ onContactClick?: () => void, onIntroComplete?: () => void }> = ({ onContactClick, onIntroComplete }) => {
+export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroComplete }) => {
+    const content = data || homeContent.hero;
+    const currentTheme = theme || homeContent.theme; // Fallback to import if no prop
+
     const videos = useMemo(() => [
         CUBE_VIDEO_URL,
         CUBE_VIDEO_URL,
@@ -626,22 +609,231 @@ export const Hero: React.FC<{ onContactClick?: () => void, onIntroComplete?: () 
         CUBE_VIDEO_URL
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
+    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
+    const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
+    const lastScrollTime = useRef(0);
+
+    // Scroll Logic
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            if (!sectionRef.current) return;
+            // Block interaction during loading phase
+            if (loadProgress < 100) {
+                if (e.cancelable) e.preventDefault();
+                return;
+            }
+
+            const isAtTop = window.scrollY < 50;
+            const now = Date.now();
+            const direction = Math.sign(e.deltaY);
+
+            const shouldTrap = isAtTop && (
+                (direction > 0 && currentPhase < 4) ||
+                (direction < 0 && currentPhase > 0)
+            );
+
+            if (shouldTrap) {
+                if (e.cancelable) e.preventDefault();
+
+                if (now - lastScrollTime.current > 1200) {
+                    setCurrentPhase(prev => Math.max(0, Math.min(4, prev + direction)));
+                    lastScrollTime.current = now;
+                }
+            }
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        return () => window.removeEventListener('wheel', handleWheel);
+    }, [currentPhase, loadProgress]);
+
+    // Loader Logic
+    useEffect(() => {
+        if (hasIntroPlayed) return;
+
+        let interval: NodeJS.Timeout;
+        const timer = setTimeout(() => {
+            interval = setInterval(() => {
+                setLoadProgress(prev => {
+                    if (prev >= 100) {
+                        clearInterval(interval);
+                        if (onIntroComplete) onIntroComplete();
+                        return 100;
+                    }
+                    return prev + 1;
+                });
+            }, 23); // 23ms * 100 = 2.3s duration. Total time 0.5 + 2.3 = 2.8s
+        }, 500); // 0.5s delay to match CUBE_START
+
+        return () => {
+            clearTimeout(timer);
+            if (interval) clearInterval(interval);
+        };
+    }, []); // Run once on mount
+
+    const isPhase1 = currentPhase === 1;
+    const isPhase2 = currentPhase === 2;
+    const isPhase3Plus = currentPhase >= 3;
 
     return (
-        <section id="home" ref={sectionRef} className="h-screen w-full relative bg-[#050505] overflow-hidden">
-            <Canvas dpr={[1, 1.5]} gl={{ alpha: false, antialias: false, powerPreference: "high-performance", stencil: false, depth: true }} onCreated={({ gl }) => {
-                gl.setClearColor(0x050505, 1);
-            }}>
+        <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
+            <Canvas
+                dpr={[1, 1.2]}
+                performance={{ min: 0.5 }}
+                gl={{
+                    alpha: true,
+                    antialias: false,
+                    powerPreference: "high-performance",
+                    stencil: false,
+                    depth: true
+                }}
+                onCreated={({ gl }) => {
+                    gl.setClearColor(0x000000, 0);
+                }}
+            >
                 <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />
                 <ambientLight intensity={0.6} />
                 <pointLight position={[10, 10, 10]} intensity={2.0} />
                 <pointLight position={[-10, 5, 10]} intensity={1.0} color="#ffffff" />
                 <Suspense fallback={null}>
-                    <ShowcaseCube videos={videos} scale={1} sectionRef={sectionRef} onContactClick={onContactClick} onIntroComplete={onIntroComplete} />
+                    <ShowcaseCube
+                        videos={videos}
+                        scale={1}
+                        sectionRef={sectionRef}
+                        onContactClick={onContactClick}
+                        onIntroComplete={onIntroComplete}
+                        content={content}
+                        theme={currentTheme}
+                        currentPhase={currentPhase}
+                    />
                 </Suspense>
             </Canvas>
 
-            {/* Scroll Indicator Removed */}
+            {/* UI Overlay - Absolutely Static */}
+            <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
+
+                <style>{`
+                    @keyframes simpleFadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    @keyframes slideInRight {
+                        from { opacity: 0; transform: translateX(100px); }
+                        to { opacity: 1; transform: translateX(0); }
+                    }
+                    @keyframes slideInLeft {
+                        from { opacity: 0; transform: translateX(-100px); }
+                        to { opacity: 1; transform: translateX(0); }
+                    }
+                    @keyframes simpleFadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                    }
+                    @keyframes glitchHide {
+                        0% { opacity: 1; transform: translate(0); clip-path: inset(0 0 0 0); }
+                        20% { opacity: 0.9; transform: translate(-2px, 1px); clip-path: inset(20% 0 50% 0); }
+                        40% { opacity: 0.5; transform: translate(2px, -1px); clip-path: inset(40% 0 10% 0); }
+                        60% { opacity: 0.2; transform: translate(-1px, 2px); clip-path: inset(10% 0 70% 0); }
+                        80% { opacity: 0.1; transform: translate(1px, -2px); clip-path: inset(0 0 0 0); }
+                        100% { opacity: 0; transform: translate(0); clip-path: inset(0 0 0 0); }
+                    }
+                `}</style>
+
+                {/* Intro Texts */}
+                <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+
+                    {/* Block 1 */}
+                    <div
+                        className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                        style={{ animation: 'simpleFadeIn 0.5s ease-out 0.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                    >
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTIC_ELEMENT_SYS</div>
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GROWTH.ENGINE.INIT</div>
+                    </div>
+
+                    {/* Block 2 */}
+                    <div
+                        className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                        style={{ animation: 'simpleFadeIn 0.5s ease-out 1.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                    >
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// VISUAL_MATTER_AGCY</div>
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">STRATEGY // EXEC</div>
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GLOBAL_COORDINATES</div>
+                    </div>
+                </div>
+
+                {/* Loader */}
+                <div
+                    className={`absolute top-1/2 -translate-y-1/2 right-10 md:right-32 text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
+                >
+                    <div style={{ animation: loadProgress === 100 ? 'glitchHide 0.25s steps(3) 0.2s forwards' : 'none' }}>
+                        <span className="font-ocr text-[14px] md:text-[16px] text-white font-medium tracking-widest">
+                            {loadProgress < 100 ? loadProgress : 100}
+                        </span>
+                        <span className="font-ocr text-[10px] md:text-[12px] text-white font-normal align-top ml-1">%</span>
+                    </div>
+                </div>
+
+                {/* Phase 1 Text */}
+                <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-[22%] max-w-4xl text-right">
+                    {isPhase1 && (
+                        <div className="flex flex-row items-center justify-end gap-2" style={{ animation: 'slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                            <TacticalText visible={isPhase1} color="#ffffff">
+                                {content?.phase1 || homeContent.hero.phase1}
+                            </TacticalText>
+                            <TacticalText visible={isPhase1} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
+                                {content?.phase1Highlight || homeContent.hero.phase1Highlight}
+                            </TacticalText>
+                        </div>
+                    )}
+                </div>
+
+                {/* Phase 2 Text */}
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-[22%] max-w-4xl text-left">
+                    {isPhase2 && (
+                        <div className="flex flex-row items-center justify-start gap-2" style={{ animation: 'slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                            <TacticalText visible={isPhase2} color="#ffffff">
+                                {content?.phase2 || homeContent.hero.phase2}
+                            </TacticalText>
+                            <TacticalText visible={isPhase2} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
+                                {content?.phase2Highlight || homeContent.hero.phase2Highlight}
+                            </TacticalText>
+                        </div>
+                    )}
+                </div>
+
+                {/* Phase 3+: Center Button */}
+                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <button
+                        onClick={onContactClick}
+                        className="relative px-10 py-4 border-none pointer-events-auto group overflow-hidden"
+                        style={{
+                            backgroundColor: content?.ctaBg || '#ffffff',
+                        }}
+                    >
+                        {/* Brackets */}
+                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/20 z-20" />
+                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/20 z-20" />
+                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/20 z-20" />
+                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/20 z-20" />
+
+                        <div className="relative z-10">
+                            <TacticalText
+                                visible={isPhase3Plus}
+                                color={content?.ctaText || '#000000'}
+                                weight="font-black"
+                                size="text-[10px] md:text-xs"
+                                tracking="tracking-[0.4em]"
+                                noAnimation
+                            >
+                                {content?.cta || homeContent.hero.cta}
+                            </TacticalText>
+                        </div>
+                    </button>
+
+
+                </div>
+
+            </div>
         </section>
     );
 };

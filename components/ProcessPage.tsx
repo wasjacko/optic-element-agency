@@ -68,7 +68,7 @@ const STEPS = [
   }
 ];
 
-export const ProcessPage = ({ onContactClick }: { onContactClick: () => void }) => {
+export const ProcessPage = ({ onContactClick, data, activeSection }: { onContactClick: () => void, data?: any, activeSection?: string }) => {
   const containerRef = useRef(null);
 
   // Overall page scroll progress
@@ -83,19 +83,27 @@ export const ProcessPage = ({ onContactClick }: { onContactClick: () => void }) 
   // Progress bar height
   const lineHeight = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
-  return (
-    <div ref={containerRef} className="bg-black min-h-[250vh] text-white relative pb-48 pt-56 overflow-hidden">
+  const showAll = !activeSection;
+  const bgColor = data?.backgroundColor || '#000000';
+  const txtColor = data?.textColor || '#ffffff';
+  const accentColor = data?.accentColor || '#FF5000';
 
-      {/* Dynamic Background */}
+  return (
+    <div
+      ref={containerRef}
+      className="min-h-[100vh] relative pb-48 pt-56 overflow-hidden"
+      style={{ backgroundColor: bgColor, color: txtColor }}
+    >
+
       {/* Dynamic Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Moving Gradient Mesh */}
         <motion.div
-          className="absolute top-[40%] left-1/2 w-[120vw] h-[120vh] opacity-20"
+          className="absolute top-[40%] left-1/2 w-[120vw] h-[120vh] opacity-20 will-change-transform"
           style={{
             x: "-50%",
             y: useTransform(smoothProgress, [0, 1], ["-50%", "10%"]), // Parallax effect: moves down as you scroll
-            background: 'radial-gradient(circle at 50% 50%, #FF5000 0%, transparent 50%)',
+            background: `radial-gradient(circle at 50% 50%, ${accentColor} 0%, transparent 50%)`,
             scale: useTransform(smoothProgress, [0, 0.5, 1], [1, 1.3, 1]),
             opacity: useTransform(smoothProgress, [0, 0.5, 1], [0.1, 0.2, 0.1]),
           }}
@@ -105,62 +113,75 @@ export const ProcessPage = ({ onContactClick }: { onContactClick: () => void }) 
       </div>
 
       {/* Header */}
-      <div className="px-6 text-center mb-48 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1, ease: "easeOut" }}
-        >
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white mb-6 uppercase text-center">
-            Our Process
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-light">
-            Our strategy to get you leads with content
-          </p>
-        </motion.div>
-      </div>
+      {(showAll || activeSection === 'header') && (
+        <div className="px-6 text-center mb-48 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          >
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 uppercase text-center" style={{ color: txtColor }}>
+              {data?.title || "Our Process"}
+            </h1>
+            <p className="text-base md:text-lg opacity-60 max-w-2xl mx-auto font-light" style={{ color: txtColor }}>
+              {data?.subtitle || "Our strategy to get you leads with content"}
+            </p>
+          </motion.div>
+        </div>
+      )}
 
       {/* MAIN TIMELINE RAIL */}
-      <div className="relative max-w-5xl mx-auto px-6">
+      {(showAll || activeSection === 'timeline') && (
+        <div className="relative max-w-5xl mx-auto px-6">
 
-        {/* The "Power Line" - Animated Center Beam */}
-        <div className="absolute top-0 bottom-0 left-[20px] md:left-1/2 md:-translate-x-1/2 w-[2px] bg-white/5 z-0">
-          <motion.div
-            style={{ height: lineHeight }}
-            className="w-full bg-gradient-to-b from-[#FF5000] via-[#FF5000] to-transparent shadow-[0_0_30px_#FF5000]"
-          />
-        </div>
-
-        <div className="space-y-48">
-          {STEPS.map((step, index) => (
-            <TimelineStep
-              key={index}
-              step={step}
-              index={index}
+          {/* The "Power Line" - Animated Center Beam */}
+          <div className="absolute top-0 bottom-0 left-[20px] md:left-1/2 md:-translate-x-1/2 w-[2px] z-0" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
+            <motion.div
+              style={{
+                height: lineHeight,
+                background: `linear-gradient(to bottom, ${accentColor}, ${accentColor}, transparent)`,
+                boxShadow: `0 0 30px ${accentColor}`
+              }}
+              className="w-full"
             />
-          ))}
+          </div>
+
+          <div className="space-y-48">
+            {STEPS.map((step, index) => (
+              <TimelineStep
+                key={index}
+                step={step}
+                index={index}
+                accentColor={accentColor}
+                txtColor={txtColor}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Final CTA */}
-      <div className="mt-32 flex justify-center pb-24 relative z-10">
-        <motion.button
-          onClick={onContactClick}
-          className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#FF5000] text-white font-bold uppercase tracking-wider text-sm hover:bg-[#ff6a2b] transition-colors rounded-sm"
-          whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <span>Book a call with us</span>
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </motion.button>
-      </div>
+      {(showAll || activeSection === 'cta') && (
+        <div className="mt-32 flex justify-center pb-24 relative z-10">
+          <motion.button
+            onClick={onContactClick}
+            className="group relative inline-flex items-center gap-3 px-8 py-4 font-bold uppercase tracking-wider text-sm transition-opacity hover:opacity-90 rounded-sm"
+            style={{ backgroundColor: accentColor, color: bgColor === '#000000' ? '#ffffff' : '#000000' }} // Contrast fix
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span>Book a call with us</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </motion.button>
+        </div>
+      )}
     </div>
   );
 };
 
-const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number }) => {
+const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#ffffff' }: { step: typeof STEPS[0], index: number, accentColor?: string, txtColor?: string }) => {
   const isEven = index % 2 === 0;
   const ref = useRef(null);
 
@@ -173,9 +194,6 @@ const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number })
   const progress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
   // Entrance Animations
-  const xOffset = isEven ? 100 : -100;
-
-  // Content Transforms (REMOVED animations)
   const contentOpacity = useTransform(progress, [0, 0.8], [0, 1]);
 
   return (
@@ -184,20 +202,20 @@ const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number })
       {/* 1. THE NODE (Center connection point) */}
       <div className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0">
         <motion.div
-          style={{ opacity: contentOpacity }}
-          className="relative w-12 h-12 md:w-16 md:h-16 bg-black border border-white/20 flex items-center justify-center shadow-2xl group"
+          style={{ opacity: contentOpacity, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', backgroundColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
+          className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
         >
 
           {/* Active Glow Ring - Restored */}
           <motion.div
-            style={{ opacity: contentOpacity }}
-            className="absolute -inset-2 border border-[#FF5000] blur-sm opacity-50"
+            style={{ opacity: contentOpacity, borderColor: accentColor }}
+            className="absolute -inset-2 border blur-sm opacity-50"
           />
 
-          <span className="font-mono font-bold text-white text-sm md:text-lg z-10 group-hover:text-[#FF5000] transition-colors leading-none">0{index + 1}</span>
+          <span className="font-mono font-bold text-sm md:text-lg z-10 transition-colors leading-none" style={{ color: txtColor === '#ffffff' ? '#ffffff' : '#000000' }}>0{index + 1}</span>
 
           {/* Connector Line to Content (Mobile only really visible) */}
-          <div className="absolute top-1/2 left-full w-4 h-px bg-white/20 md:hidden" />
+          <div className="absolute top-1/2 left-full w-4 h-px md:hidden" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }} />
         </motion.div>
       </div>
 
@@ -209,26 +227,26 @@ const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number })
         <div className="relative group">
 
           {/* Wireframe Card Container - Static, No Icons */}
-          <div className="relative p-8 md:p-10 border border-white/20">
+          <div className="relative p-8 md:p-10 border will-change-transform backface-hidden" style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
 
             {/* Corner Nodes - Static White */}
-            <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white" />
-            <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white" />
-            <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white" />
-            <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white" />
+            <div className="absolute -top-1.5 -left-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
+            <div className="absolute -top-1.5 -right-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
+            <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
+            <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
 
             {/* Title */}
-            <h3 className="text-3xl md:text-5xl font-bold uppercase mb-4 tracking-tight leading-none text-white">
+            <h3 className="text-3xl md:text-5xl font-bold uppercase mb-4 tracking-tight leading-none" style={{ color: txtColor }}>
               {step.title}
             </h3>
 
-            <p className="text-gray-400 text-sm md:text-base leading-relaxed font-light font-mono">
+            <p className="text-sm md:text-base leading-relaxed font-light font-mono" style={{ color: txtColor, opacity: 0.7 }}>
               {step.description}
             </p>
 
             {/* Tech Decoration */}
-            <div className={`mt-6 pt-6 border-t border-dashed border-white/20 flex gap-4 items-center opacity-80 ${isEven ? 'flex-row' : 'flex-row md:flex-row-reverse'}`}>
-              <span className="text-[10px] font-mono tracking-widest uppercase text-[#FF5000] font-semibold">{step.tag}</span>
+            <div className={`mt-6 pt-6 border-t border-dashed flex gap-4 items-center opacity-80 ${isEven ? 'flex-row' : 'flex-row md:flex-row-reverse'}`} style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
+              <span className="text-[10px] font-mono tracking-widest uppercase font-semibold" style={{ color: accentColor }}>{step.tag}</span>
             </div>
 
           </div>
@@ -237,12 +255,12 @@ const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number })
 
       {/* 3. Empty spacer for grid balance OR Animation */}
       <div className="hidden md:flex w-[45%] justify-center items-center">
-        {step.id === "01" && <StrategyAnimation />}
-        {step.id === "02" && <PlanAnimation />}
-        {step.id === "03" && <RollAnimation />}
-        {step.id === "04" && <InitiateAnimation />}
-        {step.id === "05" && <NotifyAnimation />}
-        {step.id === "06" && <TakeoffAnimation />}
+        {step.id === "01" && <StrategyAnimation accentColor={accentColor} txtColor={txtColor} />}
+        {step.id === "02" && <PlanAnimation accentColor={accentColor} txtColor={txtColor} />}
+        {step.id === "03" && <RollAnimation accentColor={accentColor} txtColor={txtColor} />}
+        {step.id === "04" && <InitiateAnimation accentColor={accentColor} txtColor={txtColor} />}
+        {step.id === "05" && <NotifyAnimation accentColor={accentColor} txtColor={txtColor} />}
+        {step.id === "06" && <TakeoffAnimation accentColor={accentColor} txtColor={txtColor} />}
       </div>
 
     </div>
@@ -251,10 +269,10 @@ const TimelineStep = ({ step, index }: { step: typeof STEPS[0], index: number })
 
 // --- Custom Animations ---
 
-const StrategyAnimation = () => {
+const StrategyAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
     <div className="relative w-64 h-64 flex items-center justify-center opacity-90">
-      <svg width="240" height="240" viewBox="0 0 240 240" className="stroke-white stroke-[1px] fill-none">
+      <svg width="240" height="240" viewBox="0 0 240 240" className="stroke-[1px] fill-none" style={{ stroke: txtColor }}>
 
         {/* Triangle Structure - Stability/Strategy */}
         <motion.path
@@ -265,14 +283,14 @@ const StrategyAnimation = () => {
         />
 
         {/* Nodes at vertices */}
-        <motion.circle cx="120" cy="60" r="4" fill="white" stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0 }} />
-        <motion.circle cx="180" cy="170" r="4" fill="white" stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.6 }} />
-        <motion.circle cx="60" cy="170" r="4" fill="white" stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 1.2 }} />
+        <motion.circle cx="120" cy="60" r="4" fill={txtColor} stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0 }} />
+        <motion.circle cx="180" cy="170" r="4" fill={txtColor} stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.6 }} />
+        <motion.circle cx="60" cy="170" r="4" fill={txtColor} stroke="none" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 1.2 }} />
 
         {/* Center "Core" Strategy Node */}
         <motion.circle
           cx="120" cy="125" r="8"
-          fill="#FF5000" stroke="none"
+          fill={accentColor} stroke="none"
           initial={{ scale: 0 }}
           whileInView={{ scale: 1 }}
           transition={{ delay: 2, type: "spring" }}
@@ -281,7 +299,7 @@ const StrategyAnimation = () => {
         {/* Connecting lines to center */}
         <motion.path
           d="M120 60 L 120 125 M 180 170 L 120 125 M 60 170 L 120 125"
-          stroke="#FF5000" strokeOpacity="0.5" strokeDasharray="2 2"
+          stroke={accentColor} strokeOpacity="0.5" strokeDasharray="2 2"
           initial={{ pathLength: 0, opacity: 0 }}
           whileInView={{ pathLength: 1, opacity: 1 }}
           transition={{ duration: 1, delay: 2.2 }}
@@ -290,50 +308,53 @@ const StrategyAnimation = () => {
       </svg>
 
       {/* Subtle Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-5 blur-[60px]" />
+      <div className="absolute inset-0 opacity-5 blur-[40px] will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
 
-const PlanAnimation = () => {
+const PlanAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
     <div className="relative w-72 h-56 flex items-center justify-center">
 
       {/* Wireframe Board (Kanban Style) */}
-      <div className="relative z-10 w-64 h-40 border border-white/20 rounded-md bg-white/5 backdrop-blur-sm grid grid-cols-3 gap-2 p-2 overflow-hidden">
+      <div className="relative z-10 w-64 h-40 border rounded-md bg-white/5 backdrop-blur-sm grid grid-cols-3 gap-2 p-2 overflow-hidden"
+        style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
 
         {/* Column 1 */}
-        <div className="flex flex-col gap-2 border-r border-white/10 pr-1">
-          <div className="h-1 w-8 bg-white/20 rounded-full mb-1" />
+        <div className="flex flex-col gap-2 border-r pr-1" style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}>
+          <div className="h-1 w-8 rounded-full mb-1" style={{ backgroundColor: txtColor, opacity: 0.2 }} />
           {/* Target Card A */}
           <motion.div
-            animate={{ scale: [1.1, 1.1, 1, 1, 1.1], backgroundColor: ["rgba(255,255,255,0.2)", "rgba(255,255,255,0.2)", "rgba(255,255,255,0.1)", "rgba(255,255,255,0.1)", "rgba(255,255,255,0.2)"] }}
+            animate={{ scale: [1.1, 1.1, 1, 1, 1.1], opacity: [0.2, 0.2, 0.1, 0.1, 0.2] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.5, 0.9, 1] }}
-            className="h-6 w-full bg-white/10 rounded-sm border border-white/10"
+            className="h-6 w-full rounded-sm border"
+            style={{ backgroundColor: txtColor, borderColor: txtColor }}
           />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-50" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-30" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-20" />
+          <div className="h-6 w-full rounded-sm border opacity-50" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
+          <div className="h-6 w-full rounded-sm border opacity-30" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
+          <div className="h-6 w-full rounded-sm border opacity-20" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
         </div>
 
         {/* Column 2 */}
-        <div className="flex flex-col gap-2 border-r border-white/10 pr-1">
-          <div className="h-1 w-8 bg-white/20 rounded-full mb-1" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-60" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-40" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-30" />
+        <div className="flex flex-col gap-2 border-r pr-1" style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}>
+          <div className="h-1 w-8 rounded-full mb-1" style={{ backgroundColor: txtColor, opacity: 0.2 }} />
+          <div className="h-6 w-full rounded-sm border opacity-60" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
+          <div className="h-6 w-full rounded-sm border opacity-40" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
+          <div className="h-6 w-full rounded-sm border opacity-30" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
         </div>
 
         {/* Column 3 */}
         <div className="flex flex-col gap-2">
-          <div className="h-1 w-8 bg-white/20 rounded-full mb-1" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-40" />
-          <div className="h-6 w-full bg-white/10 rounded-sm border border-white/10 opacity-20" />
+          <div className="h-1 w-8 rounded-full mb-1" style={{ backgroundColor: txtColor, opacity: 0.2 }} />
+          <div className="h-6 w-full rounded-sm border opacity-40" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
+          <div className="h-6 w-full rounded-sm border opacity-20" style={{ backgroundColor: txtColor, borderColor: txtColor }} />
           {/* Target Card B (Moved to bottom) */}
           <motion.div
-            animate={{ scale: [1, 1, 1.1, 1.1, 1], backgroundColor: ["rgba(255, 80, 0, 0.1)", "rgba(255, 80, 0, 0.1)", "rgba(255, 80, 0, 0.3)", "rgba(255, 80, 0, 0.3)", "rgba(255, 80, 0, 0.1)"] }}
+            animate={{ scale: [1, 1, 1.1, 1.1, 1], opacity: [0.1, 0.1, 0.3, 0.3, 0.1] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.5, 0.9, 1] }}
-            className="h-6 w-full bg-[#FF5000]/10 rounded-sm border border-[#FF5000]/20"
+            className="h-6 w-full rounded-sm border"
+            style={{ backgroundColor: accentColor, borderColor: accentColor }}
           />
         </div>
 
@@ -344,8 +365,8 @@ const PlanAnimation = () => {
         <motion.div
           initial={{ x: 60, y: 55 }}
           animate={{
-            x: [60, 60, 225, 225, 60], // Exact centers: Col 1 Card 1 (60px) -> Col 3 Card 3 (225px)
-            y: [60, 60, 125, 125, 60], // Exact centers: Row 1 (60px) -> Row 3 (125px)
+            x: [60, 60, 225, 225, 60],
+            y: [60, 60, 125, 125, 60],
           }}
           transition={{
             duration: 10,
@@ -357,23 +378,24 @@ const PlanAnimation = () => {
         >
           {/* Robust Cursor SVG */}
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-lg">
-            <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="white" stroke="black" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill={txtColor} stroke={txtColor === '#ffffff' ? '#000000' : '#ffffff'} strokeWidth="1.5" strokeLinejoin="round" />
           </svg>
         </motion.div>
       </div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-5 blur-[80px] -z-10" />
+      <div className="absolute inset-0 opacity-5 blur-[50px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
-const RollAnimation = () => {
+const RollAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
     <div className="relative w-64 h-48">
 
       {/* Background Image: Studio Set (Top Left) */}
       <motion.div
-        className="absolute top-0 left-0 w-48 h-32 z-0 rounded-lg overflow-hidden border border-white/20 shadow-lg"
+        className="absolute top-0 left-0 w-48 h-32 z-0 rounded-lg overflow-hidden border shadow-lg"
+        style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}
         initial={{ y: 0 }}
         animate={{ y: [0, -4, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
@@ -389,7 +411,8 @@ const RollAnimation = () => {
 
       {/* Foreground Image: Camera Monitor (Bottom Right) */}
       <motion.div
-        className="absolute bottom-0 right-0 z-10 w-44 h-28 rounded-lg overflow-hidden border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+        className="absolute bottom-0 right-0 z-10 w-44 h-28 rounded-lg overflow-hidden border shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+        style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}
         initial={{ y: 0 }}
         animate={{ y: [0, 4, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
@@ -404,109 +427,176 @@ const RollAnimation = () => {
           <div className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
           <span className="text-[6px] font-mono text-white tracking-widest">REC</span>
         </div>
-        {/* Frame guides */}
-        <div className="absolute inset-x-4 top-4 bottom-4 border-x border-white/20 opacity-30" />
-        <div className="absolute inset-y-4 left-4 right-4 border-y border-white/20 opacity-30" />
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-10 blur-[60px] -z-10" />
+      <div className="absolute inset-0 opacity-10 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
-const InitiateAnimation = () => {
+const InitiateAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
-    <div className="relative w-64 h-64 flex items-center justify-center opacity-90">
+    <motion.div
+      initial="initial"
+      whileInView="animate"
+      viewport={{ once: true, amount: 0.2 }}
+      className="relative w-64 h-64 flex items-center justify-center opacity-90"
+    >
       <svg width="240" height="240" viewBox="0 0 240 240" className="fill-none">
 
         {/* Adobe Ps (Photoshop) - Top Left */}
         <motion.g
-          initial={{ opacity: 0, x: -20, y: -20 }}
-          whileInView={{ opacity: 1, x: 0, y: 0 }}
+          variants={{
+            initial: { opacity: 0, x: -20, y: -20 },
+            animate: { opacity: 1, x: 0, y: 0 }
+          }}
           transition={{ duration: 0.8 }}
         >
           {/* Box */}
           <motion.rect
-            x="40" y="40" width="50" height="50" rx="3"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}
+            x="40" y="40" width="50" height="50" rx="2"
+            stroke={txtColor} strokeWidth="1.5"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
           />
-          {/* Ps Text Path */}
+          {/* Ps OCRA STYLED PATHS */}
           <motion.path
-            d="M55 75 V55 H62 C66 55 66 63 62 63 H55 M75 62 C73 62 72 63 72 65 C72 67 78 68 78 71 C78 74 74 75 71 75"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.5 }}
+            d="M53 75 V55 H65 V65 H53" // P
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 0.5 }}
+          />
+          <motion.path
+            d="M72 65 H80 V70 H72 V75 H80" // s
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 0.7 }}
           />
         </motion.g>
 
         {/* Adobe Ai (Illustrator) - Center */}
         <motion.g
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          variants={{
+            initial: { opacity: 0, scale: 0.8 },
+            animate: { opacity: 1, scale: 1 }
+          }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           {/* Box */}
           <motion.rect
-            x="95" y="95" width="50" height="50" rx="3"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.4, ease: "easeInOut" }}
+            x="95" y="95" width="50" height="50" rx="2"
+            stroke={txtColor} strokeWidth="1.5"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1.5, delay: 0.4, ease: "easeInOut" }}
           />
-          {/* Ai Text Path */}
+
+          {/* Ai OCRA STYLED PATHS */}
           <motion.path
-            d="M108 130 L115 110 L122 130 M110 124 H120 M128 114 V130 M128 108 V110"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.9 }}
+            d="M106 130 V115 L112 110 L118 115 V130 M106 123 H118" // A
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 0.9 }}
+          />
+          <motion.path
+            d="M128 115 V130 M128 108 V110" // i
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 1.1 }}
           />
         </motion.g>
 
         {/* Adobe Ae (After Effects) - Bottom Right */}
         <motion.g
-          initial={{ opacity: 0, x: 20, y: 20 }}
-          whileInView={{ opacity: 1, x: 0, y: 0 }}
+          variants={{
+            initial: { opacity: 0, x: 20, y: 20 },
+            animate: { opacity: 1, x: 0, y: 0 }
+          }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
           {/* Box */}
           <motion.rect
-            x="150" y="150" width="50" height="50" rx="3"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 0.8, ease: "easeInOut" }}
+            x="150" y="150" width="50" height="50" rx="2"
+            stroke={txtColor} strokeWidth="1.5"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1.5, delay: 0.8, ease: "easeInOut" }}
           />
-          {/* Ae Text Path */}
+          {/* Ae OCRA STYLED PATHS */}
           <motion.path
-            // Corrected 'e' shape: Start middle, right, up-curve, left, down-curve, right
-            d="M162 185 L169 165 L176 185 M164 179 H174 M182 180 H190 C190 174 180 174 180 180 C180 186 190 186 190 184"
-            stroke="white" strokeWidth="1.5"
-            initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, delay: 1.3 }}
+            d="M161 185 V170 L167 165 L173 170 V185 M161 178 H173" // A
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 1.3 }}
+          />
+          <motion.path
+            d="M188 178 H180 V184 H188 M180 181 H188" // e
+            stroke={txtColor} strokeWidth="2"
+            variants={{
+              initial: { pathLength: 0 },
+              animate: { pathLength: 1 }
+            }}
+            transition={{ duration: 1, delay: 1.5 }}
           />
         </motion.g>
 
       </svg>
 
       {/* Connecting Lines (Pipeline) - Subtle Gray */}
-      <svg className="absolute inset-0 pointer-events-none stroke-white/10 stroke-[1px] fill-none">
+      <svg className="absolute inset-0 pointer-events-none stroke-[1px] fill-none" style={{ stroke: txtColor, opacity: 0.1 }}>
         <motion.path
           d="M90 90 L 95 95"
-          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1, delay: 1 }}
+          variants={{
+            initial: { pathLength: 0 },
+            animate: { pathLength: 1 }
+          }}
+          transition={{ duration: 1, delay: 1 }}
         />
         <motion.path
           d="M145 145 L 150 150"
-          initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1, delay: 1.5 }}
+          variants={{
+            initial: { pathLength: 0 },
+            animate: { pathLength: 1 }
+          }}
+          transition={{ duration: 1, delay: 1.5 }}
         />
       </svg>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-5 blur-[60px] -z-10" />
-    </div>
+      <div className="absolute inset-0 opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+    </motion.div>
   );
 };
-const NotifyAnimation = () => {
+const NotifyAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
     <div className="relative w-64 h-64 flex items-center justify-center">
 
       {/* Background Static Circles */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
-        <div className="absolute w-28 h-28 border border-white/20 rounded-full" />
-        <div className="absolute w-48 h-48 border border-white/10 rounded-full" />
+        <div className="absolute w-28 h-28 border rounded-full opacity-20" style={{ borderColor: txtColor }} />
+        <div className="absolute w-48 h-48 border rounded-full opacity-10" style={{ borderColor: txtColor }} />
       </div>
 
       {/* Notification Bell Icon - Animates ONLY when scrolled into view */}
@@ -518,31 +608,32 @@ const NotifyAnimation = () => {
         transition={{ duration: 1.5, ease: "easeInOut" }}
       >
         <div className="relative">
-          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-2xl">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-2xl" style={{ stroke: txtColor }}>
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
 
           {/* Notification Bubble "1" - Pops in on scroll */}
           <motion.div
-            className="absolute top-1 right-2 w-5 h-5 bg-[#FF5000] rounded-full flex items-center justify-center border border-black"
+            className="absolute top-1 right-2 w-5 h-5 rounded-full flex items-center justify-center border"
+            style={{ backgroundColor: accentColor, borderColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: false }}
             transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.5 }}
           >
-            <span className="text-[10px] font-bold text-white">1</span>
+            <span className="text-[10px] font-bold" style={{ color: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}>1</span>
           </motion.div>
         </div>
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-5 blur-[60px] -z-10" />
+      <div className="absolute inset-0 opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
 
-const TakeoffAnimation = () => {
+const TakeoffAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
     <div className="relative w-64 h-64 flex items-center justify-center overflow-hidden">
 
@@ -551,7 +642,11 @@ const TakeoffAnimation = () => {
         {[0, 1, 2, 3, 4].map((i) => (
           <motion.div
             key={i}
-            className={`w-[1px] bg-gradient-to-b from-transparent via-white to-transparent ${i % 2 === 0 ? "h-32" : "h-20"}`} // Varied lengths
+            className={`w-[1px] bg-gradient-to-b from-transparent to-transparent ${i % 2 === 0 ? "h-32" : "h-20"}`} // Varied lengths
+            style={{
+              '--tw-gradient-via': txtColor,
+              backgroundImage: `linear-gradient(to bottom, transparent, ${txtColor}, transparent)`
+            } as any}
             animate={{ y: [-150, 300] }}
             transition={{
               duration: 6 + (i % 3) * 2, // Varied speeds (6s, 8s, 10s)
@@ -570,7 +665,7 @@ const TakeoffAnimation = () => {
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       >
         {/* Ship Body - Minimalist & Rounded */}
-        <svg width="60" height="90" viewBox="0 0 60 90" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+        <svg width="60" height="90" viewBox="0 0 60 90" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" style={{ stroke: txtColor }}>
           {/* Main Hull */}
           <path d="M30 5 C 15 20, 15 60, 20 75 H 40 C 45 60, 45 20, 30 5 Z" />
           {/* Simple Window */}
@@ -582,14 +677,15 @@ const TakeoffAnimation = () => {
 
         {/* Gentle Thruster Glow */}
         <motion.div
-          className="mt-[-5px] w-6 h-12 bg-gradient-to-b from-[#FF5000] to-transparent rounded-full opacity-60 blur-md"
+          className="mt-[-5px] w-6 h-12 to-transparent rounded-full opacity-60 blur-md"
+          style={{ background: `linear-gradient(to bottom, ${accentColor}, transparent)` }}
           animate={{ height: [40, 50, 40], opacity: [0.4, 0.6, 0.4] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 bg-[#FF5000] opacity-5 blur-[50px] -z-10" />
+      <div className="absolute inset-0 opacity-5 blur-[30px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };

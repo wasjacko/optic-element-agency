@@ -1,132 +1,230 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
-import { useScroll, useTransform, useSpring } from 'framer-motion';
+import React, { useRef, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 
 const PROJECTS = [
   {
-    title: "MEXICO HOUSE",
-    subtitle: "NUMERO 0738",
-    video: "https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/1080p/mp4/file.mp4"
-  },
-  {
-    title: "LGCY SOLAR",
-    subtitle: "NUMERO 0435",
-    video: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/480p/mp4/file.mp4"
+    title: "LGCY RECRUITMENT",
+    subtitle: "NUMERO 0001",
+    src: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/480p/mp4/file.mp4"
   },
   {
     title: "KOFFEE CO.",
-    subtitle: "NUMERO 0348",
-    video: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4"
+    subtitle: "NUMERO 0002",
+    src: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4"
+  },
+  {
+    title: "RV PROMO",
+    subtitle: "NUMERO 0003",
+    src: "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/480p/mp4/file.mp4"
+  },
+  {
+    title: "INFLATABLE WORLD",
+    subtitle: "NUMERO 0004",
+    src: "https://video.wixstatic.com/video/8fb0bb_63f55faeec1442bf9076e87309bfdd83/480p/mp4/file.mp4"
+  },
+  {
+    title: "LGCY MEXICO",
+    subtitle: "NUMERO 0005",
+    src: "https://video.wixstatic.com/video/8fb0bb_39fde8faf82540bc99862c5301f897be/480p/mp4/file.mp4"
+  },
+  {
+    title: "MEXICO BUILD",
+    subtitle: "NUMERO 0006",
+    src: "https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/480p/mp4/file.mp4"
+  },
+  {
+    title: "MASTERS HYPE",
+    subtitle: "NUMERO 0007",
+    src: "https://video.wixstatic.com/video/8fb0bb_2345e2ed454a472bacf9f6fee9b690d9/480p/mp4/file.mp4"
+  },
+  {
+    title: "INVESTOR LIFT",
+    subtitle: "NUMERO 0008",
+    src: "https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4"
+  },
+  {
+    title: "DASFLEET",
+    subtitle: "NUMERO 0009",
+    src: "https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/480p/mp4/file.mp4"
   }
 ];
 
-const ProjectCard = ({ project, index }: { project: typeof PROJECTS[0], index: number }) => {
-  const cardRef = React.useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end start"]
+// Configuration
+const CARD_WIDTH = 250;
+const CARD_HEIGHT = 250;
+const GAP = 100;
+
+const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, index: number, scrollX: any }) => {
+  const myPosition = index * (CARD_WIDTH + GAP);
+
+  const startTime = 5;
+  const loopDuration = 4;
+  const loopEndTime = startTime + loopDuration;
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // play/pause logic (wider center for smoother playback start)
+  const isCentered = useInView(cardRef, { margin: "-30% 0px -30% 0px" });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isCentered) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => { });
+      }
+    } else {
+      video.pause();
+      // Keep it at startTime when not centered so the "thumbnail" is always ready
+      video.currentTime = startTime;
+    }
+  }, [isCentered, startTime]);
+
+  // Transform Logic
+  const dist = useTransform(scrollX, (center: number) => myPosition - center);
+
+  // Performance optimization: Hide content if too far
+  const opacity = useTransform(dist, (d: number) => {
+    const ad = Math.abs(d);
+    if (ad > 1200) return 0;
+    if (ad > 800) return (1200 - ad) / 400;
+    return 1;
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
-  const opacity = useTransform(scrollYProgress, [0, 0.05, 0.9, 1], [0, 1, 1, 0]);
-
-  const springY = useSpring(y, { stiffness: 100, damping: 30 });
+  const y = useTransform(dist, (d: number) => (d * d) / 2500);
+  const rotateY = useTransform(dist, [-1000, 1000], [80, -80]);
+  const rotateZ = useTransform(dist, (d: number) => d / 40);
+  const z = useTransform(dist, (d: number) => -Math.abs(d) * 1.5);
+  const zIndex = useTransform(dist, (d: number) => Math.floor(1000 - Math.abs(d)));
 
   return (
     <motion.div
       ref={cardRef}
-      style={{ opacity }}
-      className="w-full"
+      className="will-change-transform group cursor-pointer backface-hidden"
+      style={{
+        position: 'absolute',
+        top: '30%',
+        left: `calc(50% - ${CARD_WIDTH / 2}px)`,
+        x: dist,
+        y,
+        z,
+        rotateY,
+        rotateZ,
+        scale: 1,
+        zIndex,
+        opacity,
+        width: CARD_WIDTH,
+        height: CARD_HEIGHT,
+        WebkitBackfaceVisibility: 'hidden',
+        transform: 'translateZ(0)',
+        pointerEvents: isCentered ? 'auto' : 'none'
+      }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Project Meta - Subtle Column */}
-        <motion.div
-          style={{ y: springY }}
-          className="lg:col-span-4 self-center pr-12"
-        >
-          <div className="space-y-4">
-            <h3 className="text-4xl md:text-5xl font-black tracking-tight text-black uppercase leading-[0.9]">
-              {project.title}
-            </h3>
-            <p className="font-mono text-[10px] text-black/20 tracking-[0.4em] uppercase font-bold">
-              {project.subtitle}
-            </p>
-          </div>
-        </motion.div>
+      <div className="w-full h-full bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
+        {/* Tactical Brackets */}
+        <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20" />
+        <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20" />
+        <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20" />
+        <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20" />
 
-        {/* Video Column - High Quality Simplicty */}
-        <div className="lg:col-span-8 relative">
-          <motion.div
-            style={{ scale }}
-            className="aspect-video bg-gray-50 overflow-hidden relative group shadow-2xl"
-          >
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover transition-all duration-1000 ease-out"
-            >
-              <source src={project.video} type="video/mp4" />
-            </video>
-
-            {/* Subtle Tactical Markers */}
-            <div className="absolute top-4 left-4 w-4 h-[1px] bg-white/40" />
-            <div className="absolute top-4 left-4 w-[1px] h-4 bg-white/40" />
-            <div className="absolute bottom-4 right-4 w-4 h-[1px] bg-white/40" />
-            <div className="absolute bottom-4 right-4 w-[1px] h-4 bg-white/40" />
-          </motion.div>
+        <div className="absolute inset-0">
+          <video
+            ref={videoRef}
+            src={project.src}
+            muted
+            playsInline
+            preload="auto"
+            onLoadedData={(e) => {
+              e.currentTarget.currentTime = startTime;
+            }}
+            onTimeUpdate={(e) => {
+              if (e.currentTarget.currentTime >= loopEndTime) {
+                e.currentTarget.currentTime = startTime;
+                e.currentTarget.play().catch(() => { });
+              }
+            }}
+            className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+          />
         </div>
+      </div>
+      <div className="flex justify-between items-center mt-6 px-1">
+        <h3 className="text-[10px] md:text-[11px] font-black tracking-[0.2em] font-sans text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">{project.title}</h3>
+        <p className="text-[8px] font-ocr tracking-widest text-zinc-500">{project.subtitle}</p>
       </div>
     </motion.div>
   );
-};
+});
 
-export const Projects: React.FC<{ onWorksClick?: () => void }> = ({ onWorksClick }) => {
+export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, data?: any }> = ({ onWorksClick, title, data }) => {
+  const displayProjects = Array(2).fill(PROJECTS).flat();
+  const sectionTitle = title || "OUR WORKS";
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end end"]
+  });
+
+  const totalWidth = displayProjects.length * (CARD_WIDTH + GAP);
+  const centerPos = totalWidth / 2;
+  const traversalDistance = 6 * (CARD_WIDTH + GAP);
+  const startX = centerPos - (traversalDistance / 2);
+  const endX = centerPos + (traversalDistance / 2);
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 40, // Slightly softer for better fluidity
+    damping: 35,
+    mass: 0.8
+  });
+
+  const scrollX = useTransform(smoothProgress, [0, 1], [startX, endX]);
+  const progressBarWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+
   return (
-    <section id="works" className="relative w-full bg-white py-24 md:py-48 px-6 md:px-12 z-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="works" className="relative bg-black text-white w-full pt-10">
+      <div ref={containerRef} className="relative h-[200vh]">
+        <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center items-center">
 
-        {/* Tactical Header - Matching your Sprint Style */}
-        <div className="flex flex-col items-center mb-32 md:mb-64 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative inline-block"
-          >
-            <h2 className="text-black font-mono text-sm md:text-base tracking-[1em] uppercase font-black relative z-10">
-              SELECTED WORKS
-            </h2>
-            <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#FF5000]" />
-          </motion.div>
-        </div>
-
-        {/* Vertical List of Projects */}
-        <div className="flex flex-col gap-32 md:gap-64">
-          {PROJECTS.map((project, i) => (
-            <ProjectCard key={i} project={project} index={i} />
-          ))}
-        </div>
-
-        {/* Final Simple CTA */}
-        <div className="mt-40 md:mt-60 flex flex-col items-center">
-          <motion.button
-            onClick={onWorksClick}
-            className="group relative px-8 py-4 bg-black border border-black text-white overflow-hidden shadow-xl"
-          >
-            <div className="relative z-10 flex items-center gap-3">
-              <span className="font-mono text-[11px] font-black tracking-[0.4em] uppercase">
-                SEE MORE WORKS
-              </span>
-              <ArrowUpRight size={18} />
+          <div className="absolute top-32 z-30 flex flex-col items-center gap-4">
+            <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap">{sectionTitle}</h2>
+            <div className="w-24 h-[1px] bg-white/20 relative overflow-hidden rounded-full">
+              <motion.div style={{ width: progressBarWidth }} className="absolute left-0 top-0 bottom-0 bg-[#FF5000]" />
             </div>
-          </motion.button>
-        </div>
+          </div>
 
+          <div className="relative w-full h-[800px] z-10 perspective-[1000px]">
+            {displayProjects.map((project: any, i: number) => (
+              <ParabolicCard
+                key={i}
+                index={i}
+                project={project}
+                scrollX={scrollX}
+              />
+            ))}
+          </div>
+
+          <div className="absolute bottom-0 left-0 w-full h-[60vh] bg-gradient-to-t from-black via-black/90 to-transparent z-40 pointer-events-none" />
+
+          {/* CTA Button */}
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50">
+            <button
+              onClick={onWorksClick}
+              className="group relative px-6 py-3 bg-white text-black font-bold text-[9px] md:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-[#FF5000] hover:text-white"
+            >
+              {/* Brackets */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 group-hover:border-white/40 transition-colors" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 group-hover:border-white/40 transition-colors" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 group-hover:border-white/40 transition-colors" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 group-hover:border-white/40 transition-colors" />
+
+              <span className="relative z-10">SEE MORE PROJECTS</span>
+            </button>
+          </div>
+
+        </div>
       </div>
     </section>
   );

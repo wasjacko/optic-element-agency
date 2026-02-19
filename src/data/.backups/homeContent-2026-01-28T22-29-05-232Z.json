@@ -1,0 +1,31 @@
+{
+    "theme": {
+        "primary": "#ff7300",
+        "background": "#0d0d0d",
+        "text": "#ffffff",
+        "secondaryRef": "#ff5900",
+        "accent": "#1a1a1a"
+    },
+    "hero": {
+        "phase1": "We Don't Just Build",
+        "phase1Highlight": "Brands",
+        "phase2": "We Build",
+        "phase2Highlight": "Growth Engines",
+        "cta": "LET'S BUILD SOMETHING REAL"
+    },
+    "video": {
+        "title": "Main Reel",
+        "videoUrl": "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4"
+    },
+    "process": {
+        "title": "S.P.R.I.N.T",
+        "subtitle": "our proven system"
+    },
+    "works": {
+        "title": "SELECTED WORKS"
+    },
+    "testimonials": {
+        "title": "VIDEO TESTIMONIALS",
+        "subtitle": "CLIENT REVIEWS"
+    }
+}

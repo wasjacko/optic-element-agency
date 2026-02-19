@@ -1,12 +1,14 @@
 
-import React, { useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Instagram, ArrowLeft, ArrowRight, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo, useInView } from 'framer-motion';
+import { Instagram, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 const REELS = [
-    { id: "R_01", client: "omar_therockstar", url: "https://video.wixstatic.com/video/8fb0bb_26cfc458c0054812a82383379cb29c79/720p/mp4/file.mp4", instagram: "https://www.instagram.com/omar_therockstar/" },
-    { id: "R_02", client: "PERSONAE 2", url: "https://video.wixstatic.com/video/8fb0bb_d6e089eee8c1427b867ec8d101a46274/720p/mp4/file.mp4" },
-    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" }
+    { id: "R_01", client: "omar_therockstar", url: "https://video.wixstatic.com/video/8fb0bb_26cfc458c0054812a82383379cb29c79/720p/mp4/file.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
+    { id: "R_02", client: "PERSONAE 2", url: "https://video.wixstatic.com/video/8fb0bb_d6e089eee8c1427b867ec8d101a46274/720p/mp4/file.mp4", thumbnailTime: 1.0 },
+    { id: "R_04", client: "LGCY", url: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/1080p/mp4/file.mp4", thumbnailTime: 2.0 },
+    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
+    { id: "R_05", client: "KOFFEE CO.", url: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4" }
 ];
 
 const BASE_REVIEWS = [
@@ -66,75 +68,224 @@ const GOOGLE_REVIEWS = [
     ...BASE_REVIEWS
 ].map((r, i) => ({ ...r, id: `${r.id}_${i}` }));
 
-const ReelCard: React.FC<{ reel: typeof REELS[0] }> = ({ reel }) => {
+
+
+const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isActive: boolean, onClick: () => void, offset: number }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
-    const handleMouseEnter = () => {
-        if (videoRef.current) {
+    useEffect(() => {
+        if (isActive && videoRef.current) {
             videoRef.current.play().catch(() => { });
-            setIsPlaying(true);
-        }
-    };
-
-    const handleMouseLeave = () => {
-        if (videoRef.current) {
+        } else if (videoRef.current) {
             videoRef.current.pause();
-            setIsPlaying(false);
+            videoRef.current.currentTime = 0;
         }
-    };
+    }, [isActive]);
 
-    const content = (
-        <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className="relative group bg-gray-100 border border-black/[0.05] overflow-hidden cursor-pointer"
+    return (
+
+        <motion.div
+            className="absolute overflow-hidden cursor-pointer bg-neutral-900 border border-white/10 shadow-2xl"
+            initial={false}
+            animate={{
+                x: offset * 250, // Reduced for overlap (Card width 320)
+                scale: isActive ? 1.0 : 0.85,
+                zIndex: isActive ? 10 : 5 - Math.abs(offset),
+                rotateY: offset * -15, // Rotate cards inward
+                opacity: Math.abs(offset) >= 2 ? 0 : 1 // Hide edge cards (buffer)
+            }}
+            transition={{ type: "spring", stiffness: 80, damping: 30, mass: 1.5 }}
+            style={{
+                width: '320px',
+                height: '570px',
+                left: 'calc(50% - 160px)', // Center the card
+                transformStyle: 'preserve-3d',
+                perspective: '1000px'
+            }}
+            onClick={onClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="aspect-[9/16] relative">
+            <div className="relative w-full h-full">
+                {/* Video / Thumbnail */}
                 <video
                     ref={videoRef}
                     src={reel.url}
-                    loop muted playsInline
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-end justify-start p-8">
-                    <div className="bg-white py-3 px-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-                        <div className="font-mono text-[10px] md:text-[11px] text-black tracking-[0.4em] font-black uppercase whitespace-nowrap flex items-center gap-3">
+
+                {/* Overlay Gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
+
+                {/* Active State Details */}
+                <div className={`absolute inset-0 flex flex-col justify-between p-8 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="flex justify-between items-start">
+                        <div className="bg-white/10 backdrop-blur-md px-3 py-1 border border-white/20">
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">Play</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h3 className="text-3xl font-black text-white uppercase leading-none font-sans tracking-tight drop-shadow-lg">
                             {reel.client}
-                            {reel.instagram && <Instagram size={13} className="text-black/40 group-hover:text-[#FF5000] transition-colors" />}
+                        </h3>
+                        <div className="flex items-center gap-3">
+                            <span className="h-[1px] w-8 bg-[#FF5000]"></span>
+                            <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr">Watch Reel</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
-
-    if (reel.instagram) {
-        return (
-            <a href={reel.instagram} target="_blank" rel="noopener noreferrer" className="block outline-none">
-                {content}
-            </a>
-        );
-    }
-
-    return content;
 };
 
-// Updated GoogleReviewCard to completely match the NEW image reference
-// Center alignment, floating avatar, google icon on avatar, etc.
+const Carousel3D = ({ items }: { items: typeof REELS }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [direction, setDirection] = useState(1); // 1 = Next, -1 = Prev
+
+    const handleNext = () => {
+        setDirection(1);
+        setActiveIndex(prev => (prev + 1) % 5);
+    };
+
+    const handlePrev = () => {
+        setDirection(-1);
+        setActiveIndex(prev => (prev - 1 + 5) % 5);
+    };
+
+    // Sort items for rendering based on layout direction
+    // Logic: The "Crossing" card (moving across the back) must be rendered FIRST (Bottom of Stack).
+    // The Active card is rendered LAST (Top).
+
+    // Scan Slots:
+    // Slot 0: Active (Top)
+    // Slot 1: Right
+    // Slot 2: Left
+
+    // If Next (1): Left->Right (Slot 2->1) is crossing. But wait.
+    // Transition: Old Left (Slot 2) becomes New Right (Slot 1).
+    // So the card currently in "Slot 1" (New State) came from Left. It is the crossing card.
+    // So if Direction=1, Slot 1 should be Bottom. Order: [1, 2, 0].
+
+    // If Prev (-1): Right->Left (Slot 1->2) is crossing.
+    // Transition: Old Right (Slot 1) becomes New Left (Slot 2).
+    // So the card currently in "Slot 2" (New State) came from Right. It is the crossing card.
+    // So if Direction=-1, Slot 2 should be Bottom. Order: [2, 1, 0].
+
+    const getSlot = (i: number) => (i - activeIndex + 5) % 5;
+
+    const sortedItems = [...items].sort((a, b) => {
+        const slotA = getSlot(items.indexOf(a));
+        const slotB = getSlot(items.indexOf(b));
+
+        if (slotA === 0) return 1; // 0 always top
+        if (slotB === 0) return -1;
+
+        if (direction === 1) {
+            // Next: 1 is bottom (came from cross), 2 is middle
+            // Sort: 1, 2. (1 < 2).
+            // return slotA - slotB; -> if A=1, B=2 -> -1 (A first). Correct.
+            return slotA - slotB;
+        } else {
+            // Prev: 2 is bottom (came from cross), 1 is middle
+            // Sort: 2, 1. (2 < 1? No, 2 first).
+            // return slotB - slotA; -> if A=2, B=1 -> -1 (A first). Correct.
+            return slotB - slotA;
+        }
+    });
+
+    return (
+        <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
+            {/* Arrows Container - Constrained Width to be close to cards */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                <div className="w-full max-w-[850px] flex justify-between px-4">
+                    <button onClick={handlePrev} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={handleNext} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
+                        <ChevronRight size={24} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Cards Container */}
+            <div className="relative w-full max-w-5xl h-full flex items-center justify-center perspective-[1000px]">
+                {sortedItems.map((item) => {
+                    const originalIndex = items.indexOf(item);
+                    const slot = getSlot(originalIndex);
+
+                    // Define props based on slot
+                    let x = 0;
+                    let zIndex = 0;
+                    let scale = 1;
+                    let opacity = 1;
+
+                    if (slot === 0) { // Center
+                        x = 0; zIndex = 50; scale = 1;
+                    } else if (slot === 1) { // Near Right
+                        x = 240; zIndex = 30; scale = 0.85;
+                    } else if (slot === 2) { // Far Right
+                        x = 450; zIndex = 10; scale = 0.7;
+                    } else if (slot === 3) { // Far Left
+                        x = -450; zIndex = 10; scale = 0.7;
+                    } else { // Near Left (Slot 4)
+                        x = -240; zIndex = 30; scale = 0.85;
+                    }
+
+                    return (
+                        <motion.div
+                            key={item.id}
+                            className="absolute will-change-transform backface-hidden"
+                            animate={{
+                                x,
+                                scale,
+                                zIndex,
+                                opacity,
+                                rotateY: 0
+                            }}
+                            transition={{ type: "spring", stiffness: 60, damping: 20 }}
+                            style={{
+                                width: '320px',
+                                height: '570px',
+                                transform: 'translateZ(0)'
+                            }}
+                        >
+                            <ReelCoverflowCard
+                                reel={item}
+                                isActive={slot === 0}
+                                offset={0}
+                                onClick={() => {
+                                    if (slot === 1) handleNext();
+                                    if (slot === 2) handlePrev();
+                                }}
+                            />
+                        </motion.div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+// Updated GoogleReviewCard for Light Mode
 const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
     return (
-        <div className="bg-white pt-12 pb-8 px-6 flex flex-col items-center relative text-center h-full w-full max-w-[400px] mx-auto border border-gray-200 mt-10">
+        <div className="bg-white pt-10 pb-4 px-6 flex flex-col items-center relative text-center h-full w-full max-w-[350px] mx-auto border border-gray-200 mt-10 shadow-lg rounded-none">
             {/* Floating Header: Avatar + Google Icon */}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[80px] h-[80px]">
-                <div className="w-full h-full rounded-full p-1 bg-white shadow-sm relative">
+                <div className="w-full h-full rounded-full p-1 bg-white border border-gray-100 shadow-sm relative">
                     <img
                         src={review.avatar}
                         alt={review.author}
                         className="w-full h-full rounded-full object-cover"
                     />
                     {/* Google G Icon Button Absolute */}
-                    <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm p-1">
+                    <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg p-1">
                         <img
                             src="https://cdn.trustindex.io/assets/platform/Google/icon.svg"
                             alt="Google"
@@ -145,14 +296,14 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
             </div>
 
             {/* Name */}
-            <div className="mt-4 mb-3">
-                <h4 className="font-bold text-base text-black leading-tight font-sans">
+            <div className="mt-2 mb-1">
+                <h4 className="font-bold text-sm text-black leading-tight uppercase tracking-[0.1em]" style={{ fontFamily: "'Inter', sans-serif" }}>
                     {review.author}
                 </h4>
             </div>
 
             {/* Stars */}
-            <div className="flex gap-1 mb-4 justify-center">
+            <div className="flex gap-1 mb-2 justify-center">
                 {[...Array(5)].map((_, i) => (
                     <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
@@ -161,8 +312,8 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
             </div>
 
             {/* Body Text */}
-            <div className="mb-6 flex-grow">
-                <p className="text-black/80 text-sm leading-relaxed font-sans font-medium">
+            <div className="mb-2 h-[100px] overflow-hidden">
+                <p className="text-gray-600 text-sm leading-relaxed font-medium line-clamp-5" style={{ fontFamily: "'Inter', sans-serif" }}>
                     {review.text}
                 </p>
             </div>
@@ -170,56 +321,46 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
     );
 }
 
-export const Testimonials: React.FC = () => {
-    // 4 Items per view based on reference image
-    const ITEMS_PER_VIEW = 4;
+export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
+    const activeReels = data?.reels || REELS;
+    const activeReviews = data?.reviews || GOOGLE_REVIEWS;
     const [currentIndex, setCurrentIndex] = useState(0);
+    const ITEMS_PER_VIEW = 4;
+
+
 
     const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % Math.ceil(GOOGLE_REVIEWS.length / ITEMS_PER_VIEW));
+        setCurrentIndex((prev) => (prev + 1) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
     };
 
     const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + Math.ceil(GOOGLE_REVIEWS.length / ITEMS_PER_VIEW)) % Math.ceil(GOOGLE_REVIEWS.length / ITEMS_PER_VIEW));
+        setCurrentIndex((prev) => (prev - 1 + Math.ceil(activeReviews.length / ITEMS_PER_VIEW)) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
     };
 
     return (
-        <section className="relative z-10 w-full bg-white py-40 border-t border-black/[0.05]">
-            <div className="w-full px-6 max-w-[1600px] mx-auto">
-                {/* Tactical Section Header */}
-                <div className="flex flex-col items-center mb-24 text-center px-6">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="relative inline-block"
-                    >
-                        <h2 className="text-black font-mono text-xs md:text-sm tracking-[1em] uppercase font-black relative z-10">
-                            VIDEO TESTIMONIALS
-                        </h2>
-                        <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#FF5000]" />
-                    </motion.div>
+        <section id="testimonials" className="relative z-10 w-full bg-white py-12 md:py-16 border-t border-black/[0.05] overflow-hidden">
+            {/* Light Mode Glow (Subtle) */}
+            <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply bg-[#FF5000]/10" />
+
+            <div className="w-full px-4 max-w-[1600px] mx-auto relative z-10">
+
+                {/* Section Header */}
+                <div className="flex flex-col items-center mb-16 text-center px-6">
+                    <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap text-black drop-shadow-sm">
+                        {data?.title || "VIDEO TESTIMONIALS"}
+                    </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mx-auto px-6 mb-32">
-                    {REELS.map((reel, i) => (
-                        <motion.div
-                            key={reel.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1, duration: 0.8 }}
-                            viewport={{ once: true }}
-                        >
-                            <ReelCard reel={reel} />
-                        </motion.div>
-                    ))}
+                {/* 3D Carousel Section */}
+                <div className="mb-20">
+                    <Carousel3D items={activeReels} />
                 </div>
 
                 {/* Google Testimonials Header & Nav */}
-                <div className="border-t border-black/[0.05] pt-20 relative">
-                    <div className="flex justify-center mb-12">
-                        <h3 className="text-black font-mono text-xs tracking-[0.2em] uppercase font-bold text-center">
-                            CLIENT REVIEWS
+                <div className="border-t border-black/[0.05] pt-12 pb-16 relative">
+                    <div className="flex justify-center mb-6">
+                        <h3 className="text-black font-ocr text-xs tracking-[0.2em] uppercase font-bold text-center">
+                            {data?.reviewsTitle || "CLIENT REVIEWS"}
                         </h3>
                     </div>
 
@@ -228,7 +369,7 @@ export const Testimonials: React.FC = () => {
                         {/* Prev Arrow */}
                         <button
                             onClick={prevSlide}
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
                         >
                             <ChevronLeft size={20} />
                         </button>
@@ -236,7 +377,7 @@ export const Testimonials: React.FC = () => {
                         {/* Next Arrow */}
                         <button
                             onClick={nextSlide}
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
                         >
                             <ChevronRight size={20} />
                         </button>
@@ -247,10 +388,9 @@ export const Testimonials: React.FC = () => {
                                 animate={{ x: `-${currentIndex * 100}%` }}
                                 transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
                             >
-                                {GOOGLE_REVIEWS.map((review, i) => (
+                                {activeReviews.map((review: any, i: number) => (
                                     <motion.div
                                         key={review.id}
-                                        // 4 items per view logic: 100% / 4 = 25%.
                                         className="min-w-full md:min-w-[25%] px-3 shrink-0"
                                     >
                                         <GoogleReviewCard review={review} />

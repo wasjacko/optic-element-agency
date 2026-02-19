@@ -1,15 +1,95 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimationFrame } from 'framer-motion';
 
 const NAV_ITEMS = [
   { label: 'HOME', href: '#home' },
   { label: 'ABOUT US', href: '#about' },
-  { label: 'WORKS', href: '#works' },
-  { label: 'BOOK THE STUDIO', href: '#lab' },
+  { label: 'PROJECTS', href: '#works' },
   { label: 'OUR PROCESS', href: '#process' },
 ];
+
+const HoverGlitchText: React.FC<{ text: string, isHovered: boolean }> = ({ text, isHovered }) => {
+  const spanRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (isHovered) {
+      let iteration = -1.5; // Starts negative for a very brief 50ms full-word glitch before reveal
+      let rAFId: number;
+      const glitchChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]<>-_";
+
+      const loop = () => {
+        if (spanRef.current) {
+          const newText = text.split("").map((char, index) => {
+            if (char === " ") return " ";
+
+            // Individual character jitter (+/- 20% approx)
+            const jitter = Math.sin(index * 987.654) * 0.6;
+
+            // If the "reveal wave" (plus jitter) has passed this character AND iteration is positive
+            if (iteration > 0 && index < iteration + jitter) {
+              return text[index];
+            }
+
+            // Otherwise, keep glitching it
+            return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+          }).join("");
+
+          spanRef.current.textContent = newText;
+
+          if (iteration < text.length) {
+            iteration += 0.15;
+            rAFId = requestAnimationFrame(loop);
+          } else {
+            spanRef.current.textContent = text;
+          }
+        }
+      };
+
+      rAFId = requestAnimationFrame(loop);
+      return () => cancelAnimationFrame(rAFId);
+    } else {
+      if (spanRef.current && spanRef.current.textContent !== text) {
+        spanRef.current.textContent = text;
+      }
+    }
+  }, [isHovered, text]);
+
+  return (
+    <span className="relative inline-block">
+      <span className="opacity-0">{text}</span>
+      <span ref={spanRef} className="absolute top-0 left-0">{text}</span>
+    </span>
+  );
+};
+
+const NavItem: React.FC<{ item: typeof NAV_ITEMS[0], activePage: string, handleLinkClick: any, onPreload: any }> = ({ item, activePage, handleLinkClick, onPreload }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const isActive =
+    (item.label === 'HOME' && activePage === 'home') ||
+    (item.label === 'ABOUT US' && activePage === 'about') ||
+    (item.label === 'PROJECTS' && activePage === 'work') ||
+    (item.label === 'OUR PROCESS' && activePage === 'process');
+
+  return (
+    <a
+      href={item.href}
+      onClick={(e) => handleLinkClick(e, item)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        onPreload?.(item.href.replace('#', ''));
+      }}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative group flex flex-col items-center justify-center py-1 whitespace-nowrap"
+    >
+      <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
+        <HoverGlitchText text={item.label} isHovered={isHovered} />
+      </span>
+      <span className={`absolute bottom-0 left-0 h-[1px] bg-[var(--color-primary)] transition-all duration-300 ease-[0.16,1,0.3,1] ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+    </a>
+  );
+};
 
 interface NavbarProps {
   onContactClick: () => void;
@@ -26,6 +106,8 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, onPreload, isScrolled, introCompleted = false, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isContactHovered, setIsContactHovered] = useState(false); // For Contact Button Glitch
+  const [isBookStudioHovered, setIsBookStudioHovered] = useState(false);
 
   const handleLinkClick = (e: React.MouseEvent, item: typeof NAV_ITEMS[0]) => {
     if (item.href === '#about') {
@@ -72,10 +154,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
       initial={{ y: "-100%" }}
       animate={{ y: isVisible && (introCompleted || activePage !== 'home') ? "0%" : "-100%" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 w-full z-[999] bg-[#050505] border-b border-white/5`}
+      className={`fixed top-0 left-0 w-full z-[999] border-b border-white/5 will-change-transform backface-hidden`}
+      style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
 
       <div className="flex justify-center w-full px-6 md:px-32">
         <div className="relative w-full max-w-[1800px] py-4 flex items-center justify-between">
@@ -91,47 +174,42 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               onClick={(e) => { e.preventDefault(); onHomeClick(); }}
               className="flex items-center group transition-opacity hover:opacity-80"
             >
-              <img
-                src="/assets/logo.png"
-                alt="Optic Element Logo"
-                className="h-6 w-auto brightness-0 invert"
-              />
+              <svg viewBox="0 0 100 100" className="h-10 w-10" fill="none">
+                {/* White Brackets */}
+                <path d="M0 0H30V10H10V30H0V0Z" fill="white" />
+                <path d="M70 0H100V30H90V10H70V0Z" fill="white" />
+                <path d="M100 70V100H70V90H90V70H100Z" fill="white" />
+                <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
+
+                {/* Orange Plus */}
+                <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+              </svg>
+
             </a>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-10">
-              {NAV_ITEMS.map((item) => {
-                const isActive =
-                  (item.label === 'HOME' && activePage === 'home') ||
-                  (item.label === 'ABOUT US' && activePage === 'about') ||
-                  (item.label === 'BOOK THE STUDIO' && activePage === 'lab') ||
-                  (item.label === 'WORKS' && activePage === 'work') ||
-                  (item.label === 'OUR PROCESS' && activePage === 'process');
-
-                return (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    onClick={(e) => handleLinkClick(e, item)}
-                    onMouseEnter={() => onPreload?.(item.href.replace('#', ''))}
-                    className="relative group flex flex-col items-center justify-center py-1"
-                  >
-                    <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
-                      {item.label}
-                    </span>
-                    <span className={`absolute bottom-0 left-0 h-[1px] bg-[#FF5000] transition-all duration-300 ease-[0.16,1,0.3,1] ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
-                  </a>
-                );
-              })}
+              {NAV_ITEMS.map((item) => (
+                <NavItem
+                  key={item.label}
+                  item={item}
+                  activePage={activePage}
+                  handleLinkClick={handleLinkClick}
+                  onPreload={onPreload}
+                />
+              ))}
             </div>
           </div>
 
           {/* Right Side: Contact Button & Mobile Toggle */}
           <div className="flex items-center gap-8 relative z-10 px-6 md:px-0 mr-0 md:mr-4">
             {/* Tactical Contact Button */}
+            {/* Book Studio Button */}
             <button
-              onClick={onContactClick}
-              className="hidden md:block group relative px-8 py-3 bg-white/5 hover:bg-[#FF5000] transition-all duration-500 overflow-hidden"
+              onClick={onLabClick}
+              onMouseEnter={() => setIsBookStudioHovered(true)}
+              onMouseLeave={() => setIsBookStudioHovered(false)}
+              className="hidden md:block group relative px-8 py-3 bg-white/5 hover:bg-white transition-all duration-500 overflow-hidden border border-white/10 hover:border-white"
             >
               {/* Brackets/Corners */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white group-hover:border-black transition-colors" />
@@ -139,8 +217,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white group-hover:border-black transition-colors" />
               <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white group-hover:border-black transition-colors" />
 
-              <span className="text-[11px] font-mono font-bold text-white group-hover:text-black transition-colors uppercase tracking-[0.3em]">
-                CONTACT US
+              <span className="text-[11px] font-mono font-bold text-white group-hover:text-black transition-colors uppercase tracking-[0.3em] whitespace-nowrap">
+                <HoverGlitchText text="BOOK STUDIO" isHovered={isBookStudioHovered} />
+              </span>
+            </button>
+
+            {/* Tactical Contact Button - Orange Secondary */}
+            <button
+              onClick={onContactClick}
+              onMouseEnter={() => setIsContactHovered(true)}
+              onMouseLeave={() => setIsContactHovered(false)}
+              className="hidden md:block group relative px-8 py-3 bg-[#FF5000] hover:bg-[#FF5000]/90 transition-all duration-500 overflow-hidden"
+            >
+              {/* Brackets/Corners */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white transition-colors" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white transition-colors" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white transition-colors" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white transition-colors" />
+
+              <span className="text-[11px] font-mono font-bold text-black transition-colors uppercase tracking-[0.3em] whitespace-nowrap">
+                <HoverGlitchText text="CONTACT US" isHovered={isContactHovered} />
               </span>
             </button>
 
@@ -152,7 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
             </button>
           </div>
         </div>
-      </div>
+      </div >
 
       <AnimatePresence>
         {isOpen && (
@@ -173,18 +269,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                 }}
               >
                 {item.label}
-                <span className="text-[9px] text-white/20 group-hover:text-[#FF5000] transition-colors">0{i + 1}</span>
+                <span className="text-[9px] text-white/20 group-hover:text-[var(--color-primary)] transition-colors">0{i + 1}</span>
               </a>
             ))}
             <button
               onClick={() => { onContactClick(); setIsOpen(false); }}
-              className="mt-4 w-full py-4 bg-[#FF5000] text-black font-mono font-bold uppercase tracking-[0.3em] text-xs"
+              className="mt-4 w-full py-4 bg-[var(--color-primary)] text-black font-mono font-bold uppercase tracking-[0.3em] text-xs"
             >
               CONTACT US
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </motion.nav >
   );
 };

@@ -6,7 +6,7 @@ import { ArrowUpRight, Instagram, Facebook, Youtube } from 'lucide-react';
 
 export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactClick }) => {
   return (
-    <footer className="bg-[#050505] pt-32 pb-16 border-t border-white/10 relative overflow-hidden">
+    <footer className="pt-32 pb-16 border-t border-white/10 relative overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
 
       <div className="max-w-[1800px] mx-auto px-4 md:px-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 mb-24 items-end">
@@ -58,7 +58,7 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
         <div className="h-px w-full bg-white/10 mb-12" />
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-center text-[10px] font-ocr text-white/30 uppercase tracking-[0.2em] gap-8">
           <div className="flex items-center gap-8 text-center md:text-left">
             <span>© 2026 OPTIC ELEMENT.</span>
             <div className="w-px h-3 bg-white/20 hidden md:block" />

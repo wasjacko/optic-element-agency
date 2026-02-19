@@ -1,59 +1,138 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const LOGO_LIST = [
-  "Investor Lift",
-  "The Passionate Few",
-  "LGC I Power",
-  "The Coffe Co",
-  "Devotion To Dogs",
-  "The Maverick Entrepreneur",
-  "Exhort Else",
-  "Mindcore",
-  "Minico Shibin",
-  "Unbroken Fitness Solution"
+const LOGO_IMAGES = [
+    "https://static.wixstatic.com/media/8fb0bb_10196fa29d6049cf9c62e7151ea6ef82~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_10196fa29d6049cf9c62e7151ea6ef82~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_0d5ae6c432754b53bfb74c18a31de09e~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_0d5ae6c432754b53bfb74c18a31de09e~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_52736c58c8a147fabdcd89bd259c7aa3~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_52736c58c8a147fabdcd89bd259c7aa3~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_f87b0fac1ef2443489c6d114aaf5521c~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_f87b0fac1ef2443489c6d114aaf5521c~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_98f25b27839644728ceb8ceff04aac43~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_98f25b27839644728ceb8ceff04aac43~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_7ed4a5779f7945999dc781dd501f841f~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_7ed4a5779f7945999dc781dd501f841f~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_680d0b9de5a149a1afb6259f2fa3c18a~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_680d0b9de5a149a1afb6259f2fa3c18a~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_a7fa8416e5fd4346a648ef5c5bc8cab5~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_a7fa8416e5fd4346a648ef5c5bc8cab5~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_e809a5010d714be985ecf442e990aa53~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_e809a5010d714be985ecf442e990aa53~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_11b3fbfbec8c43e3bc80dea8317b30b6~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_11b3fbfbec8c43e3bc80dea8317b30b6~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_77ee9fcc503e45e6a877eb63dda79cd9~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_77ee9fcc503e45e6a877eb63dda79cd9~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_2e8589a7c9034266bcdb6f6761aaaed3~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_2e8589a7c9034266bcdb6f6761aaaed3~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_737177e783fd4a9993d0877a1bfa2f98~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_737177e783fd4a9993d0877a1bfa2f98~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_92f87f8f536742419f6ee8c768f741be~mv2.png/v1/fit/w_123,h_50,q_90,enc_avif,quality_auto/8fb0bb_92f87f8f536742419f6ee8c768f741be~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_7a239f824fab4f279ce9b1f7da792f93~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_7a239f824fab4f279ce9b1f7da792f93~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_f8ce5cf6e1e64583a7e273e52a0cdb7f~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_f8ce5cf6e1e64583a7e273e52a0cdb7f~mv2.png",
+    "https://static.wixstatic.com/media/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png"
 ];
 
-const TacticalReveal: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
-  return (
-    <div className="relative inline-block">
-      <motion.div
-        initial={{ clipPath: "inset(0 100% 0 0)" }}
-        whileInView={{ clipPath: "inset(0 0% 0 0%)" }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay }}
-        viewport={{ once: true }}
-        className="relative whitespace-nowrap align-bottom block"
-      >
-        <span className="text-sm md:text-base font-medium tracking-wider text-white/40 hover:text-white transition-colors duration-300 cursor-default block px-1 text-center">
-          {children}
-        </span>
-      </motion.div>
-    </div>
-  );
-};
-
-export const Brands: React.FC = () => {
-  return (
-    <section className="bg-[#050505] py-40 md:py-48 relative z-20 border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 text-center">
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="text-[#FF5000] font-mono text-xs tracking-[0.2em] uppercase mb-12"
+const LogoReveal: React.FC<{ src: string; delay?: number }> = ({ src, delay = 0 }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+            whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.5, delay }}
+            viewport={{ once: true }}
+            className="relative flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100"
         >
-          Brands We Serve
-        </motion.p>
-
-        <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 max-w-4xl mx-auto">
-          {LOGO_LIST.map((name, i) => (
-            <TacticalReveal key={i} delay={i * 0.1}>
-              {name}
-            </TacticalReveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+            <img src={src} alt="Brand Logo" className="max-w-[100px] h-auto object-contain max-h-[60px]" loading="lazy" />
+        </motion.div>
+    );
 };
+
+export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }) => {
+    const images = data?.brands?.images?.length ? data.brands.images : LOGO_IMAGES;
+    const sectionTitle = title || data?.title || "Brands We Serve";
+    const bgColor = data?.brands?.backgroundColor || 'var(--color-bg)';
+
+    return (
+        <section className="py-16 md:py-32 relative z-20 border-t border-white/5 transition-colors duration-500"
+            style={{
+                backgroundColor: bgColor,
+                color: 'var(--color-text)',
+                '--brand-color': data?.brands?.brandColor || 'var(--color-text)'
+            } as React.CSSProperties}>
+
+            <style>{`
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .text-shimmer {
+          background: linear-gradient(to right, #666 20%, #fff 50%, #666 80%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shimmer 3s linear infinite;
+        }
+      `}</style>
+
+            <div className="max-w-7xl mx-auto px-6 text-center">
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    viewport={{ once: true }}
+                    className="font-mono text-sm md:text-base tracking-[0.3em] uppercase mb-16 transition-colors duration-500 font-bold"
+                    style={{ color: data?.brands?.titleColor || 'var(--color-primary)' }}
+                >
+                    {sectionTitle}
+                </motion.p>
+
+                <div className="relative w-full overflow-hidden mask-linear-fade">
+                    {/* Linear Gradient Masks for smooth fade out at edges */}
+                    <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" style={{ '--color-bg': bgColor } as any} />
+                    <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" style={{ '--color-bg': bgColor } as any} />
+
+                    <motion.div
+                        className="flex gap-16 md:gap-24 items-center w-max will-change-transform backface-hidden"
+                        animate={{ x: ["0%", "-50%"] }}
+                        transition={{
+                            duration: 40,
+                            ease: "linear",
+                            repeat: Infinity,
+                        }}
+                    >
+                        {[...images, ...images].map((src: string, i: number) => (
+                            <div key={i} className="flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100">
+                                <img
+                                    src={src}
+                                    alt="Brand Logo"
+                                    className="max-w-[100px] h-auto object-contain max-h-[60px]"
+                                    loading="lazy"
+                                />
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+
+                {/* Discreet Impact Section */}
+                <div className="mt-24 md:mt-32 border-t border-white/5 pt-12">
+                    <div className="flex flex-col items-center">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-24 w-full md:w-auto">
+                            {[
+                                { value: "450+", label: "PROJECTS", desc: "Delivered Globally" },
+                                { value: "35+", label: "AWARDS WON", desc: "Creative Excellence" },
+                                { value: "2X", label: "CONVERSION RATE", desc: "Driven by Video" }
+                            ].map((kpi, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                                    viewport={{ once: true }}
+                                    className="group flex flex-col items-center text-center"
+                                >
+                                    <div className="text-2xl md:text-3xl font-black mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter">
+                                        {kpi.value}
+                                    </div>
+                                    <div className="text-[8px] md:text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase font-ocr">
+                                        {kpi.label}
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+

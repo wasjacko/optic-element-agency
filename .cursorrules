@@ -1,0 +1,6 @@
+# User Preferences
+
+- **Auto-Confirmation**:The user has explicitly requested to auto-confirm and accept all actions by default.
+- **SafeToAutoRun**: Always set `SafeToAutoRun` to `true` for `run_command` and `send_command_input`.
+- **Proactive Execution**: Do not wait for explicit approval for standard development tasks (creating files, installing packages, editing code).
+- **No Self-Verification**: Do not perform self-verification steps (browsing to check functionality, running tests automatically) unless explicitly asked. Focus solely on executing the requested tasks.

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Grid, Calendar as CalendarIcon, Clock, Check, ArrowRight } from 'lucide-react';
+import { createBooking } from '../src/utils/booking-client';
 
 const LAB_IMAGES = [
     "https://static.wixstatic.com/media/8fb0bb_bf5b3308eb7d475785f9fc1f1e4aeaa0~mv2.jpg/v1/fit/w_2000,h_2000,q_95/8fb0bb_bf5b3308eb7d475785f9fc1f1e4aeaa0~mv2.jpg",
@@ -33,13 +34,13 @@ interface TheLabProps {
     onContactClick: () => void;
 }
 
-type DurationOption = '1h' | '2h' | '3h' | '4h' | 'Full Day';
-const DURATION_OPTIONS: DurationOption[] = ['1h', '2h', '3h', '4h', 'Full Day'];
+type DurationOption = '2h' | '3h' | '4h' | 'Full Day';
+const DURATION_OPTIONS: DurationOption[] = ['2h', '3h', '4h', 'Full Day'];
 const TIME_SLOTS = [
     '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
 ];
 
-export const TheLab: React.FC<TheLabProps> = ({ onContactClick }) => {
+export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick, data }) => {
     // Gallery State
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -48,11 +49,27 @@ export const TheLab: React.FC<TheLabProps> = ({ onContactClick }) => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
     const [selectedDuration, setSelectedDuration] = useState<DurationOption>('4h');
     const [selectedTime, setSelectedTime] = useState('10:00');
+
+    // User Info State
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [message, setMessage] = useState('');
+
+    // Payment State
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiry, setExpiry] = useState('');
+    const [cvc, setCvc] = useState('');
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
     // Calendar View State
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [bookedDates, setBookedDates] = useState<Date[]>([]);
+
+    // API Client
+    // const { createBooking } = require('../src/utils/booking-client'); // Removed in favor of top-level import
 
     // Initialize Random Booked Dates
     useEffect(() => {
@@ -124,40 +141,72 @@ export const TheLab: React.FC<TheLabProps> = ({ onContactClick }) => {
         return bookedDates.some(d => isSameDay(d, date));
     };
 
-    const handleBookingSubmit = (e: React.FormEvent) => {
+    const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const formattedDate = selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'No Date Selected';
+        if (!selectedDate || !name || !email || !phone || !cardNumber || !expiry || !cvc) return;
 
-        const subject = `Studio Booking Request - ${formattedDate}`;
-        const body = `
-BOOKING REQUEST
----------------
-Date: ${formattedDate}
-Duration: ${selectedDuration}
+        setIsSubmitting(true);
+        setSubmitStatus('idle');
 
-Message:
-${message}
-        `.trim();
-        window.location.href = `mailto:contact@opticelement.agency?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        // Construct Start/End Dates
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        const start = new Date(selectedDate);
+        start.setHours(hours, minutes, 0, 0);
+
+        const durationHours = selectedDuration === 'Full Day' ? 8 : parseInt(selectedDuration);
+        const end = new Date(start);
+        end.setHours(start.getHours() + durationHours);
+
+        const res = await createBooking({
+            name,
+            email,
+            phone,
+            start: start.toISOString(),
+            end: end.toISOString(),
+            notes: message
+        });
+
+        setIsSubmitting(false);
+
+        if (res.success) {
+            setSubmitStatus('success');
+            // Reset form
+            setMessage('');
+            setName('');
+            setEmail('');
+            setPhone('');
+            setCardNumber('');
+            setExpiry('');
+            setCvc('');
+            setSelectedDate(null);
+        } else {
+            console.error(res.message);
+            setSubmitStatus('error');
+        }
     };
 
     const { days, firstDay } = getDaysInMonth(currentMonth);
+
+    // Calculate Price
+    const getPrice = () => {
+        const hours = selectedDuration === 'Full Day' ? 8 : parseInt(selectedDuration);
+        return hours * 200;
+    };
 
     return (
         <div className="min-h-screen font-sans bg-white overflow-x-hidden pt-24 selection:bg-black selection:text-white">
 
             {/* SECTION 1: HEADER */}
-            <section className="relative pt-24 pb-12 bg-white">
+            <section className="relative pt-16 pb-6 bg-white">
                 <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center">
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black mb-12 uppercase text-center">
-                        THE LAB
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black mb-6 uppercase text-center">
+                        {data?.title || "THE LAB"}
                     </h1>
                 </div>
             </section>
 
-            {/* SECTION 2: SHOWCASE GALLERY */}
             {/* SECTION 2: SHOWCASE GALLERY (Full Width) */}
-            <section className="w-full h-[85vh] relative">
+            <section className="w-full h-[85vh] relative mb-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 h-full w-full">
                     <div
                         className="relative w-full h-full overflow-hidden cursor-pointer group"
@@ -219,7 +268,6 @@ ${message}
                 </div>
             </section>
 
-            {/* SECTION 3: LIGHT & CLEAN BOOKING SYSTEM (Left: Config | Right: Form) */}
             {/* SECTION 3: LIGHT & CLEAN BOOKING SYSTEM (Left: Config | Right: Form) */}
             <section id="booking-section" className="bg-neutral-50 py-24 px-6 md:px-0">
                 <div className="max-w-6xl mx-auto">
@@ -303,25 +351,54 @@ ${message}
 
                             {/* 2. Duration Only */}
                             <div className="p-6 pt-0 space-y-4">
-                                {/* Duration */}
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block">Duration</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {DURATION_OPTIONS.map((opt) => (
-                                            <button
-                                                key={opt}
-                                                type="button"
-                                                onClick={() => setSelectedDuration(opt)}
-                                                className={`
-                                                    px-5 py-2.5 rounded-full text-xs font-medium transition-all border
+                                {/* Duration + Time */}
+                                <div className="space-y-6">
+                                    {/* Duration */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block">Duration</label>
+                                            <span className="text-xs font-bold text-[#FF5000] uppercase tracking-widest">$200 / Hour</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {DURATION_OPTIONS.map((opt) => (
+                                                <button
+                                                    key={opt}
+                                                    type="button"
+                                                    onClick={() => setSelectedDuration(opt)}
+                                                    className={`
+                                                    px-4 py-2 rounded-full text-xs font-medium transition-all border
                                                     ${selectedDuration === opt
-                                                        ? 'bg-black text-white border-black shadow-md'
-                                                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-black'}
+                                                            ? 'bg-black text-white border-black shadow-md'
+                                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-black'}
                                                 `}
-                                            >
-                                                {opt}
-                                            </button>
-                                        ))}
+                                                >
+                                                    {opt}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 italic mt-1">* 2-hour minimum booking required.</p>
+                                    </div>
+
+                                    {/* Time */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block">Start Time</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {TIME_SLOTS.map((time) => (
+                                                <button
+                                                    key={time}
+                                                    type="button"
+                                                    onClick={() => setSelectedTime(time)}
+                                                    className={`
+                                                    px-4 py-2 rounded-full text-xs font-medium transition-all border
+                                                    ${selectedTime === time
+                                                            ? 'bg-black text-white border-black shadow-md'
+                                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-black'}
+                                                `}
+                                                >
+                                                    {time}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -333,40 +410,144 @@ ${message}
                             <form onSubmit={handleBookingSubmit} className="flex-1 flex flex-col h-full">
 
                                 <div className="space-y-2 mb-6">
-                                    <h3 className="text-2xl font-bold text-black">Project Details</h3>
-                                    <p className="text-gray-500 text-sm">Tell us about your shoot requirements.</p>
+                                    <h3 className="text-2xl font-bold text-black">{data?.bookingTitle || "Project Details"}</h3>
+                                    <p className="text-gray-500 text-sm">{data?.bookingSubtitle || "Tell us about your shoot requirements."}</p>
+                                </div>
+
+                                {/* User Details Inputs */}
+                                <div className="grid grid-cols-1 gap-4 mb-4">
+                                    <input
+                                        type="text"
+                                        placeholder="Full Name"
+                                        required
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-gray-50 border-0 rounded-xl px-6 py-4 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm"
+                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <input
+                                            type="email"
+                                            placeholder="Email Address"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="w-full bg-gray-50 border-0 rounded-xl px-6 py-4 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm"
+                                        />
+                                        <input
+                                            type="tel"
+                                            placeholder="Phone Number"
+                                            required
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            className="w-full bg-gray-50 border-0 rounded-xl px-6 py-4 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Message */}
-                                <div className="space-y-3 flex-1 min-h-[200px] mb-8">
+                                <div className="space-y-3 mb-6">
                                     <textarea
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
-                                        placeholder="Type your message here..."
-                                        className="w-full h-full bg-gray-50 border-0 rounded-2xl p-6 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none resize-none transition-all text-base"
+                                        placeholder="Tell us about your project/shoot requirements..."
+                                        className="w-full h-32 bg-gray-50 border-0 rounded-2xl p-6 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none resize-none transition-all text-sm"
                                     />
                                 </div>
+
+                                {/* Payment Details (UI ONLY) */}
+                                <div className="space-y-3 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <h4 className="text-sm font-bold text-black uppercase tracking-wider mb-4 flex items-center justify-between">
+                                        <span>Payment Details</span>
+                                        <span className="text-xs text-gray-400 bg-white px-2 py-1 rounded border border-gray-200">Secure (Test Mode)</span>
+                                    </h4>
+
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {/* Card Number */}
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Card Number"
+                                                required
+                                                value={cardNumber}
+                                                onChange={(e) => {
+                                                    const v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                                                    const parts = [];
+                                                    for (let i = 0; i < v.length; i += 4) {
+                                                        parts.push(v.substring(i, i + 4));
+                                                    }
+                                                    if (parts.length) {
+                                                        setCardNumber(parts.join(' '));
+                                                    } else {
+                                                        setCardNumber(v);
+                                                    }
+                                                }}
+                                                maxLength={19}
+                                                className="w-full bg-white border border-gray-200 rounded-xl px-6 py-3 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm font-mono"
+                                            />
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                                                <div className="w-8 h-5 bg-gray-200 rounded"></div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <input
+                                                type="text"
+                                                placeholder="MM / YY"
+                                                required
+                                                value={expiry}
+                                                onChange={(e) => setExpiry(e.target.value)}
+                                                className="w-full bg-white border border-gray-200 rounded-xl px-6 py-3 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm font-mono"
+                                                maxLength={5}
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="CVC"
+                                                required
+                                                value={cvc}
+                                                onChange={(e) => setCvc(e.target.value)}
+                                                className="w-full bg-white border border-gray-200 rounded-xl px-6 py-3 text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black/5 outline-none transition-all text-sm font-mono"
+                                                maxLength={3}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                {submitStatus === 'success' && (
+                                    <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl text-center text-sm font-medium flex flex-col items-center">
+                                        <Check className="mb-2" />
+                                        Request sent successfully! We will contact you shortly to confirm details.
+                                    </div>
+                                )}
+
+                                {submitStatus === 'error' && (
+                                    <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl text-center text-sm font-medium">
+                                        Something went wrong. Please try again or contact us directly.
+                                    </div>
+                                )}
 
                                 {/* Action */}
                                 <div className="pt-6 border-t border-gray-100">
                                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                                         <div className="text-left w-full sm:w-auto">
-                                            <div className="text-xs font-bold text-gray-400 uppercase mb-1">Summary</div>
-                                            <div className="text-black font-medium text-lg leading-tight">
-                                                {selectedDate?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) || 'Select Date'}
+                                            <div className="text-xs font-bold text-gray-400 uppercase mb-1">Total Estimated</div>
+                                            <div className="text-black font-bold text-2xl leading-tight">
+                                                ${getPrice()}
                                             </div>
                                             <div className="text-[#FF5000] text-sm font-medium">
-                                                {selectedDuration}
+                                                {selectedDuration} @ $200/hr
                                             </div>
                                         </div>
 
                                         <button
                                             type="submit"
-                                            disabled={!selectedDate}
-                                            className="relative group bg-black hover:bg-[#111] disabled:bg-gray-200 disabled:pointer-events-none text-white px-10 py-5 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                                            disabled={!selectedDate || isSubmitting || !name || !email || !cardNumber}
+                                            className="relative group bg-black hover:bg-[#111] disabled:bg-gray-200 disabled:pointer-events-none text-white px-8 py-5 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <span className="text-sm font-bold tracking-widest uppercase">Send The Request</span>
+                                                <span className="text-sm font-bold tracking-widest uppercase">
+                                                    {isSubmitting ? 'Processing...' : 'Book & Pay Deposit'}
+                                                </span>
                                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                             </div>
                                         </button>
