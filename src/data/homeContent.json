@@ -1,0 +1,210 @@
+{
+    "theme": {
+        "primary": "#ff7300",
+        "background": "#0d0d0d",
+        "text": "#ffffff",
+        "secondaryRef": "#ff5900",
+        "accent": "#1a1a1a"
+    },
+    "hero": {
+        "phase1": "We Don't Just Build",
+        "phase1Highlight": "Brands",
+        "phase2": "We Build",
+        "phase2Highlight": "Growth Engines",
+        "cta": "LET'S BUILD SOMETHING REAL",
+        "backgroundColor": "#121212"
+    },
+    "video": {
+        "title": "Main Reel",
+        "videoUrl": "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4"
+    },
+    "process": {
+        "title": "S.P.R.I.N.Tpij",
+        "subtitle": "our proven system"
+    },
+    "works": {
+        "title": "OUR WORKS"
+    },
+    "testimonials": {
+        "title": "VIDEO TESTIMONIALS",
+        "subtitle": "CLIENT REVIEWS"
+    },
+    "brands": {
+        "title": "Brands We Serve",
+        "items": [
+            "Investor Lift",
+            "The Passionate Few",
+            "LGC I Power",
+            "The Coffe Co",
+            "Devotion To Dogs",
+            "The Maverick Entrepreneur",
+            "Exhort Else",
+            "Mindcore",
+            "Minico Shibin",
+            "Unbroken Fitness Solution"
+        ],
+        "backgroundColor": "#0d0d0d",
+        "titleColor": "#ff7300",
+        "brandColor": "#ffffff"
+    },
+    "sprint": {
+        "title": "S.P.R.I.N.T",
+        "subtitle": "// our proven system",
+        "cta": "OUR DETAILLED PROCESS",
+        "steps": [
+            {
+                "id": "01",
+                "title": "STRATEGY",
+                "first": "S",
+                "rest": "TRATEGY",
+                "detail": "Define the Vision"
+            },
+            {
+                "id": "02",
+                "title": "PLAN",
+                "first": "P",
+                "rest": "LAN",
+                "detail": "Map Out the Content"
+            },
+            {
+                "id": "03",
+                "title": "ROLE",
+                "first": "R",
+                "rest": "OLE",
+                "detail": "Lights, Camera, Action."
+            },
+            {
+                "id": "04",
+                "title": "INITIATE",
+                "first": "I",
+                "rest": "NITIATE",
+                "detail": "Edit + Polish"
+            },
+            {
+                "id": "05",
+                "title": "NOTIFY",
+                "first": "N",
+                "rest": "OTIFY",
+                "detail": "Get Your Input"
+            },
+            {
+                "id": "06",
+                "title": "TAKEOFF",
+                "first": "T",
+                "rest": "AKEOFF",
+                "detail": "Launch & Celebrate"
+            }
+        ]
+    },
+    "about": {
+        "title": "Who We Are",
+        "teamCta": "JOIN_THE_TEAM",
+        "videoUrl": "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4"
+    },
+    "contact": {
+        "titleLine1": "SCHEDULE A",
+        "titleLine2": "CALL",
+        "titleLine3": "WITH",
+        "titleLine4": "SANTIAGO",
+        "description": "Book a call with our team. This call is to learn more about your business and if Optic Elementyou achieve your goals.",
+        "accentColor": "#ff4d00",
+        "backgroundColor": "#ffffff"
+    },
+    "processPage": {
+        "title": "Our Process",
+        "subtitle": "Our strategy to get you leads with content"
+    },
+    "worksPage": {
+        "cta": "SCHEDULE_CALL",
+        "services": [
+            {
+                "id": "brand",
+                "label": "Brand Videos",
+                "type": "video",
+                "description": "Cinematic storytelling that elevates brand identity.",
+                "videos": [
+                    {
+                        "id": "lgcy-recruitment",
+                        "title": "LGCY RECRUITMENT",
+                        "description": "Cinematic storytelling.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "koffee",
+                        "title": "KOFFEE CO.",
+                        "description": "Premium commercial production.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "rv-promo",
+                        "title": "RV PROMO",
+                        "description": "Dynamic promotional content.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "inflatable",
+                        "title": "INFLATABLE WORLD",
+                        "description": "High-energy promotional coverage.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_63f55faeec1442bf9076e87309bfdd83/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "lgcy-mexico",
+                        "title": "LGCY MEXICO",
+                        "description": "Documentary-style storytelling.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_39fde8faf82540bc99862c5301f897be/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "mexico-build",
+                        "title": "MEXICO BUILD",
+                        "description": "Impactful narrative.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "masters-hype",
+                        "title": "MASTERS HYPE",
+                        "description": "Fast-paced, high-impact edit.",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_2345e2ed454a472bacf9f6fee9b690d9/1080p/mp4/file.mp4"
+                    }
+                ]
+            },
+            {
+                "id": "shorts",
+                "label": "Short Videos",
+                "type": "video",
+                "description": "High-impact short-form content.",
+                "videos": [
+                    {
+                        "id": "investor-lift",
+                        "title": "INVESTOR LIFT",
+                        "description": "DOMINICAN REPUBLIC TRIP",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "passionate-few",
+                        "title": "PASSIONATE FEW",
+                        "description": "MEXICO HOUSE BUILD TRIP",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "dasfleet",
+                        "title": "DASFLEET",
+                        "description": "LUX CAR CLUB PROMO",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4"
+                    }
+                ]
+            },
+            {
+                "id": "photo",
+                "label": "Photography",
+                "type": "image",
+                "description": "High-end visual assets.",
+                "images": []
+            }
+        ]
+    },
+    "lab": {
+        "title": "THE LAB",
+        "bookingTitle": "Project Details",
+        "bookingSubtitle": "Tell us about your shoot requirements."
+    }
+}

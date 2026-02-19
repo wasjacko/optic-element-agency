@@ -99,45 +99,14 @@ const SERVICES = [
          'https://static.wixstatic.com/media/8fb0bb_7227b14a89c14b6ca9adf58492726f6d~mv2.jpg/v1/fill/w_1260,h_1732,q_95,enc_avif,quality_auto/8fb0bb_7227b14a89c14b6ca9adf58492726f6d~mv2.jpg'
       ]
    },
-   {
-      id: 'digital',
-      label: 'Digital Assets',
-      type: 'image',
-      description: 'Strategic motion graphics and visual content designed to stop the scroll and drive engagement in a crowded digital landscape.',
-      images: [
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg',
-         '/digital-wireframe.jpg'
-      ]
-   }
+
 ];
 
 interface WorksPageProps {
    onContactClick: () => void;
 }
 
-export const WorksPage: React.FC<WorksPageProps> = ({ onContactClick }) => {
+export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: string }> = ({ onContactClick, data, activeSection }) => {
    const [activeService, setActiveService] = useState(0);
    const [activeVideo, setActiveVideo] = useState(0);
 
@@ -148,7 +117,8 @@ export const WorksPage: React.FC<WorksPageProps> = ({ onContactClick }) => {
    }, [activeService]);
 
    // Helper to get current content
-   const currentService = SERVICES[activeService];
+   const services = data?.services || SERVICES;
+   const currentService = services[activeService];
 
    // Determine if we need to show the video player logic
    const isVideoService = currentService.type === 'video';
@@ -166,177 +136,212 @@ export const WorksPage: React.FC<WorksPageProps> = ({ onContactClick }) => {
       setActiveVideo((prev) => (prev === currentService.videos.length - 1 ? 0 : prev + 1));
    };
 
+   const showAll = !activeSection;
+   const bgColor = data?.backgroundColor || '#ffffff';
+   const txtColor = data?.textColor || '#000000';
+   const accentColor = data?.accentColor || '#FF5000';
+
    return (
-      <div className="bg-white min-h-screen">
+      <div
+         className={`min-h-screen ${!showAll ? 'pt-12' : ''}`}
+         style={{ backgroundColor: bgColor, color: txtColor }}
+      >
          <div className="relative z-10 flex flex-col">
             {/* Top Navigation Bar - Sticky */}
-            <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/5">
-               <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                  <div className="flex items-center gap-8">
-                     {SERVICES.map((service, index) => (
-                        <button
-                           key={service.id}
-                           onClick={() => setActiveService(index)}
-                           className="group relative flex flex-col items-center gap-1"
-                        >
-                           <span className={`text-sm font-bold tracking-widest uppercase transition-colors duration-300 ${activeService === index ? 'text-black' : 'text-black/40 group-hover:text-black'}`}>
-                              {service.label}
-                           </span>
-                           {/* Active Indicator Line */}
-                           <motion.div
-                              className={`h-0.5 bg-[#FF5000] transition-all duration-300 ${activeService === index ? 'w-full' : 'w-0 group-hover:w-1/2'}`}
-                              layoutId="navUnderline"
-                           />
-                        </button>
-                     ))}
-                  </div>
-               </div>
-            </div>
-
-            {/* Full Width Display Area */}
-            <div className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 ${SERVICES[activeService].id === 'shorts' ? 'bg-transparent shadow-none' : 'bg-[#050505]'} h-[50vh] md:h-[70vh] overflow-hidden` : 'w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 bg-white min-h-[85vh] h-auto overflow-visible shadow-none'}`}>
-               {/* No Tactical Corners anymore, simplifies UI */}
-
-               <AnimatePresence mode="wait">
-                  <motion.div
-                     key={`${activeService}-${activeVideo}`}
-                     initial={{ opacity: 0 }}
-                     animate={{ opacity: 1 }}
-                     exit={{ opacity: 0 }}
-                     transition={{ duration: 0.3 }}
-                     className="w-full h-full"
-                  >
-                     {currentService.id === 'shorts' && currentService.videos ? (
-                        <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-transparent">
-                           {currentService.videos.map((video) => (
-                              <div key={video.id} className="relative w-full h-full group overflow-hidden bg-transparent">
-                                 <video
-                                    src={video.src}
-                                    className="w-full h-full object-cover"
-                                    muted
-                                    loop
-                                    playsInline
-                                    onMouseEnter={(e) => e.currentTarget.play()}
-                                    onMouseLeave={(e) => {
-                                       e.currentTarget.pause();
-                                       e.currentTarget.currentTime = 0;
-                                    }}
+            {(showAll || activeSection === 'gallery') && (
+               <>
+                  <div className="sticky top-0 z-40 backdrop-blur-md border-b" style={{ backgroundColor: bgColor ? `${bgColor}cc` : 'rgba(255,255,255,0.8)', borderColor: 'rgba(0,0,0,0.05)' }}>
+                     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                        <div className="flex items-center gap-8">
+                           {services.map((service: any, index: number) => (
+                              <button
+                                 key={service.id}
+                                 onClick={() => setActiveService(index)}
+                                 className="group relative flex flex-col items-center gap-1"
+                              >
+                                 <span
+                                    className={`text-sm font-bold tracking-widest uppercase transition-colors duration-300`}
+                                    style={{ color: activeService === index ? txtColor : txtColor, opacity: activeService === index ? 1 : 0.4 }}
+                                 >
+                                    {service.label}
+                                 </span>
+                                 {/* Active Indicator Line */}
+                                 <motion.div
+                                    className={`h-0.5 transition-all duration-300 ${activeService === index ? 'w-full' : 'w-0 group-hover:w-1/2'}`}
+                                    style={{ backgroundColor: accentColor }}
+                                    layoutId="navUnderline"
                                  />
-
-                                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-8 bg-gradient-to-t from-black/90 via-transparent to-transparent">
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                       {video.title}
-                                    </h3>
-                                    <p className="text-[#FF5000] text-xs font-mono uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                                       {video.description}
-                                    </p>
-                                 </div>
-                              </div>
+                              </button>
                            ))}
                         </div>
-                     ) : isVideoService && currentVideo ? (
-                        <div className="relative w-full h-full">
-                           <video
-                              src={currentVideo.src}
-                              className="w-full h-full object-cover opacity-80"
-                              autoPlay muted loop playsInline
-                           />
+                     </div>
+                  </div>
 
-                           {/* Navigation Arrows */}
-                           <button
-                              onClick={handlePrev}
-                              className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-[#FF5000] hover:bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-[#FF5000]"
-                           >
-                              <ChevronLeft size={32} />
-                           </button>
-                           <button
-                              onClick={handleNext}
-                              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-[#FF5000] hover:bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-[#FF5000]"
-                           >
-                              <ChevronRight size={32} />
-                           </button>
+                  {/* Full Width Display Area */}
+                  <div
+                     className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 ${services[activeService].id === 'shorts' ? 'shadow-none' : ''} h-[50vh] md:h-[70vh] overflow-hidden` : 'w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 min-h-[85vh] h-auto overflow-visible shadow-none'}`}
+                     style={{ backgroundColor: isVideoService && services[activeService].id !== 'shorts' ? '#050505' : 'transparent' }}
+                  >
+                     {/* No Tactical Corners anymore, simplifies UI */}
 
-                           {/* Overlay Gradient */}
-                           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                           <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
+                     <AnimatePresence mode="wait">
+                        <motion.div
+                           key={`${activeService}-${activeVideo}`}
+                           initial={{ opacity: 0 }}
+                           animate={{ opacity: 1 }}
+                           exit={{ opacity: 0 }}
+                           transition={{ duration: 0.3 }}
+                           className="w-full h-full"
+                        >
+                           {currentService.id === 'shorts' && currentService.videos ? (
+                              <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-transparent">
+                                 {currentService.videos.map((video) => (
+                                    <div key={video.id} className="relative w-full h-full group overflow-hidden bg-transparent">
+                                       <video
+                                          src={video.src}
+                                          className="w-full h-full object-cover"
+                                          muted
+                                          loop
+                                          playsInline
+                                          onMouseEnter={(e) => e.currentTarget.play()}
+                                          onMouseLeave={(e) => {
+                                             e.currentTarget.pause();
+                                             e.currentTarget.currentTime = 0;
+                                          }}
+                                       />
 
-                           {/* Active Content Info - Only for Video */}
-                           <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 z-10 flex flex-col md:flex-row justify-between items-end gap-8 pb-32">
-                              <motion.div
-                                 initial={{ opacity: 0, y: 20 }}
-                                 animate={{ opacity: 1, y: 0 }}
-                                 transition={{ delay: 0.2 }}
-                                 className="max-w-2xl"
-                              >
-                                 <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 relative">
-                                    {currentVideo.title}
-                                 </h2>
-                                 <p className="text-white/70 font-mono text-sm md:text-base leading-relaxed pl-6 border-l-2 border-[#FF5000]">
-                                    {currentVideo.description}
-                                 </p>
-                              </motion.div>
-
-                              {/* Playlist / Selector - Replaces Tech Decor */}
-                              <div className="h-full max-h-[40vh] overflow-y-auto hidden md:flex flex-col items-end gap-2 z-20 pr-4 no-scrollbar">
-                                 {currentService.videos?.map((vid, vIdx) => (
-                                    <button
-                                       key={vid.id}
-                                       onClick={() => setActiveVideo(vIdx)}
-                                       className={`group flex items-center gap-4 py-2 text-right transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                                    >
-                                       <span className={`text-[10px] font-mono tracking-widest uppercase transition-colors duration-300 ${activeVideo === vIdx ? 'text-[#FF5000]' : 'text-white group-hover:text-white'}`}>
-                                          {vid.title}
-                                       </span>
-                                       <div className={`w-1.5 h-1.5 transition-colors duration-300 ${activeVideo === vIdx ? 'bg-[#FF5000]' : 'bg-white group-hover:bg-white'}`} />
-                                    </button>
+                                       <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-8 bg-gradient-to-t from-black/90 via-transparent to-transparent">
+                                          <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                             {video.title}
+                                          </h3>
+                                          <p className="text-xs font-mono uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100" style={{ color: accentColor }}>
+                                             {video.description}
+                                          </p>
+                                       </div>
+                                    </div>
                                  ))}
                               </div>
-                           </div>
-                        </div>
-                     ) : (
-                        /* Pinterest Style Grid for Photos/Digital */
-                        <div className={`columns-1 gap-4 p-4 md:p-8 space-y-4 ${SERVICES[activeService].id === 'digital' ? 'md:columns-5' : 'md:columns-3'}`}>
-                           {SERVICES[activeService].images?.map((img, idx) => (
-                              <div
-                                 key={idx}
-                                 className="break-inside-avoid mb-4"
-                              >
-                                 <img
-                                    src={img}
-                                    alt={`Gallery image ${idx + 1}`}
-                                    loading="lazy"
-                                    decoding="async"
-                                    className={`w-full object-cover rounded-sm transition-opacity duration-300 hover:opacity-90 ${SERVICES[activeService].id === 'digital'
-                                       ? 'aspect-square'
-                                       : idx % 3 === 0 ? 'aspect-[3/4]' : idx % 3 === 1 ? 'aspect-[1/1]' : 'aspect-[9/16]'
-                                       }`}
+                           ) : isVideoService && currentVideo ? (
+                              <div className="relative w-full h-full">
+                                 <video
+                                    src={currentVideo.src}
+                                    className="w-full h-full object-cover opacity-80"
+                                    autoPlay muted loop playsInline
                                  />
+
+                                 {/* Navigation Arrows */}
+                                 <button
+                                    onClick={handlePrev}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent"
+                                    style={{
+                                       '--hover-color': accentColor
+                                    } as any}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = accentColor}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                 >
+                                    <ChevronLeft size={32} />
+                                 </button>
+                                 <button
+                                    onClick={handleNext}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent"
+                                    onMouseEnter={(e) => e.currentTarget.style.color = accentColor}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                 >
+                                    <ChevronRight size={32} />
+                                 </button>
+
+                                 {/* Overlay Gradient */}
+                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                                 <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
+
+                                 {/* Active Content Info - Only for Video */}
+                                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 z-10 flex flex-col md:flex-row justify-between items-end gap-8 pb-32">
+                                    <motion.div
+                                       initial={{ opacity: 0, y: 20 }}
+                                       animate={{ opacity: 1, y: 0 }}
+                                       transition={{ delay: 0.2 }}
+                                       className="max-w-2xl"
+                                    >
+                                       <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 relative">
+                                          {currentVideo.title}
+                                       </h2>
+                                       <p className="text-white/70 font-mono text-sm md:text-base leading-relaxed pl-6 border-l-2" style={{ borderColor: accentColor }}>
+                                          {currentVideo.description}
+                                       </p>
+                                    </motion.div>
+
+                                    {/* Playlist / Selector - Replaces Tech Decor */}
+                                    <div className="h-full max-h-[40vh] overflow-y-auto hidden md:flex flex-col items-end gap-2 z-20 pr-4 no-scrollbar">
+                                       {currentService.videos?.map((vid, vIdx) => (
+                                          <button
+                                             key={vid.id}
+                                             onClick={() => setActiveVideo(vIdx)}
+                                             className={`group flex items-center gap-4 py-2 text-right transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                                          >
+                                             <span
+                                                className={`text-[10px] font-mono tracking-widest uppercase transition-colors duration-300`}
+                                                style={{ color: activeVideo === vIdx ? accentColor : '#ffffff' }}
+                                             >
+                                                {vid.title}
+                                             </span>
+                                             <div className={`w-1.5 h-1.5 transition-colors duration-300`} style={{ backgroundColor: activeVideo === vIdx ? accentColor : '#ffffff' }} />
+                                          </button>
+                                       ))}
+                                    </div>
+                                 </div>
                               </div>
-                           ))}
-                        </div>
-                     )}
-                  </motion.div>
-               </AnimatePresence>
-            </div>
+                           ) : (
+                              /* Pinterest Style Grid for Photos/Digital */
+                              <div className={`columns-1 gap-4 p-4 md:p-8 space-y-4 ${SERVICES[activeService].id === 'digital' ? 'md:columns-5' : 'md:columns-3'}`}>
+                                 {SERVICES[activeService].images?.map((img, idx) => (
+                                    <div
+                                       key={idx}
+                                       className="break-inside-avoid mb-4"
+                                    >
+                                       <img
+                                          src={img}
+                                          alt={`Gallery image ${idx + 1}`}
+                                          loading="lazy"
+                                          decoding="async"
+                                          className={`w-full object-cover rounded-sm transition-opacity duration-300 hover:opacity-90 ${SERVICES[activeService].id === 'digital'
+                                             ? 'aspect-square'
+                                             : idx % 3 === 0 ? 'aspect-[3/4]' : idx % 3 === 1 ? 'aspect-[1/1]' : 'aspect-[9/16]'
+                                             }`}
+                                       />
+                                    </div>
+                                 ))}
+                              </div>
+                           )}
+                        </motion.div>
+                     </AnimatePresence>
+                  </div>
+               </>
+            )}
          </div>
 
 
          {/* Uniform Footer CTA - Light Theme */}
-         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col items-center py-48 bg-white border-t border-gray-100">
-            <motion.button
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               onClick={onContactClick}
-               className="group relative flex items-center gap-6 py-6 px-16 text-black border border-black/10 hover:border-black transition-all duration-700 overflow-hidden"
-            >
-               <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.6em] transition-transform duration-500 group-hover:translate-x-2">SCHEDULE_CALL</span>
-               <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
-               <div className="absolute inset-x-0 bottom-0 h-0 bg-black group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" />
-               <span className="absolute inset-0 z-20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-700 font-bold uppercase tracking-[0.6em]">
-                  SCHEDULE_CALL
-               </span>
-            </motion.button>
-         </div>
+         {(showAll || activeSection === 'cta') && (
+            <div className="max-w-7xl w-full mx-auto px-6 flex flex-col items-center py-48 border-t" style={{ backgroundColor: bgColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+               <motion.button
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  onClick={onContactClick}
+                  className="group relative flex items-center gap-6 py-6 px-16 border transition-all duration-700 overflow-hidden"
+                  style={{ color: txtColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}
+               >
+                  <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.6em] transition-transform duration-500 group-hover:translate-x-2">{data?.cta || "SCHEDULE_CALL"}</span>
+                  <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
+                  <div className="absolute inset-x-0 bottom-0 h-0 group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" style={{ backgroundColor: txtColor }} />
+                  <span
+                     className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 font-bold uppercase tracking-[0.6em]"
+                     style={{ color: bgColor }}
+                  >
+                     {data?.cta || "SCHEDULE_CALL"}
+                  </span>
+               </motion.button>
+            </div>
+         )}
       </div>
    );
 };

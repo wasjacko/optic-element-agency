@@ -6,7 +6,8 @@ import { Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 
 
 
-export const VideoSection: React.FC = () => {
+export const VideoSection: React.FC<{ data?: any }> = ({ data }) => {
+  const videoUrl = data?.videoUrl || "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4";
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -60,15 +61,15 @@ export const VideoSection: React.FC = () => {
   }, []);
 
   return (
-    <section className="relative w-full bg-[#050505] py-32 overflow-hidden flex flex-col items-center justify-center">
-
+    <section id="video" className="relative w-full py-32 overflow-hidden flex flex-col items-center justify-center transition-colors duration-500" style={{ backgroundColor: data?.backgroundColor || 'var(--color-bg)' }}>
       {/* Unified High-Visibility Grid (Brands/BrainWhisperer style) */}
       <div className="absolute inset-0 z-0">
         <div
           style={{
             opacity: 0.1,
+            backgroundImage: `linear-gradient(to right, var(--color-text) 1px, transparent 1px), linear-gradient(to bottom, var(--color-text) 1px, transparent 1px)`
           }}
-          className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:400px_400px]"
+          className="absolute inset-0 bg-[size:400px_400px]"
         />
       </div>
 
@@ -88,15 +89,14 @@ export const VideoSection: React.FC = () => {
                   preload="auto"
                   className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'blur-0 opacity-100' : 'blur-md opacity-80'}`}
                   autoPlay loop muted={isMuted} playsInline
-                >
-                  <source src="https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4" type="video/mp4" />
-                </motion.video>
+                  src={videoUrl}
+                />
               </div>
 
               {/* Blending Overlays - Extended Outwards (Bleed) */}
               {/* Now positioned -top-12 and -bottom-12 to visibly extend beyond the frame */}
-              <div className="absolute inset-x-0 -top-12 h-[35%] bg-gradient-to-b from-[#050505] via-[#050505] to-transparent pointer-events-none z-30" />
-              <div className="absolute inset-x-0 -bottom-12 h-[35%] bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-none z-30" />
+              <div className="absolute inset-x-0 -top-12 h-[35%] pointer-events-none z-30" style={{ backgroundImage: `linear-gradient(to bottom, ${data?.backgroundColor || 'var(--color-bg)'}, ${data?.backgroundColor || 'var(--color-bg)'}, transparent)` }} />
+              <div className="absolute inset-x-0 -bottom-12 h-[35%] pointer-events-none z-30" style={{ backgroundImage: `linear-gradient(to top, ${data?.backgroundColor || 'var(--color-bg)'}, ${data?.backgroundColor || 'var(--color-bg)'}, transparent)` }} />
 
               {/* Controls */}
               {/* Controls */}
@@ -112,7 +112,12 @@ export const VideoSection: React.FC = () => {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                   <button
                     onClick={togglePlay}
-                    className={`w-20 h-20 rounded-full flex items-center justify-center bg-white/5 text-white/40 hover:text-white transition-all transform hover:scale-105 border border-white/5 ${!isPlaying ? 'opacity-100 bg-[#FF5000]/10 text-[#FF5000] border-[#FF5000]/40 shadow-[0_0_40px_rgba(255,80,0,0.3)]' : ''}`}
+                    className={`w-20 h-20 rounded-full flex items-center justify-center bg-white/5 hover:text-white transition-all transform hover:scale-105 border border-white/5 ${!isPlaying ? 'opacity-100 shadow-[0_0_40px_rgba(255,80,0,0.3)]' : ''}`}
+                    style={{
+                      color: !isPlaying ? (data?.accentColor || '#FF5000') : 'rgba(255,255,255,0.4)',
+                      backgroundColor: !isPlaying ? (data?.accentColor ? `${data.accentColor}1A` : 'rgba(255,80,0,0.1)') : undefined,
+                      borderColor: !isPlaying ? (data?.accentColor ? `${data.accentColor}66` : 'rgba(255,80,0,0.4)') : undefined
+                    }}
                   >
                     {isPlaying ? <Pause size={28} /> : <Play size={28} fill="currentColor" className="ml-1" />}
                   </button>

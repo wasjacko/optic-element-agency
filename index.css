@@ -1,3 +1,6 @@
+@import url('https://fonts.cdnfonts.com/css/ocr-a-std');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -140,6 +143,27 @@
     overflow-x: hidden;
   }
 
+  /* Typography Overrides for "Secondary/Tech" feel */
+  p,
+  small,
+  h5,
+  h6,
+  figcaption,
+  blockquote,
+  .text-xs,
+  .text-sm {
+    font-family: 'OCR A Std', monospace !important;
+  }
+
+  /* Ensure headings keep Tactic Sans unless specified */
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-heading {
+    font-family: 'Tactic Sans', sans-serif !important;
+  }
+
   /* Documentation-style Technical Grid */
   body::before {
     content: '';
@@ -190,5 +214,9 @@
 
   .text-tech-accent {
     color: #000000;
+  }
+
+  .font-ocr {
+    font-family: 'OCR A Std', monospace !important;
   }
 }

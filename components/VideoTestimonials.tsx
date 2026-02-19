@@ -1,122 +1,88 @@
-
-import React, { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Play, Pause, Activity } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 const REELS = [
-  { id: "REEL_001", client: "DORAN_TECH", url: "https://vjs.zencdn.net/v/oceans.mp4", link: "#" },
-  { id: "REEL_002", client: "SARAH_LIN", url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", link: "#" },
-  { id: "REEL_003", client: "DR_CLARENCE_LEE_JR", url: "https://vjs.zencdn.net/v/oceans.mp4", link: "https://www.instagram.com/drclarenceleejr/" }
+  { label: 'DORAN_TECH', video: 'https://cdn.shopify.com/videos/c/o/v/06353381e592476088277258385750aa.mp4' },
+  { label: 'VISUAL_FLOW', video: 'https://cdn.shopify.com/videos/c/o/v/3c29990e663f41d08e7b9ee34857564d.mp4' },
+  { label: 'SYSTEM_X', video: 'https://cdn.shopify.com/videos/c/o/v/881e1864a7814db382433f81498b030b.mp4' },
 ];
 
-const ReelCard: React.FC<{ reel: typeof REELS[0] }> = ({ reel }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+export const VideoTestimonials = () => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  const togglePlay = async () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        try {
-          await videoRef.current.play();
-          setIsPlaying(true);
-        } catch (e) {
-          console.warn("Playback prevented by browser policy", e);
-        }
+  useEffect(() => {
+    // Pause all videos first
+    videoRefs.current.forEach(video => {
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
       }
+    });
+
+    // Play active video if hovered/selected
+    if (activeIndex !== null && videoRefs.current[activeIndex]) {
+      const video = videoRefs.current[activeIndex];
+      video?.play().catch(() => { });
     }
-  };
+  }, [activeIndex]);
 
   return (
-    <div className="relative group bg-gray-50 border border-gray-100 overflow-hidden">
-      {/* Aspect Ratio 9:16 for Reels */}
-      <div className="aspect-[9/16] relative">
-        <video
-          ref={videoRef}
-          src={reel.url}
-          loop muted playsInline
-          className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700 grayscale group-hover:grayscale-0"
-        />
+    <section className="bg-white py-24 md:py-32 px-4 border-t border-gray-100">
 
-        {/* Technical Overlays */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-4 left-4 font-mono text-[8px] text-black/20 tracking-widest">{reel.id} // SYS_STABLE</div>
-          <div className="absolute bottom-4 left-4 font-mono text-[8px] text-black tracking-widest flex items-center gap-2 pointer-events-auto">
-            <div className="w-1 h-1 bg-black rounded-full animate-pulse" />
-            {reel.link && reel.link !== "#" ? (
-              <a href={reel.link} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF5000] transition-colors underline decoration-black/20 hover:decoration-[#FF5000]">
-                {reel.client}_VERIFIED
-              </a>
-            ) : (
-              <span>{reel.client}_VERIFIED</span>
-            )}
-          </div>
 
-          {/* Micro Corner Accents */}
-          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/10" />
-          <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/10" />
-        </div>
-
-        {/* Centered Play Button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-          <button
-            onClick={togglePlay}
-            className="w-16 h-16 rounded-full border border-black/10 bg-white/40 backdrop-blur-md flex items-center justify-center hover:bg-black hover:text-white transition-all transform hover:scale-110 text-black pointer-events-auto"
+      {/* 3-Column Reel Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-7xl mx-auto">
+        {REELS.map((reel, i) => (
+          <div
+            key={i}
+            className="relative aspect-[9/16] bg-black group overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+            onMouseEnter={() => setActiveIndex(i)}
+            onMouseLeave={() => setActiveIndex(null)}
           >
-            {isPlaying ? <Pause size={20} /> : <Play size={20} fill="currentColor" className="ml-1" />}
-          </button>
-        </div>
+            {/* Video */}
+            <video
+              ref={el => videoRefs.current[i] = el}
+              src={reel.video}
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+            />
 
-        {/* Scanline Effect */}
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0)_50%,rgba(0,0,0,0.05)_50%),linear-gradient(90deg,rgba(0,0,0,0.02),rgba(0,0,0,0.01),rgba(0,0,0,0.02))] bg-[length:100%_2px,3px_100%] opacity-20" />
-      </div>
-    </div>
-  );
-};
+            {/* Overlay Noise Texture */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay" />
 
-export const VideoTestimonials: React.FC = () => {
-  return (
-    <section className="bg-white py-40 border-t border-gray-100 relative">
-      <div className="max-w-6xl mx-auto px-6">
-
-        {/* Header Indicator */}
-        <div className="flex flex-col items-center gap-4 mb-24">
-          <div className="w-px h-12 bg-gradient-to-b from-transparent to-black" />
-          <span className="font-mono text-[8px] text-black/20 tracking-[1em] uppercase">Visual_Proof_Vault</span>
-        </div>
-
-        {/* 3-Column Reel Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {REELS.map((reel, i) => (
-            <motion.div
-              key={reel.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15, duration: 0.8 }}
-            >
-              <ReelCard reel={reel} />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Bottom Metadata */}
-        <div className="mt-20 flex justify-center">
-          <div className="flex items-center gap-6 font-mono text-[7px] text-black/20 uppercase tracking-[0.5em]">
-            <div className="flex items-center gap-2">
-              <Activity size={10} className="text-black" />
-              <span>PHASE_DEPLOYED_SYNCED</span>
+            {/* Center Text Overlay - EXTRA BOLD */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-20 w-full px-4 mix-blend-difference">
+              <span
+                className="block text-[10px] md:text-[11px] uppercase mb-2 drop-shadow-xl opacity-80 group-hover:opacity-100 transition-opacity"
+                style={{ fontFamily: 'Impact, sans-serif', letterSpacing: '0.2em' }}
+              >
+                CLIENT_REF
+              </span>
+              <span
+                className="block text-3xl md:text-4xl uppercase drop-shadow-xl leading-none scale-100 group-hover:scale-110 transition-transform duration-500"
+                style={{ fontFamily: 'Impact, sans-serif', letterSpacing: '0.05em' }}
+              >
+                {reel.label}
+              </span>
             </div>
-            <div className="w-px h-4 bg-black/5" />
-            <span>3_NODES_ACTIVE</span>
+
+            {/* Bottom Frame Decoration */}
+            <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-20 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity">
+              <span className="font-mono text-[9px] font-black text-white">0{i + 1}</span>
+              <div className="flex gap-1">
+                <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
+                <div className="w-1 h-1 bg-white rounded-full animate-pulse delay-100" />
+              </div>
+            </div>
+
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Background Decorative Lines */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px border-l border-dashed border-black/5 -translate-x-1/2 pointer-events-none" />
     </section>
   );
 };
