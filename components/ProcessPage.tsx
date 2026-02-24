@@ -209,7 +209,7 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
     <div ref={ref} className={`relative flex flex-col ${isMobile ? 'items-center space-y-12' : 'md:flex-row items-center md:gap-24'} ${!isMobile && (isEven ? 'md:flex-row' : 'md:flex-row-reverse')}`}>
 
       {/* 1. THE NODE (Center connection point) */}
-      <div className={`${isMobile ? 'relative mb-8' : 'absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0'}`}>
+      <div className={`${isMobile ? 'relative mb-8 z-20' : 'absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0'}`}>
         <motion.div
           style={{ opacity: contentOpacity, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', backgroundColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
           className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
