@@ -341,7 +341,7 @@ const StrategyAnimation = ({ accentColor, txtColor }: { accentColor: string, txt
       </svg>
 
       {/* Subtle Glow */}
-      <div className="absolute inset-0 opacity-5 blur-[40px] will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-5 blur-[40px] will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
@@ -417,7 +417,7 @@ const PlanAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColo
       </div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 opacity-5 blur-[50px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-5 blur-[50px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
@@ -463,7 +463,7 @@ const RollAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColo
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 opacity-10 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-10 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
@@ -618,7 +618,7 @@ const InitiateAnimation = ({ accentColor, txtColor }: { accentColor: string, txt
       </svg>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </motion.div>
   );
 };
@@ -661,7 +661,7 @@ const NotifyAnimation = ({ accentColor, txtColor }: { accentColor: string, txtCo
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-5 blur-[40px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
@@ -718,7 +718,7 @@ const TakeoffAnimation = ({ accentColor, txtColor }: { accentColor: string, txtC
       </motion.div>
 
       {/* Ambient Glow */}
-      <div className="absolute inset-0 opacity-5 blur-[30px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
+      <div className="absolute inset-[-40px] opacity-5 blur-[30px] -z-10 will-change-transform" style={{ backgroundColor: accentColor }} />
     </div>
   );
 };
