@@ -236,10 +236,9 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
       >
         <div className="relative group">
 
-          {/* ANIMATION FOR MOBILE - Centered above text with background to hide line */}
+          {/* ANIMATION FOR MOBILE - Centered above text */}
           {isMobile && (
             <div className="flex justify-center items-center mb-8 transform scale-75 md:scale-100 relative">
-              <div className="absolute inset-x-0 top-1/2 h-[120%] w-64 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0" style={{ backgroundColor: bgColor }} />
               <div className="relative z-10">
                 {step.id === "01" && <StrategyAnimation accentColor={accentColor} txtColor={txtColor} />}
                 {step.id === "02" && <PlanAnimation accentColor={accentColor} txtColor={txtColor} />}
