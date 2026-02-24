@@ -109,11 +109,20 @@ interface WorksPageProps {
 export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: string }> = ({ onContactClick, data, activeSection }) => {
    const [activeService, setActiveService] = useState(0);
    const [activeVideo, setActiveVideo] = useState(0);
+   const [visibleVideos, setVisibleVideos] = useState(6);
+   const [isMobile, setIsMobile] = useState(false);
 
+   useEffect(() => {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+   }, []);
 
    // Ensure logic handles switching back to first video if service changes
    useEffect(() => {
       setActiveVideo(0);
+      setVisibleVideos(6);
    }, [activeService]);
 
    // Helper to get current content
@@ -180,8 +189,8 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
 
                   {/* Full Width Display Area */}
                   <div
-                     className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 ${services[activeService].id === 'shorts' ? 'shadow-none h-[70vh]' : 'h-[50vh] md:h-[70vh]'} overflow-hidden` : 'w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 min-h-[85vh] h-auto overflow-visible shadow-none'}`}
-                     style={{ backgroundColor: isVideoService && services[activeService].id !== 'shorts' ? '#050505' : 'transparent' }}
+                     className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 h-auto overflow-visible shadow-none` : 'w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 min-h-[85vh] h-auto overflow-visible shadow-none'}`}
+                     style={{ backgroundColor: isVideoService && services[activeService].id !== 'shorts' && services[activeService].id !== 'brand' ? '#050505' : 'transparent' }}
                   >
                      {/* No Tactical Corners anymore, simplifies UI */}
 
@@ -194,103 +203,142 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                            transition={{ duration: 0.3 }}
                            className="w-full h-full"
                         >
-                           {currentService.id === 'shorts' && currentService.videos ? (
-                              <div className="w-full h-full flex md:grid md:grid-cols-3 gap-6 md:gap-8 p-0 md:p-8 bg-transparent overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar" style={{ scrollbarWidth: 'none' }}>
-                                 {currentService.videos.map((video) => (
-                                    <div key={video.id} className="relative w-[85vw] md:w-full h-full shrink-0 snap-center group overflow-hidden bg-transparent rounded-lg md:rounded-none">
-                                       <video
-                                          src={video.src}
-                                          className="w-full h-full object-cover"
-                                          muted
-                                          loop
-                                          playsInline
-                                          onMouseEnter={(e) => e.currentTarget.play()}
-                                          onMouseLeave={(e) => {
-                                             e.currentTarget.pause();
-                                             e.currentTarget.currentTime = 0;
-                                          }}
-                                       />
-
-                                       <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-8 bg-gradient-to-t from-black/90 via-transparent to-transparent">
-                                          <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                             {video.title}
-                                          </h3>
-                                          <p className="text-xs font-mono uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100" style={{ color: accentColor }}>
-                                             {video.description}
-                                          </p>
-                                       </div>
-                                    </div>
-                                 ))}
-                              </div>
-                           ) : isVideoService && currentVideo ? (
-                              <div className="relative w-full h-full">
-                                 <video
-                                    src={currentVideo.src}
-                                    className="w-full h-full object-cover opacity-80"
-                                    autoPlay muted loop playsInline
-                                 />
-
-                                 {/* Navigation Arrows */}
-                                 <button
-                                    onClick={handlePrev}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent"
-                                    style={{
-                                       '--hover-color': accentColor
-                                    } as any}
-                                    onMouseEnter={(e) => e.currentTarget.style.color = accentColor}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
-                                 >
-                                    <ChevronLeft size={32} />
-                                 </button>
-                                 <button
-                                    onClick={handleNext}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent"
-                                    onMouseEnter={(e) => e.currentTarget.style.color = accentColor}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
-                                 >
-                                    <ChevronRight size={32} />
-                                 </button>
-
-                                 {/* Overlay Gradient */}
-                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                                 <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
-
-                                 {/* Active Content Info - Only for Video */}
-                                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-16 z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 pb-12 md:pb-32">
-                                    <motion.div
-                                       initial={{ opacity: 0, y: 20 }}
-                                       animate={{ opacity: 1, y: 0 }}
-                                       transition={{ delay: 0.2 }}
-                                       className="max-w-2xl"
-                                    >
-                                       <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 relative">
-                                          {currentVideo.title}
-                                       </h2>
-                                       <p className="text-white/70 font-mono text-sm md:text-base leading-relaxed pl-6 border-l-2" style={{ borderColor: accentColor }}>
-                                          {currentVideo.description}
-                                       </p>
-                                    </motion.div>
-
-                                    {/* Playlist / Selector - Replaces Tech Decor */}
-                                    <div className="h-full max-h-[40vh] overflow-y-auto hidden md:flex flex-col items-end gap-2 z-20 pr-4 no-scrollbar">
-                                       {currentService.videos?.map((vid, vIdx) => (
-                                          <button
-                                             key={vid.id}
-                                             onClick={() => setActiveVideo(vIdx)}
-                                             className={`group flex items-center gap-4 py-2 text-right transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                           {isVideoService && currentService.videos ? (
+                              isMobile ? (
+                                 <div className="flex flex-col w-full py-12">
+                                    <div className="grid grid-cols-1 gap-24 md:gap-32 w-full">
+                                       {currentService.videos.slice(0, visibleVideos).map((video: any, idx: number) => (
+                                          <motion.div
+                                             key={video.id}
+                                             initial={{ opacity: 0, y: 40 }}
+                                             whileInView={{ opacity: 1, y: 0 }}
+                                             viewport={{ once: true, margin: "-100px" }}
+                                             className={`group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}
                                           >
-                                             <span
-                                                className={`text-[10px] font-mono tracking-widest uppercase transition-colors duration-300`}
-                                                style={{ color: activeVideo === vIdx ? accentColor : '#ffffff' }}
-                                             >
-                                                {vid.title}
-                                             </span>
-                                             <div className={`w-1.5 h-1.5 transition-colors duration-300`} style={{ backgroundColor: activeVideo === vIdx ? accentColor : '#ffffff' }} />
-                                          </button>
+                                             <video
+                                                src={video.src}
+                                                className="w-full h-full object-cover opacity-90 transition-all duration-700 group-hover:scale-105"
+                                                autoPlay
+                                                muted
+                                                loop
+                                                playsInline
+                                             />
+
+                                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+                                                <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 flex flex-col justify-end">
+                                                   <h3 className={`${currentService.id === 'shorts' ? 'text-2xl md:text-3xl' : 'text-3xl md:text-6xl'} font-black text-white uppercase tracking-tighter mb-4`}>
+                                                      {video.title}
+                                                   </h3>
+                                                   <p className="text-white/60 font-mono text-[10px] md:text-xs uppercase tracking-widest pl-4 border-l border-[#FF5000]">
+                                                      {video.description}
+                                                   </p>
+                                                </div>
+                                             </div>
+                                          </motion.div>
                                        ))}
                                     </div>
+
+                                    {visibleVideos < currentService.videos.length && (
+                                       <div className="flex justify-center pt-20 pb-24">
+                                          <button
+                                             onClick={() => setVisibleVideos(prev => prev + 6)}
+                                             className="group relative flex items-center gap-6 py-6 px-16 border border-black/10 transition-all duration-700 overflow-hidden"
+                                          >
+                                             <span className="relative z-10 text-[11px] font-bold uppercase tracking-[0.5em] group-hover:text-white transition-colors duration-500">SEE MORE</span>
+                                             <div className="absolute inset-x-0 bottom-0 h-0 group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1] bg-black" />
+                                          </button>
+                                       </div>
+                                    )}
                                  </div>
-                              </div>
+                              ) : (
+                                 /* DESKTOP VIEW - Restore Slider/Playlist */
+                                 currentService.id === 'shorts' ? (
+                                    <div className="w-full h-full grid grid-cols-3 gap-8 p-8 bg-transparent overflow-visible shadow-none">
+                                       {currentService.videos.map((video: any) => (
+                                          <div key={video.id} className="relative w-full h-full group overflow-hidden bg-transparent">
+                                             <video
+                                                src={video.src}
+                                                className="w-full h-full object-cover"
+                                                muted
+                                                loop
+                                                playsInline
+                                                onMouseEnter={(e) => e.currentTarget.play()}
+                                                onMouseLeave={(e) => {
+                                                   e.currentTarget.pause();
+                                                   e.currentTarget.currentTime = 0;
+                                                }}
+                                             />
+                                             <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-8 bg-gradient-to-t from-black/90 via-transparent to-transparent">
+                                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                                   {video.title}
+                                                </h3>
+                                                <p className="text-xs font-mono uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 text-[#FF5000]">
+                                                   {video.description}
+                                                </p>
+                                             </div>
+                                          </div>
+                                       ))}
+                                    </div>
+                                 ) : (
+                                    <div className="relative w-full h-full bg-[#050505]">
+                                       {currentVideo && (
+                                          <>
+                                             <video
+                                                key={currentVideo.src}
+                                                src={currentVideo.src}
+                                                className="w-full h-full object-cover opacity-80"
+                                                autoPlay muted loop playsInline
+                                             />
+                                             <button
+                                                onClick={handlePrev}
+                                                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent hover:text-[#FF5000]"
+                                             >
+                                                <ChevronLeft size={32} />
+                                             </button>
+                                             <button
+                                                onClick={handleNext}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 bg-black/20 backdrop-blur-sm transition-all duration-300 rounded-full border border-white/10 hover:border-transparent hover:text-[#FF5000]"
+                                             >
+                                                <ChevronRight size={32} />
+                                             </button>
+                                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                                             <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
+                                             <div className="absolute bottom-0 left-0 w-full p-16 z-10 flex justify-between items-end gap-8 pb-32">
+                                                <motion.div
+                                                   initial={{ opacity: 0, y: 20 }}
+                                                   animate={{ opacity: 1, y: 0 }}
+                                                   transition={{ delay: 0.2 }}
+                                                   className="max-w-2xl text-left"
+                                                >
+                                                   <h2 className="text-6xl font-black text-white uppercase tracking-tighter mb-6 relative">
+                                                      {currentVideo.title}
+                                                   </h2>
+                                                   <p className="text-white/70 font-mono text-base leading-relaxed pl-6 border-l-2 border-[#FF5000]">
+                                                      {currentVideo.description}
+                                                   </p>
+                                                </motion.div>
+                                                <div className="h-full max-h-[40vh] overflow-y-auto flex flex-col items-end gap-2 z-20 pr-4 no-scrollbar">
+                                                   {currentService.videos?.map((vid: any, vIdx: number) => (
+                                                      <button
+                                                         key={vid.id}
+                                                         onClick={() => setActiveVideo(vIdx)}
+                                                         className={`group flex items-center gap-4 py-2 text-right transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                                                      >
+                                                         <span
+                                                            className={`text-[10px] font-mono tracking-widest uppercase transition-colors duration-300 ${activeVideo === vIdx ? 'text-[#FF5000]' : 'text-white'}`}
+                                                         >
+                                                            {vid.title}
+                                                         </span>
+                                                         <div className={`w-1.5 h-1.5 transition-colors duration-300 ${activeVideo === vIdx ? 'bg-[#FF5000]' : 'bg-white'}`} />
+                                                      </button>
+                                                   ))}
+                                                </div>
+                                             </div>
+                                          </>
+                                       )}
+                                    </div>
+                                 )
+                              )
                            ) : (
                               /* Pinterest Style Grid for Photos/Digital */
                               <div className={`columns-1 gap-4 p-4 md:p-8 space-y-4 ${SERVICES[activeService].id === 'digital' ? 'md:columns-5' : 'md:columns-3'}`}>
@@ -323,20 +371,24 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
 
          {/* Uniform Footer CTA - Light Theme */}
          {(showAll || activeSection === 'cta') && (
-            <div className="max-w-7xl w-full mx-auto px-10 md:px-6 flex flex-col items-center py-48 border-t" style={{ backgroundColor: bgColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+            <div className="max-w-7xl w-full mx-auto px-10 md:px-6 flex flex-col items-center pt-12 pb-32 border-t" style={{ backgroundColor: bgColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
                <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   onClick={onContactClick}
-                  className="group relative flex items-center gap-6 py-6 px-16 border transition-all duration-700 overflow-hidden"
-                  style={{ color: txtColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}
+                  className="group relative flex items-center gap-6 py-6 px-16 border transition-all duration-700 overflow-hidden bg-black text-white"
+                  style={{ borderColor: 'transparent' }}
                >
-                  <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.6em] transition-transform duration-500 group-hover:translate-x-2">{data?.cta || "SCHEDULE_CALL"}</span>
+                  <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.6em] transition-transform duration-500 group-hover:translate-x-2">
+                     {data?.cta || "SCHEDULE_CALL"}
+                  </span>
                   <ArrowUpRight size={18} className="relative z-10 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-1" />
-                  <div className="absolute inset-x-0 bottom-0 h-0 group-hover:h-full transition-all duration-700 ease-[0.16,1,0.3,1]" style={{ backgroundColor: txtColor }} />
+
+                  {/* Hover Background (White) */}
+                  <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1] z-0" />
+
                   <span
-                     className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 font-bold uppercase tracking-[0.6em]"
-                     style={{ color: bgColor }}
+                     className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 font-bold uppercase tracking-[0.6em] text-black"
                   >
                      {data?.cta || "SCHEDULE_CALL"}
                   </span>

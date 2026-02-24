@@ -282,18 +282,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
             </div>
 
             {/* Menu Items */}
-            <div className="flex flex-col items-center justify-center flex-1 gap-10 min-h-0">
+            <div className="flex flex-col items-center justify-start pt-24 pb-12 flex-1 gap-10 min-h-0 overflow-y-auto">
               {NAV_ITEMS.map((item, i) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="text-2xl font-black text-white hover:text-[#FF5000] cursor-pointer transition-colors uppercase tracking-[0.2em] flex flex-col items-center group"
+                  className="text-[14px] font-black text-white hover:text-[#FF5000] cursor-pointer transition-colors uppercase tracking-[0.3em] flex items-center group"
                   onClick={(e) => {
                     handleLinkClick(e, item);
                     setIsOpen(false);
                   }}
                 >
-                  <span className="text-[10px] text-white/30 font-mono tracking-widest mb-1 font-bold group-hover:text-[#FF5000] transition-colors">0{i + 1}</span>
                   {item.label}
                 </a>
               ))}
@@ -301,18 +300,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               <div className="flex flex-col gap-4 mt-6">
                 <button
                   onClick={() => { onLabClick(); setIsOpen(false); }}
-                  className="px-12 py-4 bg-transparent border border-white/20 text-white hover:bg-white hover:text-black font-bold uppercase tracking-[0.3em] text-[11px] transition-colors relative"
+                  className="px-12 py-4 bg-white text-black font-black uppercase tracking-[0.3em] text-[14px] transition-colors relative"
                 >
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/40 z-20" />
-                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/40 z-20" />
-                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/40 z-20" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/40 z-20" />
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/20 z-20" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/20 z-20" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/20 z-20" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/20 z-20" />
                   BOOK STUDIO
                 </button>
 
                 <button
                   onClick={() => { onContactClick(); setIsOpen(false); }}
-                  className="px-12 py-5 bg-[#FF5000] text-black font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
+                  className="px-12 py-5 bg-[#FF5000] text-black font-black uppercase tracking-[0.3em] text-[14px] shadow-2xl relative"
                 >
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 z-20" />
@@ -325,7 +324,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
             {/* Decorative bottom element */}
             <div className="w-full text-center pb-8 opacity-30">
-              <span className="font-ocr text-[9px] tracking-widest text-white uppercase">// VISUAL_MATTER_AGCY</span>
+              <span className="font-ocr text-[9px] tracking-widest text-white uppercase">// OPTICELEMENT</span>
             </div>
           </motion.div>
         )}

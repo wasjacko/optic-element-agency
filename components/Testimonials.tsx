@@ -142,6 +142,80 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
     );
 };
 
+const Carousel3D = ({ items }: { items: typeof REELS }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [direction, setDirection] = useState(1); // 1 = Next, -1 = Prev
+
+    const handleNext = () => {
+        setDirection(1);
+        setActiveIndex(prev => (prev + 1) % items.length);
+    };
+
+    const handlePrev = () => {
+        setDirection(-1);
+        setActiveIndex(prev => (prev - 1 + items.length) % items.length);
+    };
+
+    const getSlot = (i: number) => (i - activeIndex + items.length) % items.length;
+
+    const sortedItems = [...items].sort((a, b) => {
+        const slotA = getSlot(items.indexOf(a));
+        const slotB = getSlot(items.indexOf(b));
+        if (slotA === 0) return 1;
+        if (slotB === 0) return -1;
+        if (direction === 1) return slotA - slotB;
+        else return slotB - slotA;
+    });
+
+    return (
+        <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                <div className="w-full max-w-[850px] flex justify-between px-4">
+                    <button onClick={handlePrev} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={handleNext} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
+                        <ChevronRight size={24} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="relative w-full max-w-5xl h-full flex items-center justify-center perspective-[1000px]">
+                {sortedItems.map((item) => {
+                    const originalIndex = items.indexOf(item);
+                    const slot = getSlot(originalIndex);
+                    let x = 0; let zIndex = 0; let scale = 1; let opacity = 1;
+                    if (slot === 0) { x = 0; zIndex = 50; scale = 1; }
+                    else if (slot === 1) { x = 240; zIndex = 30; scale = 0.85; }
+                    else if (slot === 2) { x = 450; zIndex = 10; scale = 0.7; }
+                    else if (slot === 3) { x = -450; zIndex = 10; scale = 0.7; }
+                    else { x = -240; zIndex = 30; scale = 0.85; }
+
+                    return (
+                        <motion.div
+                            key={item.id}
+                            className="absolute will-change-transform backface-hidden"
+                            animate={{ x, scale, zIndex, opacity, rotateY: 0 }}
+                            transition={{ type: "spring", stiffness: 60, damping: 20 }}
+                            style={{ width: '320px', height: '570px', transform: 'translateZ(0)' }}
+                        >
+                            <ReelCoverflowCard
+                                reel={item}
+                                isActive={slot === 0}
+                                offset={0}
+                                onClick={() => {
+                                    if (slot === 1) handleNext();
+                                    if (slot === 2) handlePrev();
+                                }}
+                            />
+                        </motion.div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 const MobileReelCard = ({ reel }: { reel: any }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -308,6 +382,24 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     const activeReels = data?.reels || REELS;
     const activeReviews = data?.reviews || GOOGLE_REVIEWS;
     const [visibleReviews, setVisibleReviews] = useState(3);
+    const [isMobile, setIsMobile] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const ITEMS_PER_VIEW = 4;
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const nextSlide = () => {
+        setCurrentIndex((prev) => (prev + 1) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+    };
+
+    const prevSlide = () => {
+        setCurrentIndex((prev) => (prev - 1 + Math.ceil(activeReviews.length / ITEMS_PER_VIEW)) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+    };
 
     const loadMore = () => {
         setVisibleReviews(prev => Math.min(prev + 3, 9, activeReviews.length));
@@ -331,9 +423,13 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                     </h2>
                 </div>
 
-                {/* Flat Carousel Section */}
+                {/* Content Section */}
                 <div className="mb-20">
-                    <FlatVideoCarousel items={activeReels} />
+                    {!isMobile ? (
+                        <Carousel3D items={activeReels} />
+                    ) : (
+                        <FlatVideoCarousel items={activeReels} />
+                    )}
                 </div>
 
                 {/* Google Testimonials Header & Nav */}
@@ -344,51 +440,80 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                         </h3>
                     </div>
 
-                    {/* Vertical / Grid Layout */}
-                    <div className="relative w-full px-0 py-10 mt-6 flex flex-col gap-16 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 max-w-6xl mx-auto">
-                        {activeReviews.slice(0, visibleReviews).map((review: any) => (
-                            <div key={review.id} className="w-full">
-                                <GoogleReviewCard review={review} />
+                    {!isMobile ? (
+                        /* DESKTOP SLIDER */
+                        <div className="relative w-full px-12">
+                            <button
+                                onClick={prevSlide}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+
+                            <button
+                                onClick={nextSlide}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+
+                            <div className="overflow-hidden py-10 -my-10">
+                                <motion.div
+                                    className="flex"
+                                    animate={{ x: `-${currentIndex * 100}%` }}
+                                    transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
+                                >
+                                    {activeReviews.map((review: any, i: number) => (
+                                        <motion.div
+                                            key={review.id}
+                                            className="min-w-full md:min-w-[25%] px-3 shrink-0"
+                                        >
+                                            <GoogleReviewCard review={review} />
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ) : (
+                        /* MOBILE GRID / VERTICAL */
+                        <>
+                            <div className="relative w-full px-0 py-10 mt-6 flex flex-col gap-16 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 max-w-6xl mx-auto">
+                                {activeReviews.slice(0, visibleReviews).map((review: any) => (
+                                    <div key={review.id} className="w-full">
+                                        <GoogleReviewCard review={review} />
+                                    </div>
+                                ))}
+                            </div>
 
-                    {/* Load More / Show Less Buttons */}
-                    <div className="flex justify-center gap-4 mt-6">
-                        {visibleReviews < Math.min(activeReviews.length, 9) && (
-                            <button
-                                onClick={loadMore}
-                                className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
-                            >
-                                {/* Brackets */}
-                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
-                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
-                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
-                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+                            <div className="flex justify-center gap-4 mt-6">
+                                {visibleReviews < Math.min(activeReviews.length, 9) && (
+                                    <button
+                                        onClick={loadMore}
+                                        className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
+                                    >
+                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
+                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
+                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+                                        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">SEE MORE</span>
+                                    </button>
+                                )}
 
-                                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">
-                                    SEE MORE
-                                </span>
-                            </button>
-                        )}
-
-                        {visibleReviews > 3 && (
-                            <button
-                                onClick={showLess}
-                                className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
-                            >
-                                {/* Brackets */}
-                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
-                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
-                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
-                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
-
-                                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">
-                                    SEE LESS
-                                </span>
-                            </button>
-                        )}
-                    </div>
+                                {visibleReviews > 3 && (
+                                    <button
+                                        onClick={showLess}
+                                        className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
+                                    >
+                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
+                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
+                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+                                        <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">SEE LESS</span>
+                                    </button>
+                                )}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </section>
