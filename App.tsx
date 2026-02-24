@@ -203,7 +203,7 @@ export default function App() {
 
             {/* 1.5. THE LAB PAGE */}
             {activePage === 'lab' && (
-              <motion.div key="lab" {...pageTransition} className="pt-20">
+              <motion.div key="lab" {...pageTransition} className="pt-12 md:pt-20">
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <TheLab onContactClick={handleContactClick} data={cmsContent.lab} />
                   <Footer onContactClick={handleContactClick} />
@@ -213,7 +213,7 @@ export default function App() {
 
             {/* 2. CONTACT PAGE */}
             {activePage === 'contact' && (
-              <motion.div key="contact" {...pageTransition} className="pt-20">
+              <motion.div key="contact" {...pageTransition} className="pt-12 md:pt-20">
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <ContactPage onBack={handleHomeClick} data={cmsContent.contact} />
                 </Suspense>
@@ -222,7 +222,7 @@ export default function App() {
 
             {/* 3. ABOUT PAGE */}
             {activePage === 'about' && (
-              <motion.div key="about" {...pageTransition}>
+              <motion.div key="about" {...pageTransition} className="pt-12 md:pt-20">
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <About onContactClick={handleContactClick} data={cmsContent.about} />
                   <Footer onContactClick={handleContactClick} />
@@ -232,7 +232,7 @@ export default function App() {
 
             {/* 4. WORKS PAGE */}
             {activePage === 'work' && (
-              <motion.div key="work" {...pageTransition} className="pt-24">
+              <motion.div key="work" {...pageTransition} className="pt-12 md:pt-24">
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <WorksPage onContactClick={handleContactClick} data={cmsContent.worksPage} />
                   <Footer onContactClick={handleContactClick} />
