@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import {
   BrainCircuit,
@@ -10,7 +10,6 @@ import {
   Rocket,
   ArrowRight
 } from 'lucide-react';
-
 const STEPS = [
   {
     id: "01",
@@ -67,9 +66,16 @@ const STEPS = [
     tag: "Launch & Celebrate"
   }
 ];
-
 export const ProcessPage = ({ onContactClick, data, activeSection }: { onContactClick: () => void, data?: any, activeSection?: string }) => {
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Overall page scroll progress
   const { scrollYProgress } = useScroll({
@@ -135,7 +141,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
         <div className="relative max-w-5xl mx-auto px-10 md:px-6">
 
           {/* The "Power Line" - Animated Center Beam */}
-          <div className="absolute top-0 bottom-0 left-[23px] md:left-1/2 md:-translate-x-1/2 w-[2px] z-0" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
+          <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[2px] z-0" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
             <motion.div
               style={{
                 height: lineHeight,
@@ -154,6 +160,8 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
                 index={index}
                 accentColor={accentColor}
                 txtColor={txtColor}
+                bgColor={bgColor}
+                isMobile={isMobile}
               />
             ))}
           </div>
@@ -181,7 +189,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
   );
 };
 
-const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#ffffff' }: { step: typeof STEPS[0], index: number, accentColor?: string, txtColor?: string }) => {
+const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#ffffff', bgColor = '#000000', isMobile }: { step: typeof STEPS[0], index: number, accentColor?: string, txtColor?: string, bgColor?: string, isMobile: boolean }) => {
   const isEven = index % 2 === 0;
   const ref = useRef(null);
 
@@ -195,18 +203,18 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
 
   // Entrance Animations
   const contentOpacity = useTransform(progress, [0, 0.8], [0, 1]);
+  const contentY = useTransform(progress, [0, 0.8], [50, 0]);
 
   return (
-    <div ref={ref} className={`relative flex flex-col md:flex-row items-center md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+    <div ref={ref} className={`relative flex flex-col ${isMobile ? 'items-center space-y-12' : 'md:flex-row items-center md:gap-24'} ${!isMobile && (isEven ? 'md:flex-row' : 'md:flex-row-reverse')}`}>
 
       {/* 1. THE NODE (Center connection point) */}
-      <div className="absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0">
+      <div className={`${isMobile ? 'relative mb-8' : 'absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0'}`}>
         <motion.div
           style={{ opacity: contentOpacity, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', backgroundColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
           className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
         >
-
-          {/* Active Glow Ring - Restored */}
+          {/* Active Glow Ring */}
           <motion.div
             style={{ opacity: contentOpacity, borderColor: accentColor }}
             className="absolute -inset-2 border blur-sm opacity-50"
@@ -214,22 +222,39 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
 
           <span className="font-mono font-bold text-sm md:text-lg z-10 transition-colors leading-none" style={{ color: txtColor === '#ffffff' ? '#ffffff' : '#000000' }}>0{index + 1}</span>
 
-          {/* Connector Line to Content (Mobile only really visible) */}
-          <div className="absolute top-1/2 left-full w-4 h-px md:hidden" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }} />
+          {/* Connector Line - Only for desktop or hidden if centered mobile */}
+          {!isMobile && (
+            <div className="absolute top-1/2 left-full w-4 h-px md:hidden" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }} />
+          )}
         </motion.div>
       </div>
 
       {/* 2. THE CARD (Content) */}
       <motion.div
-        style={{ opacity: contentOpacity }}
-        className={`w-full md:w-[45%] pl-16 md:pl-0 ${isEven ? 'text-left' : 'text-left md:text-right'}`}
+        style={{ opacity: contentOpacity, y: contentY }}
+        className={`w-full relative z-10 ${isMobile ? 'px-4 text-center' : 'md:w-[45%] pl-16 md:pl-0'} ${!isMobile && (isEven ? 'text-left' : 'text-left md:text-right')}`}
       >
         <div className="relative group">
 
-          {/* Wireframe Card Container - Static, No Icons */}
-          <div className="relative p-8 md:p-10 border will-change-transform backface-hidden" style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
+          {/* ANIMATION FOR MOBILE - Centered above text with background to hide line */}
+          {isMobile && (
+            <div className="flex justify-center items-center mb-8 transform scale-75 md:scale-100 relative">
+              <div className="absolute inset-x-0 top-1/2 h-[120%] w-64 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0" style={{ backgroundColor: bgColor }} />
+              <div className="relative z-10">
+                {step.id === "01" && <StrategyAnimation accentColor={accentColor} txtColor={txtColor} />}
+                {step.id === "02" && <PlanAnimation accentColor={accentColor} txtColor={txtColor} />}
+                {step.id === "03" && <RollAnimation accentColor={accentColor} txtColor={txtColor} />}
+                {step.id === "04" && <InitiateAnimation accentColor={accentColor} txtColor={txtColor} />}
+                {step.id === "05" && <NotifyAnimation accentColor={accentColor} txtColor={txtColor} />}
+                {step.id === "06" && <TakeoffAnimation accentColor={accentColor} txtColor={txtColor} />}
+              </div>
+            </div>
+          )}
 
-            {/* Corner Nodes - Static White */}
+          {/* Wireframe Card Container */}
+          <div className="relative p-8 md:p-10 border will-change-transform backface-hidden z-10" style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)', backgroundColor: bgColor }}>
+
+            {/* Corner Nodes */}
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3" style={{ backgroundColor: txtColor }} />
@@ -240,12 +265,12 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
               {step.title}
             </h3>
 
-            <p className="text-sm md:text-base leading-relaxed font-light font-mono" style={{ color: txtColor, opacity: 0.7 }}>
+            <p className="text-sm md:text-base leading-relaxed font-light font-mono mx-auto" style={{ color: txtColor, opacity: 0.7, maxWidth: isMobile ? '300px' : 'none' }}>
               {step.description}
             </p>
 
             {/* Tech Decoration */}
-            <div className={`mt-6 pt-6 border-t border-dashed flex gap-4 items-center opacity-80 ${isEven ? 'flex-row' : 'flex-row md:flex-row-reverse'}`} style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
+            <div className={`mt-6 pt-6 border-t border-dashed flex gap-4 items-center opacity-80 ${isMobile ? 'justify-center' : (isEven ? 'flex-row' : 'flex-row md:flex-row-reverse')}`} style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' }}>
               <span className="text-[10px] font-mono tracking-widest uppercase font-semibold" style={{ color: accentColor }}>{step.tag}</span>
             </div>
 
@@ -253,15 +278,17 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
         </div>
       </motion.div>
 
-      {/* 3. Empty spacer for grid balance OR Animation */}
-      <div className="hidden md:flex w-[45%] justify-center items-center">
-        {step.id === "01" && <StrategyAnimation accentColor={accentColor} txtColor={txtColor} />}
-        {step.id === "02" && <PlanAnimation accentColor={accentColor} txtColor={txtColor} />}
-        {step.id === "03" && <RollAnimation accentColor={accentColor} txtColor={txtColor} />}
-        {step.id === "04" && <InitiateAnimation accentColor={accentColor} txtColor={txtColor} />}
-        {step.id === "05" && <NotifyAnimation accentColor={accentColor} txtColor={txtColor} />}
-        {step.id === "06" && <TakeoffAnimation accentColor={accentColor} txtColor={txtColor} />}
-      </div>
+      {/* 3. Empty spacer / Animation for Desktop */}
+      {!isMobile && (
+        <div className="hidden md:flex w-[45%] justify-center items-center">
+          {step.id === "01" && <StrategyAnimation accentColor={accentColor} txtColor={txtColor} />}
+          {step.id === "02" && <PlanAnimation accentColor={accentColor} txtColor={txtColor} />}
+          {step.id === "03" && <RollAnimation accentColor={accentColor} txtColor={txtColor} />}
+          {step.id === "04" && <InitiateAnimation accentColor={accentColor} txtColor={txtColor} />}
+          {step.id === "05" && <NotifyAnimation accentColor={accentColor} txtColor={txtColor} />}
+          {step.id === "06" && <TakeoffAnimation accentColor={accentColor} txtColor={txtColor} />}
+        </div>
+      )}
 
     </div>
   );

@@ -803,7 +803,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                         className="flex flex-col justify-center py-1 gap-1 opacity-0"
                         style={{ animation: 'simpleFadeIn 0.5s ease-out 1.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
                     >
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// VISUAL_MATTER_AGCY</div>
+                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTICELEMENT.SYSTEM</div>
                         <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">STRATEGY // EXEC</div>
                         <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GLOBAL_COORDINATES</div>
                     </div>

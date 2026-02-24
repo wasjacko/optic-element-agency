@@ -226,6 +226,14 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
   const accentColor = data?.accentColor || '#FF5000';
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -325,19 +333,46 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4">
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-12' : 'md:grid-cols-6 gap-8'} pb-4`}>
               {DIFFERENTIATORS.map((diff: any, i) => {
+                if (isMobile) {
+                  return (
+                    <div
+                      key={i}
+                      className="relative px-8 py-16 flex flex-col items-center text-center w-full bg-white border border-gray-100"
+                    >
+                      {/* Prominent Mobile Brackets */}
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#FF5000] z-10" />
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-[#FF5000] z-10" />
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-[#FF5000] z-10" />
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#FF5000] z-10" />
+
+                      <h4 className="text-2xl font-black uppercase tracking-tighter text-black mb-6 leading-none">
+                        {diff.title}
+                      </h4>
+                      <p className="text-[12px] leading-relaxed text-gray-500 font-ocr uppercase tracking-[0.05em] max-w-[240px]">
+                        {diff.desc}
+                      </p>
+                    </div>
+                  );
+                }
+
+                // Desktop 3+2 Layout Math
+                const desktopGridClasses = i < 3
+                  ? "md:col-span-2"
+                  : (i === 3 ? "md:col-start-2 md:col-span-2" : "md:col-span-2");
+
                 return (
                   <div
                     key={i}
-                    className="group relative p-5 md:p-6 flex flex-col h-full min-h-[220px] w-full bg-transparent border border-gray-200 hover:border-[#FF5000]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden"
+                    className={`group relative p-8 md:p-10 flex flex-col h-full w-full bg-transparent border border-gray-200 hover:border-[#FF5000]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden aspect-square ${desktopGridClasses}`}
                   >
                     {/* Hover Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-black via-black/95 to-[#1a0600] opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none" />
 
                     {/* Periodic Table Styled Background Decor */}
-                    <div className="absolute top-6 right-6 text-right opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-                      <div className="text-4xl font-black">{diff.symbol}</div>
+                    <div className="absolute top-8 right-8 text-right opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
+                      <div className="text-5xl font-black text-black group-hover:text-white transition-colors duration-500">{diff.symbol}</div>
                     </div>
 
                     {/* Corner Squares */}
@@ -347,14 +382,14 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                     <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#FF5000] z-10" />
 
                     {/* Header */}
-                    <div className="relative z-10 flex justify-between items-start mb-4 border-b border-gray-100 group-hover:border-white/20 pb-3 transition-colors duration-500">
+                    <div className="relative z-10 flex justify-between items-start mb-6 border-b border-gray-100 group-hover:border-white/20 pb-4 transition-colors duration-500">
                       <div className="flex flex-col">
-                        <span className="font-ocr text-[9px] tracking-widest text-[#FF5000] mb-0.5">{diff.atomicNumber}</span>
-                        <span className="font-ocr text-[9px] tracking-widest text-gray-400 group-hover:text-white/50 transition-colors duration-500">
+                        <span className="font-ocr text-[10px] tracking-widest text-[#FF5000] mb-1">{diff.atomicNumber}</span>
+                        <span className="font-ocr text-[10px] tracking-widest text-gray-400 group-hover:text-white/50 transition-colors duration-500">
                           {diff.symbol}
                         </span>
                       </div>
-                      <span className="font-ocr text-[9px] tracking-widest uppercase text-gray-400 group-hover:text-white/50 transition-colors duration-500">
+                      <span className="font-ocr text-[10px] tracking-widest uppercase text-gray-400 group-hover:text-white/50 transition-colors duration-500">
                         {diff.group}
                       </span>
                     </div>
@@ -362,24 +397,24 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                     {/* Content */}
                     <div className="relative z-10 flex flex-col h-full justify-between">
                       <div>
-                        {/* Title - scaled down */}
-                        <div className="min-h-[3rem] flex items-end mb-4">
-                          <h4 className="text-lg md:text-xl font-black uppercase tracking-tighter text-black group-hover:text-white leading-none w-full transition-colors duration-500">
+                        {/* Title */}
+                        <div className="min-h-[4rem] flex items-end mb-6">
+                          <h4 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black group-hover:text-white leading-none w-full transition-colors duration-500">
                             {diff.title}
                           </h4>
                         </div>
 
                         {/* Separator */}
-                        <div className="w-full h-px bg-gray-200 group-hover:bg-white/20 mb-4 transition-colors duration-500" />
+                        <div className="w-full h-px bg-gray-200 group-hover:bg-white/20 mb-6 transition-colors duration-500" />
 
-                        <p className="text-[10px] md:text-[11px] leading-relaxed text-gray-400 group-hover:text-white/60 font-ocr uppercase tracking-wider transition-colors duration-500">
+                        <p className="text-[11px] md:text-[12px] leading-relaxed text-gray-400 group-hover:text-white/60 font-ocr uppercase tracking-wider transition-colors duration-500">
                           {diff.desc}
                         </p>
                       </div>
 
-                      {/* Scientific Footer Reveal - scaled down */}
-                      <div className="mt-4 pt-2 border-t border-transparent group-hover:border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-700">
-                        <div className="flex justify-between items-center font-ocr text-[8px] tracking-widest text-white/20">
+                      {/* Scientific Footer Reveal */}
+                      <div className="mt-6 pt-3 border-t border-transparent group-hover:border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-700">
+                        <div className="flex justify-between items-center font-ocr text-[9px] tracking-widest text-white/20">
                           <span>{diff.mass}</span>
                           <span>{diff.config}</span>
                         </div>
