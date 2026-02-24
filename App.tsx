@@ -193,7 +193,7 @@ export default function App() {
             )}
 
             {activePage === 'process' && (
-              <motion.div key="process" {...pageTransition} className="pt-20">
+              <motion.div key="process" {...pageTransition} className="pt-12 md:pt-20">
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <ProcessPage onContactClick={handleContactClick} data={cmsContent.processPage} />
                   <Footer onContactClick={handleContactClick} />
