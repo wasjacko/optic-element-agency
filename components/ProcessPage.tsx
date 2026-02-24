@@ -95,9 +95,9 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
   const accentColor = data?.accentColor || '#FF5000';
 
   return (
-    <div
+    <section
       ref={containerRef}
-      className="min-h-[100vh] relative pb-48 pt-56 overflow-hidden"
+      className={`min-h-[100vh] relative pb-48 pt-24 md:pt-56 overflow-hidden`}
       style={{ backgroundColor: bgColor, color: txtColor }}
     >
 
@@ -120,7 +120,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
 
       {/* Header */}
       {(showAll || activeSection === 'header') && (
-        <div className="px-10 md:px-6 text-center mb-48 relative z-10">
+        <div className="px-10 md:px-6 text-center mb-24 md:mb-48 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -185,7 +185,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
           </motion.button>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
