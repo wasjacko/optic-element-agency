@@ -214,7 +214,7 @@ export const BookingsManager: React.FC = () => {
                 <tbody className="divide-y">
                     {bookings.length === 0 ? (
                         <tr>
-                            <td colSpan={4} className="px-6 py-12 text-center text-gray-400 italic">No bookings found.</td>
+                            <td colSpan={4} className="px-10 md:px-6 py-12 text-center text-gray-400 italic">No bookings found.</td>
                         </tr>
                     ) : bookings.map(booking => (
                         <tr key={booking.id} className="hover:bg-gray-50 transition-colors">

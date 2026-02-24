@@ -278,7 +278,7 @@ const GlitchReveal: React.FC<{ text: string, delay?: number, className?: string,
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete, content, theme, currentPhase }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete, content, theme, currentPhase, isMobile }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
@@ -424,12 +424,21 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         let activeMouse = globalMouse.current;
         let targetInfluence = 1.0;
 
-        if (currentPhase === 1) {
-            activeMouse = s.phase1Mouse;
-            targetInfluence = 1.5;
-        } else if (currentPhase === 2) {
-            activeMouse = s.phase2Mouse;
-            targetInfluence = 1.5;
+        if (isMobile) {
+            // Keep it perfectly centered horizontally, but moved up slightly more to match new cube height
+            activeMouse = new THREE.Vector2(0, 0.45);
+
+            // Sudden reveal right before the end of the loading phase (e.g. at elapsed > 2.2s)
+            // It will jump from 0 to 1.8 instantly, creating a popping effect
+            targetInfluence = elapsed > 2.2 ? 1.8 : 0.0;
+        } else {
+            if (currentPhase === 1) {
+                activeMouse = s.phase1Mouse;
+                targetInfluence = 1.5;
+            } else if (currentPhase === 2) {
+                activeMouse = s.phase2Mouse;
+                targetInfluence = 1.5;
+            }
         }
 
         s.lerpMouse.lerp(activeMouse, dt * 5.0);
@@ -447,26 +456,34 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         const whiteOutVal = elapsed < INTRO_START ? 1.0 : Math.max(0, 1.0 - (elapsed - INTRO_START) * 4.0);
 
         // Calculate base scale
-        const easedP = easeInOutQuart(introPhase.current);
-
         let targetScale = 0.001;
-        if (elapsed > CUBE_START - 0.2) {
-            const appear = Math.min(1, (elapsed - CUBE_START + 0.2) * 5.0); // Fast initial small appearance
-            targetScale = 0.15 * appear;
-        }
 
-        targetScale += easedP * 0.85;
+        if (isMobile) {
+            targetScale = 0.70; // 0.75 - 0.05 from Phase 3
+            // Snap the spring instantly so there's no growth animation on mobile
+            if (s.springScale < 0.6) {
+                s.springScale = 0.70;
+            }
+        } else {
+            const easedP = easeInOutQuart(introPhase.current);
+            if (elapsed > CUBE_START - 0.2) {
+                const appear = Math.min(1, (elapsed - CUBE_START + 0.2) * 5.0); // Fast initial small appearance
+                targetScale = 0.15 * appear;
+            }
 
-        // Dynamic Shockwave on Cube Scale during Intro
-        if (elapsed > INTRO_START && elapsed < INTRO_START + 0.2) { // Shorter shock
-            const shock = Math.sin((elapsed - INTRO_START) * Math.PI * 4.0) * 0.15;
-            targetScale += shock;
-        }
+            targetScale += easedP * 0.85;
 
-        // Phase 3+ modification: Cube smaller and higher
-        if (s.lerpPhase > 2.0) {
-            const p3 = Math.min(1, (s.lerpPhase - 2.0) * 2);
-            targetScale = 1.0 - p3 * 0.15; // Make it smaller
+            // Dynamic Shockwave on Cube Scale during Intro
+            if (elapsed > INTRO_START && elapsed < INTRO_START + 0.2) { // Shorter shock
+                const shock = Math.sin((elapsed - INTRO_START) * Math.PI * 4.0) * 0.15;
+                targetScale += shock;
+            }
+
+            // Phase 3+ modification: Cube smaller and higher
+            if (s.lerpPhase > 2.0) {
+                const p3 = Math.min(1, (s.lerpPhase - 2.0) * 2);
+                targetScale = 1.0 - p3 * 0.15;
+            }
         }
 
         const force = (targetScale - s.springScale) * 90.0; // Smoother Force (was 120)
@@ -478,39 +495,48 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             if (innerMeshRef.current) innerMeshRef.current.scale.setScalar(s.springScale * 0.99);
 
             let posX = 0;
-            const offset = viewport.width * 0.08;
-            const P = s.lerpPhase;
-
-            if (P < 1) {
-                posX = THREE.MathUtils.lerp(0, -offset, P);
-            } else if (P < 2) {
-                posX = THREE.MathUtils.lerp(-offset, offset, P - 1);
-            } else {
-                posX = THREE.MathUtils.lerp(offset, 0, Math.min(1, P - 2));
-            }
-
             let posY = s.lerpMouse.y * 0.2 + Math.sin(time * 0.4) * 0.05;
-            if (P > 2) {
-                // Move higher in phase 3
-                posY += Math.min(1, P - 2) * 0.5;
+            let rotX = 0.15;
+            let rotY = 0.4;
+
+            if (isMobile) {
+                posX = 0;
+                posY += 1.5; // Fixed height on mobile
+
+                // Static rotation on mobile (Phase 3 equivalent)
+                rotY = 1.6 + 1.0;
+                rotX = 0.2 - 0.1;
+            } else {
+                const offset = viewport.width * 0.08;
+                const P = s.lerpPhase;
+
+                if (P < 1) {
+                    posX = THREE.MathUtils.lerp(0, -offset, P);
+                } else if (P < 2) {
+                    posX = THREE.MathUtils.lerp(-offset, offset, P - 1);
+                } else {
+                    posX = THREE.MathUtils.lerp(offset, 0, Math.min(1, P - 2));
+                }
+
+                if (P > 2) {
+                    // Move higher in phase 3
+                    posY += Math.min(1, P - 2) * 0.5;
+                }
+
+                if (P > 0 && P <= 1) {
+                    rotY = 0.4 + P * 0.5;
+                    rotX = 0.15 + P * 0.15;
+                } else if (P > 1 && P <= 2) {
+                    rotY = 0.9 + (P - 1) * 0.7;
+                    rotX = 0.3 - (P - 1) * 0.1;
+                } else if (P > 2) {
+                    rotY = 1.6 + (P - 2) * 1.0;
+                    rotX = 0.2 - (P - 2) * 0.1;
+                }
             }
 
             groupRef.current.position.x = posX + s.lerpMouse.x * 0.2;
             groupRef.current.position.y = posY;
-
-            let rotX = 0.15;
-            let rotY = 0.4;
-
-            if (s.lerpPhase > 0 && s.lerpPhase <= 1) {
-                rotY = 0.4 + s.lerpPhase * 0.5;
-                rotX = 0.15 + s.lerpPhase * 0.15;
-            } else if (s.lerpPhase > 1 && s.lerpPhase <= 2) {
-                rotY = 0.9 + (s.lerpPhase - 1) * 0.7;
-                rotX = 0.3 - (s.lerpPhase - 1) * 0.1;
-            } else if (s.lerpPhase > 2) {
-                rotY = 1.6 + (s.lerpPhase - 2) * 1.0;
-                rotX = 0.2 - (s.lerpPhase - 2) * 0.1;
-            }
 
             // JITTER during loading (Only when visible)
             if (elapsed > CUBE_START && elapsed < INTRO_START) {
@@ -541,10 +567,23 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 mat.uniforms.uVelocity.value.copy(s.mouseVel);
                 mat.uniforms.uAspect.value = viewport.width / viewport.height;
                 mat.uniforms.uGlobalOpacity.value = globalOpacity.current;
-                // Give it a tiny bit of visibility (0.05) even when black
-                mat.uniforms.uIntroProgress.value = 0.05 + introPhase.current * 0.95;
+
+                if (isMobile) {
+                    // On mobile, force the outer metal shader to be fully visible and solid immediately
+                    mat.uniforms.uIntroProgress.value = 1.0;
+                    if (mat.uniforms.uWhiteOut) mat.uniforms.uWhiteOut.value = 0.0;
+
+                    // Force influence to exactly 0 ONLY at the very beginning to fix initial flash
+                    if (elapsed < 0.2) {
+                        mat.uniforms.uInfluence.value = 0.0;
+                    }
+                } else {
+                    // Give it a tiny bit of visibility (0.05) even when black
+                    mat.uniforms.uIntroProgress.value = 0.05 + introPhase.current * 0.95;
+                    if (mat.uniforms.uWhiteOut) mat.uniforms.uWhiteOut.value = whiteOutVal;
+                }
+
                 if (mat.uniforms.uIntroFlash) mat.uniforms.uIntroFlash.value = flashRef.current;
-                if (mat.uniforms.uWhiteOut) mat.uniforms.uWhiteOut.value = whiteOutVal;
                 mat.uniforms.uInfluence.value = THREE.MathUtils.lerp(mat.uniforms.uInfluence.value, targetInfluence, dt * 2.0);
             }
         });
@@ -613,9 +652,18 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
     const lastScrollTime = useRef(0);
 
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Scroll Logic
     useEffect(() => {
         const handleWheel = (e: WheelEvent) => {
+            if (isMobile) return; // Do not trap scroll on mobile
             if (!sectionRef.current) return;
             // Block interaction during loading phase
             if (loadProgress < 100) {
@@ -703,7 +751,8 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                         onIntroComplete={onIntroComplete}
                         content={content}
                         theme={currentTheme}
-                        currentPhase={currentPhase}
+                        currentPhase={isMobile ? 3 : currentPhase}
+                        isMobile={isMobile}
                     />
                 </Suspense>
             </Canvas>
@@ -739,7 +788,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 `}</style>
 
                 {/* Intro Texts */}
-                <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 hidden md:flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
 
                     {/* Block 1 */}
                     <div
@@ -763,7 +812,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
 
                 {/* Loader */}
                 <div
-                    className={`absolute top-1/2 -translate-y-1/2 right-10 md:right-32 text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
+                    className={`absolute md:top-1/2 md:-translate-y-1/2 md:right-32 bottom-[15vh] md:bottom-auto left-1/2 -translate-x-1/2 md:translate-x-0 text-center md:text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
                 >
                     <div style={{ animation: loadProgress === 100 ? 'glitchHide 0.25s steps(3) 0.2s forwards' : 'none' }}>
                         <span className="font-ocr text-[14px] md:text-[16px] text-white font-medium tracking-widest">
@@ -773,65 +822,102 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                     </div>
                 </div>
 
-                {/* Phase 1 Text */}
-                <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-[22%] max-w-4xl text-right">
-                    {isPhase1 && (
-                        <div className="flex flex-row items-center justify-end gap-2" style={{ animation: 'slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                            <TacticalText visible={isPhase1} color="#ffffff">
-                                {content?.phase1 || homeContent.hero.phase1}
-                            </TacticalText>
-                            <TacticalText visible={isPhase1} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
-                                {content?.phase1Highlight || homeContent.hero.phase1Highlight}
-                            </TacticalText>
-                        </div>
-                    )}
-                </div>
+                {/* MOBILE SPECIFIC UI */}
+                {isMobile && (
+                    <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end items-center px-10 md:px-6 pb-20 pointer-events-none">
+                        <div className={`transition-opacity duration-1000 flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 ? 'opacity-100' : 'opacity-0'}`}>
+                            <div className="flex flex-col gap-1 items-center">
+                                <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md">
+                                    {content?.phase1 || homeContent.hero.phase1}
+                                </h2>
+                                <h2 className="text-2xl sm:text-3xl font-black leading-[1.1] tracking-tighter drop-shadow-md" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
+                                    {content?.phase1Highlight || homeContent.hero.phase1Highlight}
+                                </h2>
+                                <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md pt-8">
+                                    {content?.phase2 || homeContent.hero.phase2}
+                                </h2>
+                                <h2 className="text-2xl sm:text-3xl font-black leading-[1.1] tracking-tighter drop-shadow-md" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
+                                    {content?.phase2Highlight || homeContent.hero.phase2Highlight}
+                                </h2>
+                            </div>
 
-                {/* Phase 2 Text */}
-                <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-[22%] max-w-4xl text-left">
-                    {isPhase2 && (
-                        <div className="flex flex-row items-center justify-start gap-2" style={{ animation: 'slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                            <TacticalText visible={isPhase2} color="#ffffff">
-                                {content?.phase2 || homeContent.hero.phase2}
-                            </TacticalText>
-                            <TacticalText visible={isPhase2} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
-                                {content?.phase2Highlight || homeContent.hero.phase2Highlight}
-                            </TacticalText>
-                        </div>
-                    )}
-                </div>
-
-                {/* Phase 3+: Center Button */}
-                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <button
-                        onClick={onContactClick}
-                        className="relative px-10 py-4 border-none pointer-events-auto group overflow-hidden"
-                        style={{
-                            backgroundColor: content?.ctaBg || '#ffffff',
-                        }}
-                    >
-                        {/* Brackets */}
-                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/20 z-20" />
-                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/20 z-20" />
-                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/20 z-20" />
-                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/20 z-20" />
-
-                        <div className="relative z-10">
-                            <TacticalText
-                                visible={isPhase3Plus}
-                                color={content?.ctaText || '#000000'}
-                                weight="font-black"
-                                size="text-[10px] md:text-xs"
-                                tracking="tracking-[0.4em]"
-                                noAnimation
+                            <button
+                                onClick={onContactClick}
+                                className="pointer-events-auto mt-4 border border-white/20 px-10 py-4 font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
+                                style={{ backgroundColor: content?.ctaBg || '#ffffff', color: content?.ctaText || '#000000' }}
                             >
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
+                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 z-20" />
+                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 z-20" />
+                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 z-20" />
                                 {content?.cta || homeContent.hero.cta}
-                            </TacticalText>
+                            </button>
                         </div>
-                    </button>
+                    </div>
+                )}
 
+                {/* DESKTOP UI (PHASE SECTIONS) */}
+                {!isMobile && (
+                    <>
+                        {/* Phase 1 Text */}
+                        <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-[22%] max-w-[90vw] md:max-w-4xl text-right">
+                            {isPhase1 && (
+                                <div className="flex flex-col md:flex-row items-end md:items-center justify-end gap-1 md:gap-2" style={{ animation: 'slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                                    <TacticalText visible={isPhase1} color="#ffffff">
+                                        {content?.phase1 || homeContent.hero.phase1}
+                                    </TacticalText>
+                                    <TacticalText visible={isPhase1} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
+                                        {content?.phase1Highlight || homeContent.hero.phase1Highlight}
+                                    </TacticalText>
+                                </div>
+                            )}
+                        </div>
 
-                </div>
+                        {/* Phase 2 Text */}
+                        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-[22%] max-w-[90vw] md:max-w-4xl text-left">
+                            {isPhase2 && (
+                                <div className="flex flex-col md:flex-row items-start md:items-center justify-start gap-1 md:gap-2" style={{ animation: 'slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                                    <TacticalText visible={isPhase2} color="#ffffff">
+                                        {content?.phase2 || homeContent.hero.phase2}
+                                    </TacticalText>
+                                    <TacticalText visible={isPhase2} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
+                                        {content?.phase2Highlight || homeContent.hero.phase2Highlight}
+                                    </TacticalText>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Phase 3+: Center Button */}
+                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <button
+                                onClick={onContactClick}
+                                className="relative px-10 py-4 border-none pointer-events-auto group overflow-hidden"
+                                style={{
+                                    backgroundColor: content?.ctaBg || '#ffffff',
+                                }}
+                            >
+                                {/* Brackets */}
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/20 z-20" />
+                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/20 z-20" />
+                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/20 z-20" />
+                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/20 z-20" />
+
+                                <div className="relative z-10">
+                                    <TacticalText
+                                        visible={isPhase3Plus}
+                                        color={content?.ctaText || '#000000'}
+                                        weight="font-black"
+                                        size="text-[10px] md:text-xs"
+                                        tracking="tracking-[0.4em]"
+                                        noAnimation
+                                    >
+                                        {content?.cta || homeContent.hero.cta}
+                                    </TacticalText>
+                                </div>
+                            </button>
+                        </div>
+                    </>
+                )}
 
             </div>
         </section>

@@ -8,7 +8,7 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
   return (
     <footer className="pt-32 pb-16 border-t border-white/10 relative overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-16 relative z-10">
+      <div className="max-w-[1800px] mx-auto px-8 md:px-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 mb-24 items-end">
           {/* Main CTA */}
           <motion.div
@@ -45,7 +45,7 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
             </div>
 
             <div className="flex flex-col md:items-end gap-4">
-              <a href="mailto:hello@opticelement.com" className="group flex items-center md:flex-row-reverse gap-4 text-2xl md:text-4xl font-light uppercase tracking-tight text-white hover:text-white/60 transition-colors">
+              <a href="mailto:hello@opticelement.com" className="group flex flex-col md:flex-row-reverse md:items-center gap-4 text-2xl md:text-4xl font-light uppercase tracking-tight text-white hover:text-white/60 transition-colors break-all md:break-normal">
                 HELLO@OPTICELEMENT.COM
                 <div className="p-3 border border-white/10 rounded-full group-hover:bg-white group-hover:text-black transition-all">
                   <ArrowUpRight size={28} className="transition-all" />

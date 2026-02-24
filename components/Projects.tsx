@@ -162,6 +162,14 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const displayProjects = Array(2).fill(PROJECTS).flat();
   const sectionTitle = title || "OUR WORKS";
 
+  const [isMobile, setIsMobile] = React.useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -175,7 +183,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const endX = centerPos + (traversalDistance / 2);
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 40, // Slightly softer for better fluidity
+    stiffness: 40,
     damping: 35,
     mass: 0.8
   });
@@ -185,47 +193,95 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
 
   return (
     <section id="works" className="relative bg-black text-white w-full pt-10">
-      <div ref={containerRef} className="relative h-[200vh]">
-        <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center items-center">
-
-          <div className="absolute top-32 z-30 flex flex-col items-center gap-4">
-            <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap">{sectionTitle}</h2>
-            <div className="w-24 h-[1px] bg-white/20 relative overflow-hidden rounded-full">
-              <motion.div style={{ width: progressBarWidth }} className="absolute left-0 top-0 bottom-0 bg-[#FF5000]" />
-            </div>
-          </div>
-
-          <div className="relative w-full h-[800px] z-10 perspective-[1000px]">
-            {displayProjects.map((project: any, i: number) => (
-              <ParabolicCard
-                key={i}
-                index={i}
-                project={project}
-                scrollX={scrollX}
-              />
+      {isMobile ? (
+        <div className="flex flex-col items-center py-10 pb-20 w-full overflow-hidden">
+          <h2 className="font-ocr font-black tracking-[0.15em] text-2xl mb-8 text-white uppercase text-center">{sectionTitle}</h2>
+          <div className="w-full flex overflow-x-auto snap-x snap-mandatory gap-6 px-10 md:px-6 pb-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+            <style>{`
+                  ::-webkit-scrollbar { display: none; }
+              `}</style>
+            {PROJECTS.map((project: any, i: number) => (
+              <div key={i} className="min-w-[85vw] snap-center shrink-0">
+                <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
+                  {/* Brackets */}
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+                  <div className="absolute inset-0 z-10">
+                    <video
+                      src={`${project.src}#t=5`}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-4 px-1">
+                  <h3 className="text-[11px] font-black tracking-[0.2em] font-sans text-white uppercase">{project.title}</h3>
+                  <p className="text-[9px] font-ocr tracking-widest text-zinc-500">{project.subtitle}</p>
+                </div>
+              </div>
             ))}
           </div>
-
-          <div className="absolute bottom-0 left-0 w-full h-[60vh] bg-gradient-to-t from-black via-black/90 to-transparent z-40 pointer-events-none" />
-
-          {/* CTA Button */}
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50">
+          <div className="mt-8">
             <button
               onClick={onWorksClick}
-              className="group relative px-6 py-3 bg-white text-black font-bold text-[9px] md:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-[#FF5000] hover:text-white"
+              className="group relative px-6 py-3 bg-white text-black font-bold text-[11px] tracking-[0.3em] uppercase transition-all"
             >
-              {/* Brackets */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 group-hover:border-white/40 transition-colors" />
-
               <span className="relative z-10">SEE MORE PROJECTS</span>
             </button>
           </div>
-
         </div>
-      </div>
+      ) : (
+        <div ref={containerRef} className="relative h-[200vh]">
+          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center items-center">
+
+            <div className="absolute top-32 z-30 flex flex-col items-center gap-4">
+              <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap">{sectionTitle}</h2>
+              <div className="w-24 h-[1px] bg-white/20 relative overflow-hidden rounded-full">
+                <motion.div style={{ width: progressBarWidth }} className="absolute left-0 top-0 bottom-0 bg-[#FF5000]" />
+              </div>
+            </div>
+
+            <div className="relative w-full h-[800px] z-10 perspective-[1000px]">
+              {displayProjects.map((project: any, i: number) => (
+                <ParabolicCard
+                  key={i}
+                  index={i}
+                  project={project}
+                  scrollX={scrollX}
+                />
+              ))}
+            </div>
+
+            <div className="absolute bottom-0 left-0 w-full h-[60vh] bg-gradient-to-t from-black via-black/90 to-transparent z-40 pointer-events-none" />
+
+            {/* CTA Button */}
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50">
+              <button
+                onClick={onWorksClick}
+                className="group relative px-6 py-3 bg-white text-black font-bold text-[9px] md:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-[#FF5000] hover:text-white"
+              >
+                {/* Brackets */}
+                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 group-hover:border-white/40 transition-colors" />
+                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 group-hover:border-white/40 transition-colors" />
+                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 group-hover:border-white/40 transition-colors" />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 group-hover:border-white/40 transition-colors" />
+
+                <span className="relative z-10">SEE MORE PROJECTS</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   );
 };

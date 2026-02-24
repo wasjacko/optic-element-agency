@@ -88,7 +88,7 @@ const ScrollGlitchText: React.FC<{ text: string, className?: string }> = ({ text
 export const CompanyValues = () => {
     return (
         <section className="bg-black w-full py-64 md:py-80 flex justify-center items-center">
-            <div className="text-center px-6">
+            <div className="text-center px-10 md:px-6">
                 <div className="flex flex-col items-center gap-4">
                     <ScrollGlitchText
                         text="CONSTRUCTED ON 06 FOUNDATIONAL VALUES."

@@ -23,7 +23,7 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
          className="min-h-screen relative overflow-x-hidden pt-12 selection:bg-black selection:text-white"
          style={{ backgroundColor: bgColor, color: txtColor }}
       >
-         <div className="max-w-7xl mx-auto px-6 pb-20">
+         <div className="max-w-7xl mx-auto px-10 md:px-6 pb-20">
 
             <div className={`grid grid-cols-1 gap-20 items-start`}>
 

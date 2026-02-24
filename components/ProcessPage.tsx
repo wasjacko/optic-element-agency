@@ -114,7 +114,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
 
       {/* Header */}
       {(showAll || activeSection === 'header') && (
-        <div className="px-6 text-center mb-48 relative z-10">
+        <div className="px-10 md:px-6 text-center mb-48 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -132,10 +132,10 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
 
       {/* MAIN TIMELINE RAIL */}
       {(showAll || activeSection === 'timeline') && (
-        <div className="relative max-w-5xl mx-auto px-6">
+        <div className="relative max-w-5xl mx-auto px-10 md:px-6">
 
           {/* The "Power Line" - Animated Center Beam */}
-          <div className="absolute top-0 bottom-0 left-[20px] md:left-1/2 md:-translate-x-1/2 w-[2px] z-0" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
+          <div className="absolute top-0 bottom-0 left-[23px] md:left-1/2 md:-translate-x-1/2 w-[2px] z-0" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
             <motion.div
               style={{
                 height: lineHeight,
@@ -200,7 +200,7 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
     <div ref={ref} className={`relative flex flex-col md:flex-row items-center md:gap-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
 
       {/* 1. THE NODE (Center connection point) */}
-      <div className="absolute left-[20px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0">
+      <div className="absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0">
         <motion.div
           style={{ opacity: contentOpacity, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', backgroundColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
           className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"

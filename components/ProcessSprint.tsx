@@ -20,10 +20,10 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
 
 
   return (
-    <section id="process" className="bg-black py-20 md:py-32 relative overflow-hidden flex flex-col items-center justify-center min-h-[50vh]">
+    <section id="process" className="bg-black py-12 md:py-32 relative overflow-hidden flex flex-col items-center justify-center min-h-[auto] md:min-h-[50vh]">
 
       {/* 1. HEADER */}
-      <div className="flex flex-col items-center mb-24 relative z-10 text-center">
+      <div className="flex flex-col items-center mb-12 md:mb-24 relative z-10 text-center">
         <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap relative inline-block mb-4">
           {title}
         </h2>
@@ -32,15 +32,43 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
         </span>
       </div>
 
-      {/* 2. MAIN HORIZONTAL RAIL */}
-      <div className="w-full max-w-5xl mx-auto px-6 relative">
-        <div className="relative flex flex-col md:flex-row items-center md:items-center justify-between w-full">
+      {/* 2. SPRINT STEPS (MOBILE & DESKTOP LAYOUTS) */}
+      <div className="w-full max-w-5xl mx-auto px-10 md:px-6 relative">
 
-          {/* The Connector Line (Desktop) */}
-          <div className="absolute top-3 left-0 right-0 h-[1px] bg-white/20 z-0 hidden md:block" />
+        {/* MOBILE LAYOUT: Minimalist Typographic List */}
+        <div className="flex md:hidden flex-col w-full border-t border-white/10">
+          {steps.map((step: any, i: number) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className="relative flex flex-row items-center border-b border-white/10 py-5 group"
+            >
+              {/* Giant Initial Letter */}
+              <div className="text-[50px] font-black text-[#FF5000] leading-none w-16 flex-shrink-0 group-hover:scale-110 transition-transform duration-500 select-none">
+                {step.first}
+              </div>
 
-          {/* The Connector Line (Mobile) */}
-          <div className="absolute left-3 top-0 bottom-0 w-[1px] bg-white/20 z-0 md:hidden" />
+              {/* Text Block */}
+              <div className="flex flex-col ml-2 flex-1">
+                <h3 className="text-lg font-black tracking-[0.1em] uppercase mb-0.5 leading-none text-white/90 group-hover:text-white transition-colors duration-300">
+                  <span className="text-white/20 select-none hidden">{step.first}</span>{step.rest}
+                </h3>
+                <p className="text-[9px] text-[#FF5000]/70 font-ocr tracking-[0.15em] uppercase leading-tight">
+                  {step.detail}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* DESKTOP LAYOUT: Horizontal Rail */}
+        <div className="hidden md:flex relative flex-row items-center justify-between w-full">
+
+          {/* The Connector Line */}
+          <div className="absolute top-3 left-0 right-0 h-[1px] bg-white/20 z-0" />
 
           {steps.map((step: any, i: number) => (
             <motion.div
@@ -49,7 +77,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative z-10 flex md:flex-col flex-row items-center md:items-center gap-4 md:gap-6 w-full md:w-24 group cursor-default mb-8 md:mb-0"
+              className="relative z-10 flex flex-col items-center gap-6 w-24 group cursor-default"
             >
               {/* Node Container */}
               <div className="relative flex-shrink-0 bg-black px-2">
@@ -60,16 +88,16 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
               </div>
 
               {/* Text Content */}
-              <div className="flex flex-col items-start md:items-center text-left md:text-center w-full pl-4 md:pl-0">
+              <div className="flex flex-col items-center text-center w-full">
                 {/* Title */}
-                <div className="font-ocr text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-white mb-1 transition-colors duration-150 transform group-hover:-translate-y-1">
+                <div className="font-ocr text-[11px] font-bold uppercase tracking-[0.15em] text-white mb-1 transition-colors duration-150 transform group-hover:-translate-y-1">
                   <span className="text-[#FF5000]">{step.first}</span>
                   <span className="transition-colors duration-150 group-hover:text-white">{step.rest}</span>
                 </div>
 
-                {/* Detail Description (Absolute on Desktop) */}
-                <div className="md:absolute md:top-full md:left-1/2 md:-translate-x-1/2 w-max text-center pt-2">
-                  <p className="font-mono text-[9px] tracking-[0.1em] text-gray-500 uppercase leading-relaxed whitespace-nowrap opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 transform md:translate-y-2 md:group-hover:translate-y-0">
+                {/* Detail Description */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-max text-center pt-2">
+                  <p className="font-mono text-[9px] tracking-[0.1em] text-gray-500 uppercase leading-relaxed whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                     {step.detail}
                   </p>
                 </div>
@@ -80,7 +108,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
       </div>
 
       {/* 3. CTA BUTTON */}
-      <div className="mt-24 relative z-10">
+      <div className="mt-12 md:mt-24 relative z-10">
         <button
           onClick={onProcessClick}
           className="bg-white text-black px-8 py-4 flex items-center gap-4 group hover:bg-[#FF5000] hover:text-white transition-all duration-500"

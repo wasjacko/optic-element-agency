@@ -32,18 +32,19 @@ export const VideoTestimonials = () => {
     <section className="bg-white py-24 md:py-32 px-4 border-t border-gray-100">
 
 
-      {/* 3-Column Reel Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-7xl mx-auto">
+      {/* Horizontal Reel Slider (Mobile) / Grid (Desktop) */}
+      <div className="flex md:grid flex-nowrap overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-hide md:grid-cols-3 gap-6 md:gap-12 max-w-7xl mx-auto pb-8 md:pb-0 px-2 md:px-0">
+        <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
         {REELS.map((reel, i) => (
           <div
             key={i}
-            className="relative aspect-[9/16] bg-black group overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+            className="relative flex-shrink-0 w-[80vw] sm:w-[60vw] md:w-auto snap-center aspect-[9/16] bg-black group overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 rounded-sm"
             onMouseEnter={() => setActiveIndex(i)}
             onMouseLeave={() => setActiveIndex(null)}
           >
             {/* Video */}
             <video
-              ref={el => videoRefs.current[i] = el}
+              ref={el => { videoRefs.current[i] = el }}
               src={reel.video}
               loop
               muted
@@ -55,9 +56,9 @@ export const VideoTestimonials = () => {
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay" />
 
             {/* Center Text Overlay - EXTRA BOLD */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-20 w-full px-4 mix-blend-difference">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none z-20 w-full px-6 md:px-4 mix-blend-difference">
               <span
-                className="block text-[10px] md:text-[11px] uppercase mb-2 drop-shadow-xl opacity-80 group-hover:opacity-100 transition-opacity"
+                className="block text-[10px] md:text-[11px] uppercase mb-1 md:mb-2 drop-shadow-xl opacity-80 group-hover:opacity-100 transition-opacity"
                 style={{ fontFamily: 'Impact, sans-serif', letterSpacing: '0.2em' }}
               >
                 CLIENT_REF

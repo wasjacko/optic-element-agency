@@ -63,7 +63,7 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
         }
       `}</style>
 
-            <div className="max-w-7xl mx-auto px-6 text-center">
+            <div className="max-w-7xl mx-auto px-10 md:px-6 text-center">
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -103,9 +103,9 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                 </div>
 
                 {/* Discreet Impact Section */}
-                <div className="mt-24 md:mt-32 border-t border-white/5 pt-12">
+                <div className="mt-24 md:mt-32 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
                     <div className="flex flex-col items-center">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-24 w-full md:w-auto">
+                        <div className="grid grid-cols-3 gap-4 md:gap-24 w-full md:w-[80%] mx-auto">
                             {[
                                 { value: "450+", label: "PROJECTS", desc: "Delivered Globally" },
                                 { value: "35+", label: "AWARDS WON", desc: "Creative Excellence" },
@@ -119,10 +119,10 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                                     viewport={{ once: true }}
                                     className="group flex flex-col items-center text-center"
                                 >
-                                    <div className="text-2xl md:text-3xl font-black mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter">
+                                    <div className="text-3xl md:text-3xl font-black mb-3 md:mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter">
                                         {kpi.value}
                                     </div>
-                                    <div className="text-[8px] md:text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase font-ocr">
+                                    <div className="text-[10px] md:text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase font-ocr">
                                         {kpi.label}
                                     </div>
                                 </motion.div>

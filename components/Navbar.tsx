@@ -160,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
       {/* Noise Texture */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
 
-      <div className="flex justify-center w-full px-6 md:px-32">
+      <div className="flex justify-center w-full px-10 md:px-32">
         <div className="relative w-full max-w-[1800px] py-4 flex items-center justify-between">
 
 
@@ -168,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
 
           {/* Left Side: Logo & Main Nav - With Padding to align with footer max-width internal content */}
-          <div className="flex items-center gap-8 relative z-10 px-6 md:px-0 ml-0 md:ml-4">
+          <div className="flex items-center gap-8 relative z-10 ml-0 md:ml-4">
             <a
               href="#home"
               onClick={(e) => { e.preventDefault(); onHomeClick(); }}
@@ -202,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
           </div>
 
           {/* Right Side: Contact Button & Mobile Toggle */}
-          <div className="flex items-center gap-8 relative z-10 px-6 md:px-0 mr-0 md:mr-4">
+          <div className="flex items-center gap-4 md:gap-8 relative z-10 mr-0 md:mr-4">
             {/* Tactical Contact Button */}
             {/* Book Studio Button */}
             <button
@@ -253,31 +253,80 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-24 bg-zinc-900/95 backdrop-blur-xl border border-white/10 p-8 flex flex-col gap-6 w-[90%] left-1/2 -translate-x-1/2 shadow-2xl shadow-black/50 z-[110]"
+            initial={{ opacity: 0, y: "-100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "-100%" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute top-0 left-0 w-full h-[100dvh] bg-[#050505] z-[110] flex flex-col"
           >
-            {NAV_ITEMS.map((item, i) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm font-mono font-bold text-white transition-colors uppercase tracking-[0.3em] flex items-center justify-between group"
-                onClick={(e) => {
-                  handleLinkClick(e, item);
-                  setIsOpen(false);
-                }}
-              >
-                {item.label}
-                <span className="text-[9px] text-white/20 group-hover:text-[var(--color-primary)] transition-colors">0{i + 1}</span>
-              </a>
-            ))}
-            <button
-              onClick={() => { onContactClick(); setIsOpen(false); }}
-              className="mt-4 w-full py-4 bg-[var(--color-primary)] text-black font-mono font-bold uppercase tracking-[0.3em] text-xs"
-            >
-              CONTACT US
-            </button>
+            {/* Nav Header Replicated for Overlay */}
+            <div className="flex justify-center w-full px-10 md:px-32">
+              <div className="relative w-full max-w-[1800px] py-4 flex items-center justify-between">
+                <div className="flex items-center gap-8 relative z-10 ml-0 md:ml-4">
+                  <a href="#home" onClick={(e) => { e.preventDefault(); onHomeClick(); setIsOpen(false); }} className="flex items-center group transition-opacity hover:opacity-80">
+                    <svg viewBox="0 0 100 100" className="h-10 w-10" fill="none">
+                      <path d="M0 0H30V10H10V30H0V0Z" fill="white" />
+                      <path d="M70 0H100V30H90V10H70V0Z" fill="white" />
+                      <path d="M100 70V100H70V90H90V70H100Z" fill="white" />
+                      <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
+                      <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+                    </svg>
+                  </a>
+                </div>
+                <div className="flex items-center gap-4 md:gap-8 relative z-10 mr-0 md:mr-4">
+                  <button className="md:hidden text-white hover:opacity-60 transition-colors p-1" onClick={() => setIsOpen(false)}>
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Menu Items */}
+            <div className="flex flex-col items-center justify-center flex-1 gap-10 min-h-0">
+              {NAV_ITEMS.map((item, i) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-2xl font-black text-white hover:text-[#FF5000] cursor-pointer transition-colors uppercase tracking-[0.2em] flex flex-col items-center group"
+                  onClick={(e) => {
+                    handleLinkClick(e, item);
+                    setIsOpen(false);
+                  }}
+                >
+                  <span className="text-[10px] text-white/30 font-mono tracking-widest mb-1 font-bold group-hover:text-[#FF5000] transition-colors">0{i + 1}</span>
+                  {item.label}
+                </a>
+              ))}
+
+              <div className="flex flex-col gap-4 mt-6">
+                <button
+                  onClick={() => { onLabClick(); setIsOpen(false); }}
+                  className="px-12 py-4 bg-transparent border border-white/20 text-white hover:bg-white hover:text-black font-bold uppercase tracking-[0.3em] text-[11px] transition-colors relative"
+                >
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/40 z-20" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/40 z-20" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/40 z-20" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/40 z-20" />
+                  BOOK STUDIO
+                </button>
+
+                <button
+                  onClick={() => { onContactClick(); setIsOpen(false); }}
+                  className="px-12 py-5 bg-[#FF5000] text-black font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
+                >
+                  <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
+                  <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 z-20" />
+                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 z-20" />
+                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 z-20" />
+                  CONTACT US
+                </button>
+              </div>
+            </div>
+
+            {/* Decorative bottom element */}
+            <div className="w-full text-center pb-8 opacity-30">
+              <span className="font-ocr text-[9px] tracking-widest text-white uppercase">// VISUAL_MATTER_AGCY</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

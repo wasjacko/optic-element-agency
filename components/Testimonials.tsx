@@ -89,7 +89,6 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
             className="absolute overflow-hidden cursor-pointer bg-neutral-900 border border-white/10 shadow-2xl"
             initial={false}
             animate={{
-                x: offset * 250, // Reduced for overlap (Card width 320)
                 scale: isActive ? 1.0 : 0.85,
                 zIndex: isActive ? 10 : 5 - Math.abs(offset),
                 rotateY: offset * -15, // Rotate cards inward
@@ -97,9 +96,8 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
             }}
             transition={{ type: "spring", stiffness: 80, damping: 30, mass: 1.5 }}
             style={{
-                width: '320px',
-                height: '570px',
-                left: 'calc(50% - 160px)', // Center the card
+                width: '100%',
+                height: '100%',
                 transformStyle: 'preserve-3d',
                 perspective: '1000px'
             }}
@@ -144,9 +142,63 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
     );
 };
 
+const MobileReelCard = ({ reel }: { reel: any }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(containerRef, { amount: 0.6 });
+
+    useEffect(() => {
+        if (isInView && videoRef.current) {
+            videoRef.current.play().catch(() => { });
+        } else if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+        }
+    }, [isInView]);
+
+    return (
+        <div ref={containerRef} className="relative w-full h-full bg-neutral-900 overflow-hidden rounded-xl border border-white/10">
+            <video
+                ref={videoRef}
+                src={reel.url}
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+            <div className="absolute inset-0 flex flex-col justify-between p-5 pointer-events-none">
+                <div className="flex justify-between items-start">
+                    <div className="bg-white/10 backdrop-blur-md px-3 py-1 border border-white/20 rounded-sm">
+                        <span className="text-[9px] font-bold text-white uppercase tracking-widest">Reel</span>
+                    </div>
+                </div>
+                <div className="space-y-3">
+                    <h3 className="text-3xl font-black text-white uppercase leading-none font-sans drop-shadow-lg tracking-tight">
+                        {reel.client}
+                    </h3>
+                    <div className="flex items-center gap-3">
+                        <span className="h-[2px] w-8 bg-[#FF5000]"></span>
+                        <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr font-bold">Watch</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Carousel3D = ({ items }: { items: typeof REELS }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1); // 1 = Next, -1 = Prev
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleNext = () => {
         setDirection(1);
@@ -199,16 +251,32 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
         }
     });
 
+    if (isMobile) {
+        return (
+            <div className="w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide px-8 sm:px-12 py-10 gap-6 h-auto" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
+                <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
+                {items.map((item, i) => (
+                    <div
+                        key={item.id}
+                        className="w-[85vw] sm:w-[50vw] flex-shrink-0 snap-center relative aspect-[9/16] shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-transform duration-300"
+                    >
+                        <MobileReelCard reel={item} />
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
         <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
             {/* Arrows Container - Constrained Width to be close to cards */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-                <div className="w-full max-w-[850px] flex justify-between px-4">
-                    <button onClick={handlePrev} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
-                        <ChevronLeft size={24} />
+                <div className="w-full max-w-[850px] flex justify-between px-2 md:px-4">
+                    <button onClick={handlePrev} className="bg-white/80 backdrop-blur-sm md:bg-white text-black w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100/50">
+                        <ChevronLeft size={20} className="md:w-[24px]" />
                     </button>
-                    <button onClick={handleNext} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
-                        <ChevronRight size={24} />
+                    <button onClick={handleNext} className="bg-white/80 backdrop-blur-sm md:bg-white text-black w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100/50">
+                        <ChevronRight size={20} className="md:w-[24px]" />
                     </button>
                 </div>
             </div>
@@ -226,15 +294,15 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
                     let opacity = 1;
 
                     if (slot === 0) { // Center
-                        x = 0; zIndex = 50; scale = 1;
+                        x = 0; zIndex = 50; scale = isMobile ? 0.95 : 1;
                     } else if (slot === 1) { // Near Right
-                        x = 240; zIndex = 30; scale = 0.85;
+                        x = isMobile ? 120 : 240; zIndex = 30; scale = isMobile ? 0.8 : 0.85;
                     } else if (slot === 2) { // Far Right
-                        x = 450; zIndex = 10; scale = 0.7;
+                        x = isMobile ? 220 : 450; zIndex = 10; scale = isMobile ? 0.65 : 0.7;
                     } else if (slot === 3) { // Far Left
-                        x = -450; zIndex = 10; scale = 0.7;
+                        x = isMobile ? -220 : -450; zIndex = 10; scale = isMobile ? 0.65 : 0.7;
                     } else { // Near Left (Slot 4)
-                        x = -240; zIndex = 30; scale = 0.85;
+                        x = isMobile ? -120 : -240; zIndex = 30; scale = isMobile ? 0.8 : 0.85;
                     }
 
                     return (
@@ -250,8 +318,9 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
                             }}
                             transition={{ type: "spring", stiffness: 60, damping: 20 }}
                             style={{
-                                width: '320px',
-                                height: '570px',
+                                width: isMobile ? '280px' : '320px',
+                                height: isMobile ? '500px' : '570px',
+                                left: isMobile ? 'calc(50% - 140px)' : 'calc(50% - 160px)',
                                 transform: 'translateZ(0)'
                             }}
                         >
@@ -275,7 +344,7 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
 // Updated GoogleReviewCard for Light Mode
 const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
     return (
-        <div className="bg-white pt-10 pb-4 px-6 flex flex-col items-center relative text-center h-full w-full max-w-[350px] mx-auto border border-gray-200 mt-10 shadow-lg rounded-none">
+        <div className="bg-white pt-10 pb-4 px-10 md:px-6 flex flex-col items-center relative text-center h-full w-full max-w-[350px] mx-auto border border-gray-200 mt-10 shadow-lg rounded-none">
             {/* Floating Header: Avatar + Google Icon */}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[80px] h-[80px]">
                 <div className="w-full h-full rounded-full p-1 bg-white border border-gray-100 shadow-sm relative">
@@ -312,8 +381,8 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
             </div>
 
             {/* Body Text */}
-            <div className="mb-2 h-[100px] overflow-hidden">
-                <p className="text-gray-600 text-sm leading-relaxed font-medium line-clamp-5" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <div className="mb-2 flex-grow flex flex-col justify-center">
+                <p className="text-gray-600 text-sm leading-relaxed font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>
                     {review.text}
                 </p>
             </div>
@@ -342,10 +411,10 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
             {/* Light Mode Glow (Subtle) */}
             <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply bg-[#FF5000]/10" />
 
-            <div className="w-full px-4 max-w-[1600px] mx-auto relative z-10">
+            <div className="w-full px-8 md:px-4 max-w-[1600px] mx-auto relative z-10">
 
                 {/* Section Header */}
-                <div className="flex flex-col items-center mb-16 text-center px-6">
+                <div className="flex flex-col items-center mb-16 text-center px-10 md:px-6">
                     <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap text-black drop-shadow-sm">
                         {data?.title || "VIDEO TESTIMONIALS"}
                     </h2>
@@ -364,39 +433,50 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                         </h3>
                     </div>
 
-                    {/* Slider Container with side arrows */}
-                    <div className="relative w-full px-12">
-                        {/* Prev Arrow */}
+                    {/* Slider Container with side arrows (Desktop) / Horizontal Scroll (Mobile) */}
+                    <div className="relative w-full px-0 md:px-12">
+                        {/* Prev Arrow (Desktop Only) */}
                         <button
                             onClick={prevSlide}
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
+                            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
                         >
                             <ChevronLeft size={20} />
                         </button>
 
-                        {/* Next Arrow */}
+                        {/* Next Arrow (Desktop Only) */}
                         <button
                             onClick={nextSlide}
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
+                            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
                         >
                             <ChevronRight size={20} />
                         </button>
 
-                        <div className="overflow-hidden py-10 -my-10">
+                        {/* Desktop Slider View */}
+                        <div className="hidden md:block overflow-hidden py-10 -my-10">
                             <motion.div
                                 className="flex"
                                 animate={{ x: `-${currentIndex * 100}%` }}
                                 transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
                             >
-                                {activeReviews.map((review: any, i: number) => (
+                                {activeReviews.map((review: any) => (
                                     <motion.div
                                         key={review.id}
-                                        className="min-w-full md:min-w-[25%] px-3 shrink-0"
+                                        className="min-w-[25%] px-3 shrink-0"
                                     >
                                         <GoogleReviewCard review={review} />
                                     </motion.div>
                                 ))}
                             </motion.div>
+                        </div>
+
+                        {/* Mobile Swipe View */}
+                        <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 px-6 w-full" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
+                            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
+                            {activeReviews.map((review: any) => (
+                                <div key={review.id} className="w-[85vw] flex-shrink-0 snap-center pt-2">
+                                    <GoogleReviewCard review={review} />
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
