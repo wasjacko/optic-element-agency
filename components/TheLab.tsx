@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Grid, Calendar as CalendarIcon, Clock, Check, ArrowRight } from 'lucide-react';
 import { createBooking } from '../src/utils/booking-client';
 
+const getOptimizedWixUrl = (url: string, isMobile: boolean) => {
+    if (!url.includes('static.wixstatic.com')) return url;
+    // Wix URL format: .../v1/fit/w_2000,h_2000,q_95/...
+    const width = isMobile ? 800 : 1600;
+    const quality = isMobile ? 80 : 90;
+    return url.replace(/w_\d+,h_\d+,q_\d+/, `w_${width},h_${width},q_${quality}`);
+};
+
 const LAB_IMAGES = [
     "https://static.wixstatic.com/media/8fb0bb_bf5b3308eb7d475785f9fc1f1e4aeaa0~mv2.jpg/v1/fit/w_2000,h_2000,q_95/8fb0bb_bf5b3308eb7d475785f9fc1f1e4aeaa0~mv2.jpg",
     "https://static.wixstatic.com/media/8fb0bb_d81cad432ff946868e06f9b908810d9f~mv2.jpg/v1/fit/w_2000,h_2000,q_95/8fb0bb_d81cad432ff946868e06f9b908810d9f~mv2.jpg",
@@ -68,8 +76,17 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [bookedDates, setBookedDates] = useState<Date[]>([]);
 
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // API Client
     // const { createBooking } = require('../src/utils/booking-client'); // Removed in favor of top-level import
+
 
     // Initialize Random Booked Dates
     useEffect(() => {
@@ -213,7 +230,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                         onClick={() => openGallery(0)}
                     >
                         <img
-                            src={LAB_IMAGES[0]}
+                            src={getOptimizedWixUrl(LAB_IMAGES[0], isMobile)}
                             alt="Main Studio"
                             className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
                             loading="lazy"
@@ -231,7 +248,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                 onClick={() => openGallery(idx + 1)}
                             >
                                 <img
-                                    src={img}
+                                    src={getOptimizedWixUrl(img, isMobile)}
                                     alt={`Studio Detail ${idx + 1}`}
                                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
                                     loading="lazy"
@@ -577,13 +594,13 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                             <AnimatePresence mode="wait">
                                 <motion.img
                                     key={currentImageIndex}
-                                    src={ALL_GALLERY_IMAGES[currentImageIndex]}
-                                    alt="Gallery"
+                                    src={getOptimizedWixUrl(ALL_GALLERY_IMAGES[currentImageIndex], isMobile)}
+                                    alt="Gallery preview"
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
                                     transition={{ duration: 0.3 }}
-                                    className="max-w-full max-h-full object-contain rounded-sm"
+                                    className="max-w-full max-h-[85vh] object-contain shadow-2xl"
                                 />
                             </AnimatePresence>
                             <button onClick={closeGallery} className="absolute top-4 right-4 md:top-8 md:right-8 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all group">

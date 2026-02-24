@@ -1,5 +1,18 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
+import { AnimatePresence, motion, LayoutGroup, useInView } from 'framer-motion';
+import { useRef } from 'react';
+
+const LazySection = ({ children, threshold = 0.1 }: { children: React.ReactNode, threshold?: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: threshold });
+
+  return (
+    <div ref={ref} className="min-h-[50px] w-full">
+      {isInView ? children : null}
+    </div>
+  );
+};
+
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -253,14 +266,29 @@ export default function App() {
                 </div>
                 <Suspense fallback={<div className="h-screen bg-black" />}>
                   <div className={`bg-white transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <Brands title={cmsContent.brands?.title} data={cmsContent} />
-                    <MissingElements data={cmsContent.missingElements} />
+                    <LazySection threshold={0.01}>
+                      <Brands title={cmsContent.brands?.title} data={cmsContent} />
+                    </LazySection>
 
-                    <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
-                    <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />
+                    <LazySection threshold={0.01}>
+                      <MissingElements data={cmsContent.missingElements} />
+                    </LazySection>
 
-                    <Testimonials data={cmsContent.testimonials} />
-                    <Footer onContactClick={handleContactClick} />
+                    <LazySection threshold={0.01}>
+                      <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
+                    </LazySection>
+
+                    <LazySection threshold={0.01}>
+                      <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />
+                    </LazySection>
+
+                    <LazySection threshold={0.01}>
+                      <Testimonials data={cmsContent.testimonials} />
+                    </LazySection>
+
+                    <LazySection threshold={0.01}>
+                      <Footer onContactClick={handleContactClick} />
+                    </LazySection>
                   </div>
                 </Suspense>
               </motion.div>

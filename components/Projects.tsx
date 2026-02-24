@@ -158,6 +158,47 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
   );
 });
 
+const MobileProjectCard = ({ project }: { project: any }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { amount: 0.6 });
+
+  useEffect(() => {
+    if (isInView && videoRef.current) {
+      videoRef.current.play().catch(() => { });
+    } else if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isInView]);
+
+  return (
+    <div ref={containerRef} className="min-w-[85vw] snap-center shrink-0">
+      <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
+        {/* Brackets */}
+        <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+        <div className="absolute inset-0 z-10">
+          <video
+            ref={videoRef}
+            src={`${project.src}#t=5`}
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
+          />
+        </div>
+      </div>
+      <div className="flex justify-between items-center mt-4 px-1">
+        <h3 className="text-[11px] font-black tracking-[0.2em] font-sans text-white uppercase">{project.title}</h3>
+        <p className="text-[9px] font-ocr tracking-widest text-zinc-500">{project.subtitle}</p>
+      </div>
+    </div>
+  );
+};
+
 export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, data?: any }> = ({ onWorksClick, title, data }) => {
   // Extract project from data.worksPage.services if available
   const cmsProjects = data?.worksPage?.services?.reduce((acc: any[], service: any) => {
@@ -211,29 +252,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   ::-webkit-scrollbar { display: none; }
               `}</style>
             {sourceProjects.map((project: any, i: number) => (
-              <div key={i} className="min-w-[85vw] snap-center shrink-0">
-                <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
-                  {/* Brackets */}
-                  <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
-                  <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20 pointer-events-none" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20 pointer-events-none" />
-                  <div className="absolute inset-0 z-10">
-                    <video
-                      src={`${project.src}#t=5`}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mt-4 px-1">
-                  <h3 className="text-[11px] font-black tracking-[0.2em] font-sans text-white uppercase">{project.title}</h3>
-                  <p className="text-[9px] font-ocr tracking-widest text-zinc-500">{project.subtitle}</p>
-                </div>
-              </div>
+              <MobileProjectCard key={i} project={project} />
             ))}
           </div>
           <div className="mt-8">
