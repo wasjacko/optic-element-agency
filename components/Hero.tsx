@@ -708,14 +708,23 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                     }
                     return prev + 1;
                 });
-            }, 10); // 10ms * 100 = 1.0s duration. Total time 0.5 + 1.0 = 1.5s
-        }, 500); // 0.5s delay to match CUBE_START
+            }, 10);
+        }, 500);
+
+        // Safety Reveal Timeout
+        const safetyTimer = setTimeout(() => {
+            if (!hasIntroPlayed) {
+                hasIntroPlayed = true;
+                if (onIntroComplete) onIntroComplete();
+            }
+        }, 6000);
 
         return () => {
             clearTimeout(timer);
+            clearTimeout(safetyTimer);
             if (interval) clearInterval(interval);
         };
-    }, []); // Run once on mount
+    }, [onIntroComplete]); // Run once on mount
 
     const isPhase1 = currentPhase === 1;
     const isPhase2 = currentPhase === 2;
