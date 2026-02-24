@@ -245,7 +245,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
   return (
     <div
-      className="min-h-screen font-sans overflow-x-hidden pt-24 selection:bg-black selection:text-white"
+      className="min-h-screen font-sans overflow-x-hidden pt-12 md:pt-24 selection:bg-black selection:text-white"
       style={{ backgroundColor: bgColor, color: txtColor }}
     >
 
