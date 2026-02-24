@@ -668,7 +668,7 @@ const NotifyAnimation = ({ accentColor, txtColor }: { accentColor: string, txtCo
 
 const TakeoffAnimation = ({ accentColor, txtColor }: { accentColor: string, txtColor: string }) => {
   return (
-    <div className="relative w-64 h-64 flex items-center justify-center overflow-hidden">
+    <div className="relative w-64 h-64 flex items-center justify-center">
 
       {/* Slow Scrolling Stars Background - More lines, wider spread */}
       <div className="absolute inset-0 flex justify-around items-start w-full px-2 opacity-20">
