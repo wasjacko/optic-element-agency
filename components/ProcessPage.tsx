@@ -209,32 +209,33 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
     <div ref={ref} className={`relative flex flex-col ${isMobile ? 'items-center space-y-12' : 'md:flex-row items-center md:gap-24'} ${!isMobile && (isEven ? 'md:flex-row' : 'md:flex-row-reverse')}`}>
 
       {/* 1. THE NODE (Center connection point) */}
-      <motion.div
-        style={{ opacity: contentOpacity, y: contentY }}
-        className={`${isMobile ? 'relative mb-8 z-20' : 'absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0'}`}
-      >
-        <div
-          style={{
-            borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-            backgroundColor: bgColor,
-            isolation: 'isolate'
-          }}
-          className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
+      <div className={`${isMobile ? 'relative mb-8 z-20' : 'absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20'}`}>
+        <motion.div
+          style={{ opacity: contentOpacity, y: contentY }}
         >
-          {/* Active Glow Ring */}
-          <motion.div
-            style={{ opacity: contentOpacity, borderColor: accentColor }}
-            className="absolute -inset-2 border blur-sm opacity-50"
-          />
+          <div
+            style={{
+              borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              backgroundColor: bgColor,
+              isolation: 'isolate'
+            }}
+            className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
+          >
+            {/* Active Glow Ring */}
+            <motion.div
+              style={{ opacity: contentOpacity, borderColor: accentColor }}
+              className="absolute -inset-2 border blur-sm opacity-50"
+            />
 
-          <span className="font-mono font-bold text-sm md:text-lg z-10 transition-colors leading-none" style={{ color: txtColor === '#ffffff' ? '#ffffff' : '#000000' }}>0{index + 1}</span>
+            <span className="font-mono font-bold text-sm md:text-lg z-10 transition-colors leading-none" style={{ color: txtColor === '#ffffff' ? '#ffffff' : '#000000' }}>0{index + 1}</span>
 
-          {/* Connector Line - Only for desktop or hidden if centered mobile */}
-          {!isMobile && (
-            <div className="absolute top-1/2 left-full w-4 h-px md:hidden" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }} />
-          )}
-        </div>
-      </motion.div>
+            {/* Connector Line - Only for desktop or hidden if centered mobile */}
+            {!isMobile && (
+              <div className="absolute top-1/2 left-full w-4 h-px md:hidden" style={{ backgroundColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }} />
+            )}
+          </div>
+        </motion.div>
+      </div>
 
       {/* 2. THE CARD (Content) */}
       <motion.div

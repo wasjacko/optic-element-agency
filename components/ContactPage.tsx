@@ -10,7 +10,18 @@ interface ContactPageProps {
 
 export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSection?: string }> = ({ onBack, data, activeSection }) => {
    useEffect(() => {
-      // Script removal if no longer needed, or keep for other things
+      const script = document.createElement('script');
+      script.src = "https://link.coursecreator360.com/js/form_embed.js";
+      script.type = "text/javascript";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+         const existingScript = document.querySelector(`script[src="${script.src}"]`);
+         if (existingScript) {
+            document.body.removeChild(existingScript);
+         }
+      };
    }, []);
 
    const showAll = !activeSection;
@@ -24,9 +35,17 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
          style={{ backgroundColor: bgColor, color: txtColor }}
       >
          <div className="max-w-7xl mx-auto px-10 md:px-6 pb-20">
+            <motion.button
+               onClick={onBack}
+               initial={{ opacity: 0, x: -20 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="mb-12 flex items-center gap-2 group hover:opacity-70 transition-opacity"
+            >
+               <ArrowLeft size={20} style={{ color: accentColor }} className="group-hover:-translate-x-1 transition-transform" />
+               <span className="text-[11px] font-mono uppercase tracking-widest font-bold">Back to home</span>
+            </motion.button>
 
-            <div className={`grid grid-cols-1 gap-20 items-start`}>
-
+            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-20 items-start`}>
                {/* Content side */}
                {(showAll || activeSection === 'intro') && (
                   <motion.div
@@ -83,7 +102,23 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                   </motion.div>
                )}
 
-
+               {/* Calendar side */}
+               {(showAll || activeSection === 'calendar') && (
+                  <motion.div
+                     initial={{ opacity: 0, x: 30 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     transition={{ duration: 0.8 }}
+                     className="w-full h-full min-h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
+                  >
+                     <iframe
+                        src="https://link.coursecreator360.com/widget/booking/RlMrAimbZK24RJaAPTRd"
+                        style={{ width: '100%', height: '100%', minHeight: '800px', border: 'none', overflow: 'hidden' }}
+                        scrolling="no"
+                        id="hXJBwsvLd5zqdlB4RsAG_1708144586889"
+                        title="Booking Calendar"
+                     />
+                  </motion.div>
+               )}
             </div>
          </div>
       </div>
