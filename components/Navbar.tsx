@@ -154,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
       initial={{ y: "-100%" }}
       animate={{ y: isVisible && (introCompleted || activePage !== 'home') ? "0%" : "-100%" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 w-full z-[999] border-b border-white/5 will-change-transform backface-hidden`}
+      className={`fixed top-0 left-0 w-full z-[999] md:border-b border-white/5 will-change-transform backface-hidden`}
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Noise Texture */}
