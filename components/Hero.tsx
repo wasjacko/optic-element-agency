@@ -392,8 +392,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         const elapsed = timer.current;
         const CUBE_START = 0.5;
         const LOADER_START = 0.5;
-        const INTRO_START = 2.8; // Slower loading phase
-        const EXIT_TIME = 4.3;
+        const INTRO_START = 2.5; // Exactly 1s after loading finish (1.5s)
+        const EXIT_TIME = 4.0;
 
         // Background Grid: TACTICAL GLITCH (Digital System Reaction)
         // Stable State
@@ -409,7 +409,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
         // Intro Expansion Logic (Starts at 2.5s)
         if (elapsed > INTRO_START && introPhase.current < 1) {
-            introPhase.current += dt * 4.0; // Hyper fast expansion
+            introPhase.current += dt * 8.0; // Hyper fast expansion (doubled speed)
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
                 hasIntroPlayed = true;
@@ -453,7 +453,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         flashRef.current = THREE.MathUtils.lerp(flashRef.current, 0, dt * 5.0);
 
         // WhiteOut Logic
-        const whiteOutVal = elapsed < INTRO_START ? 1.0 : Math.max(0, 1.0 - (elapsed - INTRO_START) * 4.0);
+        const whiteOutVal = elapsed < INTRO_START ? 1.0 : Math.max(0, 1.0 - (elapsed - INTRO_START) * 8.0);
 
         // Calculate base scale
         let targetScale = 0.001;
@@ -704,12 +704,11 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 setLoadProgress(prev => {
                     if (prev >= 100) {
                         clearInterval(interval);
-                        if (onIntroComplete) onIntroComplete();
                         return 100;
                     }
                     return prev + 1;
                 });
-            }, 23); // 23ms * 100 = 2.3s duration. Total time 0.5 + 2.3 = 2.8s
+            }, 10); // 10ms * 100 = 1.0s duration. Total time 0.5 + 1.0 = 1.5s
         }, 500); // 0.5s delay to match CUBE_START
 
         return () => {
@@ -812,7 +811,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
 
                 {/* Loader */}
                 <div
-                    className={`absolute md:top-1/2 md:-translate-y-1/2 md:right-32 bottom-[15vh] md:bottom-auto left-1/2 -translate-x-1/2 md:translate-x-0 text-center md:text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
+                    className={`absolute md:top-[40%] md:-translate-y-1/2 md:right-32 bottom-[45vh] md:bottom-auto left-1/2 -translate-x-1/2 md:translate-x-0 text-center md:text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
                 >
                     <div style={{ animation: loadProgress === 100 ? 'glitchHide 0.25s steps(3) 0.2s forwards' : 'none' }}>
                         <span className="font-ocr text-[14px] md:text-[16px] text-white font-medium tracking-widest">
@@ -825,7 +824,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 {/* MOBILE SPECIFIC UI */}
                 {isMobile && (
                     <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end items-center px-10 md:px-6 pb-20 pointer-events-none">
-                        <div className={`transition-opacity duration-1000 flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className={`transition-opacity duration-1000 flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 && hasIntroPlayed ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="flex flex-col gap-1 items-center">
                                 <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md">
                                     {content?.phase1 || homeContent.hero.phase1}
@@ -888,7 +887,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                         </div>
 
                         {/* Phase 3+: Center Button */}
-                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center ${isPhase3Plus ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center transition-opacity duration-700 ${isPhase3Plus && hasIntroPlayed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             <button
                                 onClick={onContactClick}
                                 className="relative px-10 py-4 border-none pointer-events-auto group overflow-hidden"

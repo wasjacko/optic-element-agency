@@ -159,7 +159,17 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
 });
 
 export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, data?: any }> = ({ onWorksClick, title, data }) => {
-  const displayProjects = Array(2).fill(PROJECTS).flat();
+  // Extract project from data.worksPage.services if available
+  const cmsProjects = data?.worksPage?.services?.reduce((acc: any[], service: any) => {
+    const serviceVideos = service.videos?.map((v: any, i: number) => ({
+      ...v,
+      subtitle: v.subtitle || `NUMERO ${String(acc.length + i + 1).padStart(4, '0')}`
+    })) || [];
+    return [...acc, ...serviceVideos];
+  }, []) || [];
+
+  const sourceProjects = cmsProjects.length > 0 ? cmsProjects : PROJECTS;
+  const displayProjects = Array(2).fill(sourceProjects).flat();
   const sectionTitle = title || "OUR WORKS";
 
   const [isMobile, setIsMobile] = React.useState(false);
@@ -200,7 +210,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
             <style>{`
                   ::-webkit-scrollbar { display: none; }
               `}</style>
-            {PROJECTS.map((project: any, i: number) => (
+            {sourceProjects.map((project: any, i: number) => (
               <div key={i} className="min-w-[85vw] snap-center shrink-0">
                 <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
                   {/* Brackets */}

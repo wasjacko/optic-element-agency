@@ -45,10 +45,10 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
             </div>
 
             <div className="flex flex-col md:items-end gap-4">
-              <a href="mailto:hello@opticelement.com" className="group flex flex-col md:flex-row-reverse md:items-center gap-4 text-2xl md:text-4xl font-light uppercase tracking-tight text-white hover:text-white/60 transition-colors break-all md:break-normal">
+              <a href="mailto:hello@opticelement.com" className="group flex flex-row items-center gap-3 text-lg md:text-2xl font-light uppercase tracking-tight text-white hover:text-white/60 transition-colors break-all md:break-normal w-fit">
                 HELLO@OPTICELEMENT.COM
-                <div className="p-3 border border-white/10 rounded-full group-hover:bg-white group-hover:text-black transition-all">
-                  <ArrowUpRight size={28} className="transition-all" />
+                <div className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-full group-hover:bg-white group-hover:text-black transition-all shrink-0">
+                  <ArrowUpRight size={20} className="transition-all" />
                 </div>
               </a>
             </div>
