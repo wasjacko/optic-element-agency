@@ -214,7 +214,11 @@ const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#fffff
         className={`${isMobile ? 'relative mb-8 z-20' : 'absolute left-[0px] md:left-1/2 md:-translate-x-1/2 z-20 top-0 md:top-1/2 md:-translate-y-1/2 pl-0 md:pl-0'}`}
       >
         <div
-          style={{ borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', backgroundColor: txtColor === '#ffffff' ? '#000000' : '#ffffff' }}
+          style={{
+            borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+            backgroundColor: bgColor,
+            isolation: 'isolate'
+          }}
           className="relative w-12 h-12 md:w-16 md:h-16 flex items-center justify-center shadow-2xl group border"
         >
           {/* Active Glow Ring */}
