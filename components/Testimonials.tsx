@@ -157,7 +157,13 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
     }, [isInView]);
 
     return (
-        <div ref={containerRef} className="relative w-full h-full bg-neutral-900 overflow-hidden rounded-xl border border-white/10">
+        <div ref={containerRef} className="relative w-full h-full bg-neutral-900 overflow-hidden">
+            {/* Brackets */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20 pointer-events-none" />
+
             <video
                 ref={videoRef}
                 src={reel.url}
@@ -168,12 +174,7 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
 
-            <div className="absolute inset-0 flex flex-col justify-between p-5 pointer-events-none">
-                <div className="flex justify-between items-start">
-                    <div className="bg-white/10 backdrop-blur-md px-3 py-1 border border-white/20 rounded-sm">
-                        <span className="text-[9px] font-bold text-white uppercase tracking-widest">Reel</span>
-                    </div>
-                </div>
+            <div className="absolute inset-0 flex flex-col justify-end p-5 pointer-events-none">
                 <div className="space-y-3">
                     <h3 className="text-3xl font-black text-white uppercase leading-none font-sans drop-shadow-lg tracking-tight">
                         {reel.client}
@@ -188,154 +189,67 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
     );
 };
 
-const Carousel3D = ({ items }: { items: typeof REELS }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [direction, setDirection] = useState(1); // 1 = Next, -1 = Prev
-    const [isMobile, setIsMobile] = useState(false);
+const FlatVideoCarousel = ({ items }: { items: typeof REELS }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const ITEMS_PER_VIEW = 3; // On desktop
 
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const handleNext = () => {
-        setDirection(1);
-        setActiveIndex(prev => (prev + 1) % 5);
+    const nextSlide = () => {
+        setCurrentIndex((prev) => (prev + 1) % Math.ceil(items.length - ITEMS_PER_VIEW + 1));
     };
 
-    const handlePrev = () => {
-        setDirection(-1);
-        setActiveIndex(prev => (prev - 1 + 5) % 5);
+    const prevSlide = () => {
+        setCurrentIndex((prev) => (prev - 1 + Math.ceil(items.length - ITEMS_PER_VIEW + 1)) % Math.ceil(items.length - ITEMS_PER_VIEW + 1));
     };
 
-    // Sort items for rendering based on layout direction
-    // Logic: The "Crossing" card (moving across the back) must be rendered FIRST (Bottom of Stack).
-    // The Active card is rendered LAST (Top).
+    return (
+        <div className="relative w-full">
+            {/* Desktop View */}
+            <div className="hidden md:block relative w-full max-w-5xl mx-auto px-12">
+                {/* Prev Arrow */}
+                <button
+                    onClick={prevSlide}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-full"
+                >
+                    <ChevronLeft size={24} />
+                </button>
 
-    // Scan Slots:
-    // Slot 0: Active (Top)
-    // Slot 1: Right
-    // Slot 2: Left
+                {/* Next Arrow */}
+                <button
+                    onClick={nextSlide}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-full"
+                >
+                    <ChevronRight size={24} />
+                </button>
 
-    // If Next (1): Left->Right (Slot 2->1) is crossing. But wait.
-    // Transition: Old Left (Slot 2) becomes New Right (Slot 1).
-    // So the card currently in "Slot 1" (New State) came from Left. It is the crossing card.
-    // So if Direction=1, Slot 1 should be Bottom. Order: [1, 2, 0].
+                <div className="py-10 overflow-visible">
+                    <motion.div
+                        className="flex gap-6"
+                        animate={{ x: `calc(-${currentIndex * (100 / ITEMS_PER_VIEW)}% - ${currentIndex * (24 / ITEMS_PER_VIEW)}px)` }}
+                        transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
+                    >
+                        {items.map((item) => (
+                            <div
+                                key={item.id}
+                                className="w-[calc(33.333%-16px)] shrink-0 aspect-[9/16] transition-shadow duration-500 overflow-hidden"
+                            >
+                                <MobileReelCard reel={item} />
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+            </div>
 
-    // If Prev (-1): Right->Left (Slot 1->2) is crossing.
-    // Transition: Old Right (Slot 1) becomes New Left (Slot 2).
-    // So the card currently in "Slot 2" (New State) came from Right. It is the crossing card.
-    // So if Direction=-1, Slot 2 should be Bottom. Order: [2, 1, 0].
-
-    const getSlot = (i: number) => (i - activeIndex + 5) % 5;
-
-    const sortedItems = [...items].sort((a, b) => {
-        const slotA = getSlot(items.indexOf(a));
-        const slotB = getSlot(items.indexOf(b));
-
-        if (slotA === 0) return 1; // 0 always top
-        if (slotB === 0) return -1;
-
-        if (direction === 1) {
-            // Next: 1 is bottom (came from cross), 2 is middle
-            // Sort: 1, 2. (1 < 2).
-            // return slotA - slotB; -> if A=1, B=2 -> -1 (A first). Correct.
-            return slotA - slotB;
-        } else {
-            // Prev: 2 is bottom (came from cross), 1 is middle
-            // Sort: 2, 1. (2 < 1? No, 2 first).
-            // return slotB - slotA; -> if A=2, B=1 -> -1 (A first). Correct.
-            return slotB - slotA;
-        }
-    });
-
-    if (isMobile) {
-        return (
-            <div className="w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide px-8 sm:px-12 py-10 gap-6 h-auto" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
+            {/* Mobile Swipe View */}
+            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
                 <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
-                {items.map((item, i) => (
+                {items.map((item) => (
                     <div
                         key={item.id}
-                        className="w-[85vw] sm:w-[50vw] flex-shrink-0 snap-center relative aspect-[9/16] shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-transform duration-300"
+                        className="w-[75vw] sm:w-[50vw] flex-shrink-0 snap-center relative aspect-[9/16] overflow-hidden"
                     >
                         <MobileReelCard reel={item} />
                     </div>
                 ))}
-            </div>
-        );
-    }
-
-    return (
-        <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
-            {/* Arrows Container - Constrained Width to be close to cards */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-                <div className="w-full max-w-[850px] flex justify-between px-2 md:px-4">
-                    <button onClick={handlePrev} className="bg-white/80 backdrop-blur-sm md:bg-white text-black w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100/50">
-                        <ChevronLeft size={20} className="md:w-[24px]" />
-                    </button>
-                    <button onClick={handleNext} className="bg-white/80 backdrop-blur-sm md:bg-white text-black w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100/50">
-                        <ChevronRight size={20} className="md:w-[24px]" />
-                    </button>
-                </div>
-            </div>
-
-            {/* Cards Container */}
-            <div className="relative w-full max-w-5xl h-full flex items-center justify-center perspective-[1000px]">
-                {sortedItems.map((item) => {
-                    const originalIndex = items.indexOf(item);
-                    const slot = getSlot(originalIndex);
-
-                    // Define props based on slot
-                    let x = 0;
-                    let zIndex = 0;
-                    let scale = 1;
-                    let opacity = 1;
-
-                    if (slot === 0) { // Center
-                        x = 0; zIndex = 50; scale = isMobile ? 0.95 : 1;
-                    } else if (slot === 1) { // Near Right
-                        x = isMobile ? 120 : 240; zIndex = 30; scale = isMobile ? 0.8 : 0.85;
-                    } else if (slot === 2) { // Far Right
-                        x = isMobile ? 220 : 450; zIndex = 10; scale = isMobile ? 0.65 : 0.7;
-                    } else if (slot === 3) { // Far Left
-                        x = isMobile ? -220 : -450; zIndex = 10; scale = isMobile ? 0.65 : 0.7;
-                    } else { // Near Left (Slot 4)
-                        x = isMobile ? -120 : -240; zIndex = 30; scale = isMobile ? 0.8 : 0.85;
-                    }
-
-                    return (
-                        <motion.div
-                            key={item.id}
-                            className="absolute will-change-transform backface-hidden"
-                            animate={{
-                                x,
-                                scale,
-                                zIndex,
-                                opacity,
-                                rotateY: 0
-                            }}
-                            transition={{ type: "spring", stiffness: 60, damping: 20 }}
-                            style={{
-                                width: isMobile ? '280px' : '320px',
-                                height: isMobile ? '500px' : '570px',
-                                left: isMobile ? 'calc(50% - 140px)' : 'calc(50% - 160px)',
-                                transform: 'translateZ(0)'
-                            }}
-                        >
-                            <ReelCoverflowCard
-                                reel={item}
-                                isActive={slot === 0}
-                                offset={0}
-                                onClick={() => {
-                                    if (slot === 1) handleNext();
-                                    if (slot === 2) handlePrev();
-                                }}
-                            />
-                        </motion.div>
-                    );
-                })}
             </div>
         </div>
     );
@@ -344,7 +258,7 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
 // Updated GoogleReviewCard for Light Mode
 const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
     return (
-        <div className="bg-white pt-10 pb-4 px-10 md:px-6 flex flex-col items-center relative text-center h-full w-full max-w-[350px] mx-auto border border-gray-200 mt-10 shadow-lg rounded-none">
+        <div className="bg-white pt-10 pb-4 px-10 md:px-6 flex flex-col items-center relative text-center h-full w-full max-w-[350px] mx-auto mt-10 rounded-none">
             {/* Floating Header: Avatar + Google Icon */}
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[80px] h-[80px]">
                 <div className="w-full h-full rounded-full p-1 bg-white border border-gray-100 shadow-sm relative">
@@ -393,36 +307,33 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
 export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     const activeReels = data?.reels || REELS;
     const activeReviews = data?.reviews || GOOGLE_REVIEWS;
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const ITEMS_PER_VIEW = 4;
+    const [visibleReviews, setVisibleReviews] = useState(3);
 
-
-
-    const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+    const loadMore = () => {
+        setVisibleReviews(prev => Math.min(prev + 3, 9, activeReviews.length));
     };
 
-    const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + Math.ceil(activeReviews.length / ITEMS_PER_VIEW)) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+    const showLess = () => {
+        setVisibleReviews(3);
     };
 
     return (
-        <section id="testimonials" className="relative z-10 w-full bg-white py-12 md:py-16 border-t border-black/[0.05] overflow-hidden">
+        <section id="testimonials" className="relative z-10 w-full bg-white pt-32 sm:pt-40 pb-12 md:py-32 border-t border-black/[0.05] overflow-hidden">
             {/* Light Mode Glow (Subtle) */}
             <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply bg-[#FF5000]/10" />
 
             <div className="w-full px-8 md:px-4 max-w-[1600px] mx-auto relative z-10">
 
                 {/* Section Header */}
-                <div className="flex flex-col items-center mb-16 text-center px-10 md:px-6">
+                <div className="flex flex-col items-center mt-12 md:mt-16 mb-16 text-center px-10 md:px-6">
                     <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap text-black drop-shadow-sm">
                         {data?.title || "VIDEO TESTIMONIALS"}
                     </h2>
                 </div>
 
-                {/* 3D Carousel Section */}
+                {/* Flat Carousel Section */}
                 <div className="mb-20">
-                    <Carousel3D items={activeReels} />
+                    <FlatVideoCarousel items={activeReels} />
                 </div>
 
                 {/* Google Testimonials Header & Nav */}
@@ -433,51 +344,50 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                         </h3>
                     </div>
 
-                    {/* Slider Container with side arrows (Desktop) / Horizontal Scroll (Mobile) */}
-                    <div className="relative w-full px-0 md:px-12">
-                        {/* Prev Arrow (Desktop Only) */}
-                        <button
-                            onClick={prevSlide}
-                            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
+                    {/* Vertical / Grid Layout */}
+                    <div className="relative w-full px-0 py-10 mt-6 flex flex-col gap-16 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 max-w-6xl mx-auto">
+                        {activeReviews.slice(0, visibleReviews).map((review: any) => (
+                            <div key={review.id} className="w-full">
+                                <GoogleReviewCard review={review} />
+                            </div>
+                        ))}
+                    </div>
 
-                        {/* Next Arrow (Desktop Only) */}
-                        <button
-                            onClick={nextSlide}
-                            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg border border-gray-100 items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-none"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
-
-                        {/* Desktop Slider View */}
-                        <div className="hidden md:block overflow-hidden py-10 -my-10">
-                            <motion.div
-                                className="flex"
-                                animate={{ x: `-${currentIndex * 100}%` }}
-                                transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
+                    {/* Load More / Show Less Buttons */}
+                    <div className="flex justify-center gap-4 mt-6">
+                        {visibleReviews < Math.min(activeReviews.length, 9) && (
+                            <button
+                                onClick={loadMore}
+                                className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
                             >
-                                {activeReviews.map((review: any) => (
-                                    <motion.div
-                                        key={review.id}
-                                        className="min-w-[25%] px-3 shrink-0"
-                                    >
-                                        <GoogleReviewCard review={review} />
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        </div>
+                                {/* Brackets */}
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
+                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
+                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
+                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
 
-                        {/* Mobile Swipe View */}
-                        <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 px-6 w-full" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
-                            <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
-                            {activeReviews.map((review: any) => (
-                                <div key={review.id} className="w-[85vw] flex-shrink-0 snap-center pt-2">
-                                    <GoogleReviewCard review={review} />
-                                </div>
-                            ))}
-                        </div>
+                                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">
+                                    SEE MORE
+                                </span>
+                            </button>
+                        )}
+
+                        {visibleReviews > 3 && (
+                            <button
+                                onClick={showLess}
+                                className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
+                            >
+                                {/* Brackets */}
+                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
+                                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
+                                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
+                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+
+                                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">
+                                    SEE LESS
+                                </span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

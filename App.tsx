@@ -252,9 +252,9 @@ export default function App() {
                   />
                 </div>
                 <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <div className="bg-white">
+                  <div className={`bg-white transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <Brands title={cmsContent.brands?.title} data={cmsContent} />
-                    <MissingElements />
+                    <MissingElements data={cmsContent.missingElements} />
 
                     <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
                     <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />

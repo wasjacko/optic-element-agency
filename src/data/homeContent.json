@@ -19,7 +19,7 @@
         "videoUrl": "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4"
     },
     "process": {
-        "title": "S.P.R.I.N.Tpij",
+        "title": "S.P.R.I.N.T",
         "subtitle": "our proven system"
     },
     "works": {
@@ -106,7 +106,7 @@
         "titleLine2": "CALL",
         "titleLine3": "WITH",
         "titleLine4": "SANTIAGO",
-        "description": "Book a call with our team. This call is to learn more about your business and if Optic Elementyou achieve your goals.",
+        "description": "Book a call with our team. This call is to learn more about your business and if Optic Element can help you achieve your goals.",
         "accentColor": "#ff4d00",
         "backgroundColor": "#ffffff"
     },
@@ -206,5 +206,35 @@
         "title": "THE LAB",
         "bookingTitle": "Project Details",
         "bookingSubtitle": "Tell us about your shoot requirements."
-    }
+    },
+    "missingElements": [
+        {
+            "id": "20",
+            "symbol": "oE",
+            "name": "Identity",
+            "role": "Brand Strategy",
+            "desc": "Crafting comprehensive visual systems. From logos to guidelines."
+        },
+        {
+            "id": "05",
+            "symbol": "Pa",
+            "name": "Growth",
+            "role": "User Acquisition",
+            "desc": "Data-driven performance marketing to scale revenue."
+        },
+        {
+            "id": "01",
+            "symbol": "Lb",
+            "name": "Content",
+            "role": "Production Lab",
+            "desc": "High-fidelity assets. Photography, video, and 3D motion."
+        },
+        {
+            "id": "15",
+            "symbol": "Mx",
+            "name": "Systems",
+            "role": "Operations",
+            "desc": "Automating workflows with Notion & Zapier for scalability."
+        }
+    ]
 }
