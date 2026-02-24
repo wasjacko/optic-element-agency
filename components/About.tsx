@@ -206,8 +206,8 @@ const MemberCard = ({ member, index }: { member: typeof TEAM_MEMBERS[0], index: 
       </div>
 
       <div className="mt-4 text-center">
-        <h3 className="text-white text-base font-bold tracking-widest uppercase mb-1">{member.name}</h3>
-        <p className="text-white/50 text-xs font-ocr tracking-wider uppercase">{member.role}</p>
+        <h3 className="text-white text-[13px] md:text-base font-bold tracking-widest uppercase mb-1">{member.name}</h3>
+        <p className="text-white/50 text-[9px] md:text-xs font-ocr tracking-wider uppercase leading-tight">{member.role}</p>
       </div>
     </motion.div>
   );
@@ -244,7 +244,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
       {/* SECTION 1: HEADER */}
       {(showAll || activeSection === 'header') && (
         <section className="relative pt-6 pb-2" style={{ backgroundColor: 'transparent' }}>
-          <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center">
+          <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-4 uppercase text-center" style={{ color: txtColor }}>
               {data?.title || "Who We Are"}
             </h1>
@@ -285,27 +285,27 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
       {/* SECTION 3: MEET THE TEAM (DARK INDUSTRIAL) */}
       {(showAll || activeSection === 'team') && (
-        <section className="bg-black text-white pt-24 pb-48 relative overflow-hidden border-t border-white/10">
+        <section className="bg-black text-white pt-16 md:pt-24 pb-24 md:pb-48 relative overflow-hidden border-t border-white/10">
           <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] blur-[80px] rounded-full pointer-events-none opacity-20 mix-blend-screen" style={{ backgroundColor: accentColor || '#FF5000' }} />
           <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none opacity-15 mix-blend-screen" style={{ backgroundColor: accentColor || '#FF5000' }} />
           <div className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: `radial-gradient(${accentColor} 1px, transparent 1px)`, backgroundSize: '8px 8px' }} />
 
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10">
 
 
-            <div className="flex flex-col items-center mb-24">
-              <h2 className="text-white font-black text-2xl md:text-4xl tracking-tighter uppercase text-center mb-16">
+            <div className="flex flex-col items-center mb-16 md:mb-24">
+              <h2 className="text-white font-black text-2xl md:text-4xl tracking-tighter uppercase text-center mb-10 md:mb-16">
                 THE TEAM
               </h2>
 
-              <div className="flex justify-center max-w-4xl px-6 leading-relaxed items-center">
-                <div className="text-sm md:text-base font-ocr text-gray-500">
+              <div className="flex justify-center max-w-4xl px-10 md:px-6 leading-relaxed items-center">
+                <div className="text-xs md:text-base font-ocr text-gray-500 text-center">
                   <ScrollGlitchText text='"If you want to go fast, go alone. If you want to go far, go together."' />
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
               {TEAM_MEMBERS.map((member, i) => (
                 <MemberCard key={member.name + i} member={member} index={i} />
               ))}
@@ -318,19 +318,19 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
       {/* SECTION 4: CORE VALUES 2.0 */}
       {(showAll || activeSection === 'diffs') && (
         <section className="pt-12 pb-32 border-t border-black/5 text-inherit" style={{ backgroundColor: 'transparent', borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}>
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-7xl mx-auto px-10 md:px-6">
             <div className="flex flex-col items-center justify-center py-4 mb-12">
               <h2 className="text-2xl md:text-4xl font-black uppercase text-center leading-tight tracking-tighter cursor-default text-black">
                 Core Values 2.0
               </h2>
             </div>
 
-            <div className="flex lg:grid lg:grid-cols-5 flex-nowrap lg:flex-wrap overflow-x-auto lg:overflow-x-visible gap-4 px-4 md:px-0 scrollbar-hide pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4">
               {DIFFERENTIATORS.map((diff: any, i) => {
                 return (
                   <div
                     key={i}
-                    className="group relative p-5 md:p-6 flex flex-col h-full min-h-[220px] min-w-[260px] sm:min-w-[300px] lg:min-w-0 flex-shrink-0 lg:flex-shrink bg-transparent border border-gray-200 hover:border-[#FF5000]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden"
+                    className="group relative p-5 md:p-6 flex flex-col h-full min-h-[220px] w-full bg-transparent border border-gray-200 hover:border-[#FF5000]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden"
                   >
                     {/* Hover Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-black via-black/95 to-[#1a0600] opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none" />

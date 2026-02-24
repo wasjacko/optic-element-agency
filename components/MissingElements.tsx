@@ -37,20 +37,28 @@ const ELEMENTS = [
 ];
 
 const ParallaxCard = ({ el, index, scrollYProgress }: { el: any, index: number, scrollYProgress: any }) => {
+    const [isMobile, setIsMobile] = React.useState(false);
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Parallax Logic: Even items move down, Odd items move up relative to scroll
     const y = useTransform(
         scrollYProgress,
         [0, 1],
-        index % 2 === 0 ? [0, 100] : [0, -100]
+        isMobile ? [0, 0] : (index % 2 === 0 ? [0, 100] : [0, -100])
     );
 
     return (
         <motion.div
             style={{ y }}
-            className={`flex flex-col items-center group ${index % 2 === 1 ? 'md:mt-16' : ''}`}
+            className={`flex flex-col items-center group ${index % 2 === 1 ? 'md:mt-16' : ''} w-full relative`}
         >
-            {/* CUBE (Visual Only) - Fixed Position on Hover */}
-            <div className="relative w-24 h-24 mb-6 cursor-pointer">
+            {/* CUBE (Desktop Only) - Fixed Position on Hover */}
+            <div className="hidden md:block relative w-24 h-24 mb-6 cursor-pointer flex-shrink-0 mx-auto">
 
                 {/* Cube Face (Front) */}
                 <div className="absolute inset-0 border-2 border-black bg-white flex flex-col justify-between p-2 z-20 transition-colors duration-300 group-hover:bg-black group-hover:border-black">
@@ -88,15 +96,20 @@ const ParallaxCard = ({ el, index, scrollYProgress }: { el: any, index: number, 
                 </div>
             </div>
 
-            {/* TEXT (Always Visible) */}
-            <div className="text-center mt-4">
-                <h3 className="font-mono text-xs text-[#FF5000] uppercase tracking-widest mb-2 font-bold opacity-80 group-hover:opacity-100 group-hover:tracking-[0.2em] transition-all">
+            {/* MOBILE WATERMARK (Instead of Cube) */}
+            <div className="md:hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] font-black text-black/[0.03] select-none pointer-events-none leading-none z-0">
+                {el.symbol}
+            </div>
+
+            {/* TEXT (Centered on all devices) */}
+            <div className="text-center mt-0 md:mt-4 flex-1 relative z-10 py-6 md:py-0">
+                <h3 className="font-mono text-[10px] md:text-xs text-[#FF5000] uppercase tracking-widest mb-2 font-bold opacity-100 md:opacity-80 group-hover:opacity-100 transition-all">
                     {el.name}
                 </h3>
-                <p className="text-sm font-bold uppercase mb-2 group-hover:text-black transition-colors">
+                <p className="text-2xl md:text-sm font-black md:font-bold tracking-tighter md:tracking-normal uppercase mb-3 md:mb-2 text-black transition-colors flex items-center justify-center leading-tight">
                     {el.role}
                 </p>
-                <p className="text-xs text-gray-400 font-mono leading-relaxed max-w-[180px] mx-auto group-hover:text-gray-600 transition-colors">
+                <p className="text-xs text-gray-500 md:text-gray-400 font-mono leading-relaxed max-w-[280px] md:max-w-[180px] mx-auto transition-colors">
                     {el.desc}
                 </p>
             </div>
@@ -114,7 +127,7 @@ export const MissingElements: React.FC = () => {
 
     return (
         <section ref={containerRef} className="bg-white text-black py-32 border-t border-gray-100 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-10 md:px-6">
 
                 {/* Header */}
                 <div className="text-center mb-24">
@@ -124,7 +137,7 @@ export const MissingElements: React.FC = () => {
                 </div>
 
                 {/* Grid with Parallax */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-start min-h-[400px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-16 items-start min-h-[400px]">
                     {ELEMENTS.map((el, index) => (
                         <ParallaxCard
                             key={el.id}

@@ -14,7 +14,7 @@ export const VideoMarketingSection = () => {
     const springScale = useSpring(scale, { stiffness: 40, damping: 30 });
 
     return (
-        <section ref={sectionRef} className="w-full bg-white pt-12 pb-32 md:pb-48 px-6 md:px-12 relative overflow-hidden border-t border-gray-100">
+        <section ref={sectionRef} className="w-full bg-white pt-12 pb-32 md:pb-48 px-10 md:px-12 relative overflow-hidden border-t border-gray-100">
             <div className="max-w-5xl mx-auto flex flex-col items-center">
 
                 {/* Pure Cinematic Showcase */}

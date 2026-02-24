@@ -33,7 +33,7 @@ export const CustomCursor = () => {
 
     return (
         <motion.div
-            className="fixed top-0 left-0 w-5 h-5 pointer-events-none z-[9999] opacity-100 flex items-center justify-center"
+            className="fixed top-0 left-0 w-5 h-5 pointer-events-none z-[9999] opacity-100 hidden md:flex items-center justify-center"
             animate={{
                 x: position.x - 10,
                 y: position.y - 10,

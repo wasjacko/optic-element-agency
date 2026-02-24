@@ -38,7 +38,7 @@ const VALUES = [
 export const DataMetrics = () => {
     return (
         <section className="bg-black text-white py-32 relative border-t border-white/5">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-24">
+            <div className="max-w-7xl mx-auto px-10 md:px-6 grid grid-cols-1 lg:grid-cols-2 gap-24">
 
                 {/* 1. STICKY HEADER (Right Side) */}
                 <div className="lg:order-2 lg:sticky lg:top-32 lg:h-fit">

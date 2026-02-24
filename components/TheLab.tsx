@@ -198,7 +198,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
 
             {/* SECTION 1: HEADER */}
             <section className="relative pt-16 pb-6 bg-white">
-                <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center">
+                <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black mb-6 uppercase text-center">
                         {data?.title || "THE LAB"}
                     </h1>
@@ -542,7 +542,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                         <button
                                             type="submit"
                                             disabled={!selectedDate || isSubmitting || !name || !email || !cardNumber}
-                                            className="relative group bg-black hover:bg-[#111] disabled:bg-gray-200 disabled:pointer-events-none text-white px-8 py-5 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                                            className="relative group bg-black hover:bg-[#111] disabled:bg-gray-200 disabled:pointer-events-none text-white px-12 md:px-8 py-5 rounded-full transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <span className="text-sm font-bold tracking-widest uppercase">

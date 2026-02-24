@@ -151,8 +151,9 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
             {(showAll || activeSection === 'gallery') && (
                <>
                   <div className="sticky top-0 z-40 backdrop-blur-md border-b" style={{ backgroundColor: bgColor ? `${bgColor}cc` : 'rgba(255,255,255,0.8)', borderColor: 'rgba(0,0,0,0.05)' }}>
-                     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                        <div className="flex items-center gap-8">
+                     <div className="max-w-7xl mx-auto px-10 md:px-6 h-20 flex items-center justify-start md:justify-between overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
+                        <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+                        <div className="flex items-center gap-6 md:gap-8 min-w-max">
                            {services.map((service: any, index: number) => (
                               <button
                                  key={service.id}
@@ -179,7 +180,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
 
                   {/* Full Width Display Area */}
                   <div
-                     className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 ${services[activeService].id === 'shorts' ? 'shadow-none' : ''} h-[50vh] md:h-[70vh] overflow-hidden` : 'w-[calc(100%-2rem)] md:w-full max-w-7xl mx-auto mt-6 min-h-[85vh] h-auto overflow-visible shadow-none'}`}
+                     className={`relative flex flex-col shadow-2xl transition-all duration-500 ${isVideoService ? `w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 ${services[activeService].id === 'shorts' ? 'shadow-none h-[70vh]' : 'h-[50vh] md:h-[70vh]'} overflow-hidden` : 'w-[calc(100%-1.5rem)] md:w-full max-w-7xl mx-auto mt-6 min-h-[85vh] h-auto overflow-visible shadow-none'}`}
                      style={{ backgroundColor: isVideoService && services[activeService].id !== 'shorts' ? '#050505' : 'transparent' }}
                   >
                      {/* No Tactical Corners anymore, simplifies UI */}
@@ -194,9 +195,9 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                            className="w-full h-full"
                         >
                            {currentService.id === 'shorts' && currentService.videos ? (
-                              <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-transparent">
+                              <div className="w-full h-full flex md:grid md:grid-cols-3 gap-6 md:gap-8 p-0 md:p-8 bg-transparent overflow-x-auto md:overflow-visible snap-x snap-mandatory no-scrollbar" style={{ scrollbarWidth: 'none' }}>
                                  {currentService.videos.map((video) => (
-                                    <div key={video.id} className="relative w-full h-full group overflow-hidden bg-transparent">
+                                    <div key={video.id} className="relative w-[85vw] md:w-full h-full shrink-0 snap-center group overflow-hidden bg-transparent rounded-lg md:rounded-none">
                                        <video
                                           src={video.src}
                                           className="w-full h-full object-cover"
@@ -255,7 +256,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                  <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
 
                                  {/* Active Content Info - Only for Video */}
-                                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 z-10 flex flex-col md:flex-row justify-between items-end gap-8 pb-32">
+                                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-16 z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 pb-12 md:pb-32">
                                     <motion.div
                                        initial={{ opacity: 0, y: 20 }}
                                        animate={{ opacity: 1, y: 0 }}
@@ -322,7 +323,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
 
          {/* Uniform Footer CTA - Light Theme */}
          {(showAll || activeSection === 'cta') && (
-            <div className="max-w-7xl w-full mx-auto px-6 flex flex-col items-center py-48 border-t" style={{ backgroundColor: bgColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+            <div className="max-w-7xl w-full mx-auto px-10 md:px-6 flex flex-col items-center py-48 border-t" style={{ backgroundColor: bgColor, borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
                <motion.button
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

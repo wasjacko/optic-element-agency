@@ -18,7 +18,7 @@ const IMAGES = [
 
 export const PhotoWallSection = () => {
     return (
-        <section className="w-full bg-white pt-12 pb-24 px-6 md:px-12 border-t border-gray-100">
+        <section className="w-full bg-white pt-12 pb-24 px-10 md:px-12 border-t border-gray-100">
             <div className="max-w-7xl mx-auto">
                 <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
                     {IMAGES.map((img, i) => (

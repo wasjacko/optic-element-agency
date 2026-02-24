@@ -219,7 +219,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             {/* Top Navigation */}
             <header className="bg-white border-b border-gray-200 z-30 shrink-0">
 
-                <div className="w-full px-6 h-16 flex items-center justify-between">
+                <div className="w-full px-10 md:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <span className="font-bold text-lg tracking-tight">OPTIC ELEMENT</span>
                         <div className="h-4 w-[1px] bg-gray-300 mx-2"></div>

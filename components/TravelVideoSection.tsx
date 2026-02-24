@@ -88,7 +88,7 @@ const VideoCard: React.FC<{ video: typeof TRAVEL_VIDEOS[0] }> = ({ video }) => {
 
 export const TravelVideoSection = () => {
     return (
-        <section className="w-full bg-white pt-12 pb-24 md:pb-40 px-6 md:px-12 border-t border-gray-100">
+        <section className="w-full bg-white pt-12 pb-24 md:pb-40 px-10 md:px-12 border-t border-gray-100">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-24">
                     <span className="text-[10px] font-mono text-black/20 uppercase tracking-[0.5em] block mb-4">

@@ -16,7 +16,7 @@ export const PerspectiveGrid: React.FC = () => {
   return (
     <section className="relative w-full bg-white flex flex-col items-center justify-center overflow-hidden py-40 border-t border-gray-100">
 
-      <div className="w-full max-w-7xl mx-auto px-6 text-center relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-10 md:px-6 text-center relative z-10">
         {/* Tactical Section Header */}
         <div className="flex flex-col items-center mb-24 text-center">
           <motion.div
