@@ -278,7 +278,7 @@ const GlitchReveal: React.FC<{ text: string, delay?: number, className?: string,
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroComplete, content, theme, currentPhase, isMobile }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroExpands, onIntroComplete, content, theme, currentPhase, isMobile }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
@@ -288,7 +288,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
     // LOAD VIDEO ONCE (SHARED) - Optimization for fast loading & Shader Fix
     const sharedTexture = useVideoTexture(INNER_CUBE_VIDEO, {
-        unsuspend: 'canplay',
+        unsuspend: 'loadedmetadata',
         muted: true,
         loop: true,
         start: true,
@@ -317,7 +317,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         if (hasIntroPlayed) {
             timer.current = 10.0;
             introPhase.current = 1.0;
-            if (onIntroComplete) onIntroComplete();
+            if (onIntroExpands) onIntroExpands();
+            if (onIntroComplete && isMobile) onIntroComplete();
         }
     }, [onIntroComplete]);
 
@@ -326,9 +327,9 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const globalMouse = useRef(new THREE.Vector2(0, 0));
 
     const stateRef = useRef({
-        lerpPhase: hasIntroPlayed ? 3 : 0,
+        lerpPhase: 0, // Always start at 0 to ensure cinematic phases are visible
         rotation: new THREE.Euler(0, 0, 0),
-        springScale: hasIntroPlayed ? 1.0 : 0, // Direct to full size if visited
+        springScale: hasIntroPlayed ? 1.0 : 0,
         springVel: 0,
         mouseVel: new THREE.Vector2(0, 0),
         prevMouse: new THREE.Vector2(0, 0),
@@ -386,14 +387,14 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         // 0.0s: System Init (Text 1) -> BAM
         // 0.6s: System Verification (Text 2) -> BAM
         // 1.2s: LOADER START (Right Side + Cube Init) -> BAM
-        // 2.5s: ACTIVATION (Expansion + UI Clear)
-        // 4.0s: Interaction Ready
+        // 3.5s: ACTIVATION (Expansion + UI Clear) (Delayed for realistic preload)
 
         const elapsed = timer.current;
         const CUBE_START = 0.5;
         const LOADER_START = 0.5;
-        const INTRO_START = 2.5; // Exactly 1s after loading finish (1.5s)
-        const EXIT_TIME = 4.0;
+        // Speeds up mobile intro so it doesn't drag out and freeze the device
+        const INTRO_START = isMobile ? 1.5 : 3.5;
+        const EXIT_TIME = isMobile ? 3.0 : 5.0;
 
         // Background Grid: TACTICAL GLITCH (Digital System Reaction)
         // Stable State
@@ -407,13 +408,18 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         // Visibility Logic
         globalOpacity.current = 1.0;
 
-        // Intro Expansion Logic (Starts at 2.5s)
+        // Intro Expansion Logic (Starts at 3.5s)
         if (elapsed > INTRO_START && introPhase.current < 1) {
             introPhase.current += dt * 8.0; // Hyper fast expansion (doubled speed)
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
-                hasIntroPlayed = true;
-                if (onIntroComplete) onIntroComplete();
+                if (!hasIntroPlayed) {
+                    hasIntroPlayed = true;
+                    // Trigger menu appearance exactly when expansion finishes
+                    if (onIntroExpands) onIntroExpands();
+                }
+                // Desktop relies on manual scroll phase to unlock site. Mobile unlocks automatically.
+                if (onIntroComplete && isMobile) onIntroComplete();
             }
         }
 
@@ -428,9 +434,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             // Keep it perfectly centered horizontally, but moved up slightly more to match new cube height
             activeMouse = new THREE.Vector2(0, 0.45);
 
-            // Sudden reveal right before the end of the loading phase (e.g. at elapsed > 2.2s)
-            // It will jump from 0 to 1.8 instantly, creating a popping effect
-            targetInfluence = elapsed > 2.2 ? 1.8 : 0.0;
+            // Sudden reveal right before the end of the loading phase
+            targetInfluence = elapsed > 2.5 ? 1.8 : 0.0;
         } else {
             if (currentPhase === 1) {
                 activeMouse = s.phase1Mouse;
@@ -635,7 +640,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 // --- Main Hero Component ---
 const CUBE_VIDEO_URL = "/assets/cube_video.mp4";
 
-export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroComplete }) => {
+export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete }) => {
     const content = data || homeContent.hero;
     const currentTheme = theme || homeContent.theme; // Fallback to import if no prop
 
@@ -648,11 +653,17 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
         CUBE_VIDEO_URL
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
-    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
+    const phaseRef = useRef(0);
+    const [currentPhase, setCurrentPhase] = useState(phaseRef.current);
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
     const lastScrollTime = useRef(0);
 
-    const [isMobile, setIsMobile] = useState(false);
+    // Sync ref with state (though we'll update ref first in handler)
+    useEffect(() => {
+        phaseRef.current = currentPhase;
+    }, [currentPhase]);
+
+    const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 768));
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
@@ -660,39 +671,62 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Scroll Logic
+
+    // Pure JS Scroll Lock - The ONLY bulletproof way to stop Safari rubber-banding and random scroll jumps.
     useEffect(() => {
+        // Once we pass phase 3, we detach completely and let native scrolling take over.
+        if (currentPhase >= 4) return;
+
+        const preventScroll = (e: Event) => {
+            if (isMobile) return;
+            if (phaseRef.current >= 4) return;
+            // Kill Safari native scrolling to prevent jumps/rubberbands strictly EVERYWHERE in intro
+            if (e.cancelable) e.preventDefault();
+        };
+
         const handleWheel = (e: WheelEvent) => {
-            if (isMobile) return; // Do not trap scroll on mobile
+            if (isMobile) return;
+            if (phaseRef.current >= 4) return;
+
+            // Absolutely kill browser smooth scroll (even during loader)
+            if (e.cancelable) e.preventDefault();
+
             if (!sectionRef.current) return;
-            // Block interaction during loading phase
-            if (loadProgress < 100) {
-                if (e.cancelable) e.preventDefault();
-                return;
-            }
+            if (!hasIntroPlayed) return; // Completely block phase changes until intro finishes expanding
 
-            const isAtTop = window.scrollY < 50;
             const now = Date.now();
-            const direction = Math.sign(e.deltaY);
+            const delta = e.deltaY;
+            if (Math.abs(delta) < 5) return;
+            const direction = Math.sign(delta);
+            const currentP = phaseRef.current;
 
-            const shouldTrap = isAtTop && (
-                (direction > 0 && currentPhase < 4) ||
-                (direction < 0 && currentPhase > 0)
-            );
-
-            if (shouldTrap) {
-                if (e.cancelable) e.preventDefault();
-
-                if (now - lastScrollTime.current > 1200) {
-                    setCurrentPhase(prev => Math.max(0, Math.min(4, prev + direction)));
+            // Enforce a strict 1.2s delay between phases to restore the "1 scroll = 1 phase" rhythm 
+            // and ignore trackpad momentum from the same physical swipe.
+            if (now - lastScrollTime.current > 1200) {
+                const nextP = Math.max(0, Math.min(4, currentP + direction));
+                if (nextP !== currentP) {
+                    phaseRef.current = nextP;
+                    setCurrentPhase(nextP);
                     lastScrollTime.current = now;
+
+                    // Unlock the site when we finally reach Phase 4
+                    if (nextP === 4 && onIntroComplete) {
+                        onIntroComplete();
+                    }
                 }
             }
         };
 
+        // { passive: false } is mandatory in Safari to allow e.preventDefault() and kill rubber-banding.
         window.addEventListener('wheel', handleWheel, { passive: false });
-        return () => window.removeEventListener('wheel', handleWheel);
-    }, [currentPhase, loadProgress]);
+        window.addEventListener('touchmove', preventScroll, { passive: false });
+
+        return () => {
+            window.removeEventListener('wheel', handleWheel);
+            window.removeEventListener('touchmove', preventScroll);
+        };
+    }, [loadProgress, isMobile, currentPhase, onIntroComplete]);
+
 
     // Loader Logic
     useEffect(() => {
@@ -708,16 +742,17 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                     }
                     return prev + 1;
                 });
-            }, 10);
-        }, 500);
+            }, isMobile ? 10 : 25); // Mobile drastically faster loader
+        }, isMobile ? 200 : 500);
 
         // Safety Reveal Timeout
         const safetyTimer = setTimeout(() => {
             if (!hasIntroPlayed) {
                 hasIntroPlayed = true;
-                if (onIntroComplete) onIntroComplete();
+                if (onIntroExpands) onIntroExpands();
+                if (onIntroComplete && isMobile) onIntroComplete();
             }
-        }, 6000);
+        }, isMobile ? 3000 : 6000);
 
         return () => {
             clearTimeout(timer);
@@ -733,7 +768,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     return (
         <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
             <Canvas
-                dpr={[1, 1.2]}
+                dpr={isMobile ? [0.8, 1] : [1, 1.2]}
                 performance={{ min: 0.5 }}
                 gl={{
                     alpha: true,
@@ -750,7 +785,14 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 <ambientLight intensity={0.6} />
                 <pointLight position={[10, 10, 10]} intensity={2.0} />
                 <pointLight position={[-10, 5, 10]} intensity={1.0} color="#ffffff" />
-                <Suspense fallback={null}>
+                <Suspense fallback={
+                    <group position={[0, isMobile ? 1.5 : 0, 0]} rotation={[0.15, 0.4, 0.02]} scale={isMobile ? 0.7 : 0.15}>
+                        <mesh>
+                            <boxGeometry args={[3, 3, 3]} />
+                            <meshBasicMaterial color="#111111" />
+                        </mesh>
+                    </group>
+                }>
                     <ShowcaseCube
                         videos={videos}
                         scale={1}
@@ -761,6 +803,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                         theme={currentTheme}
                         currentPhase={isMobile ? 3 : currentPhase}
                         isMobile={isMobile}
+                        onIntroExpands={onIntroExpands}
                     />
                 </Suspense>
             </Canvas>
@@ -795,34 +838,35 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                     }
                 `}</style>
 
-                {/* Intro Texts */}
-                <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 hidden md:flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                {/* Intro Texts (Desktop Only) */}
+                {!isMobile && (
+                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                        {/* Block 1 */}
+                        <div
+                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                            style={{ animation: 'simpleFadeIn 0.5s ease-out 0.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                        >
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTIC_ELEMENT_SYS</div>
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GROWTH.ENGINE.INIT</div>
+                        </div>
 
-                    {/* Block 1 */}
-                    <div
-                        className="flex flex-col justify-center py-1 gap-1 opacity-0"
-                        style={{ animation: 'simpleFadeIn 0.5s ease-out 0.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
-                    >
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTIC_ELEMENT_SYS</div>
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GROWTH.ENGINE.INIT</div>
+                        {/* Block 2 */}
+                        <div
+                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                            style={{ animation: 'simpleFadeIn 0.5s ease-out 1.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                        >
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTICELEMENT.SYSTEM</div>
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">STRATEGY // EXEC</div>
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GLOBAL_COORDINATES</div>
+                        </div>
                     </div>
-
-                    {/* Block 2 */}
-                    <div
-                        className="flex flex-col justify-center py-1 gap-1 opacity-0"
-                        style={{ animation: 'simpleFadeIn 0.5s ease-out 1.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
-                    >
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTICELEMENT.SYSTEM</div>
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">STRATEGY // EXEC</div>
-                        <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GLOBAL_COORDINATES</div>
-                    </div>
-                </div>
+                )}
 
                 {/* Loader */}
                 <div
-                    className={`absolute md:top-[40%] md:-translate-y-1/2 md:right-32 bottom-[45vh] md:bottom-auto left-1/2 -translate-x-1/2 md:translate-x-0 text-center md:text-right transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
+                    className={`absolute md:top-1/2 bottom-[40vh] md:bottom-auto left-1/2 md:left-auto md:-translate-y-1/2 -translate-x-1/2 md:translate-x-0 md:right-32 pointer-events-none transition-opacity duration-300 ${loadProgress > 0 && loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}
                 >
-                    <div style={{ animation: loadProgress === 100 ? 'glitchHide 0.25s steps(3) 0.2s forwards' : 'none' }}>
+                    <div className="text-center md:text-right" style={{ animation: loadProgress === 100 ? 'glitchHide 0.25s steps(3) 0.2s forwards' : 'none' }}>
                         <span className="font-ocr text-[14px] md:text-[16px] text-white font-medium tracking-widest">
                             {loadProgress < 100 ? loadProgress : 100}
                         </span>
@@ -833,7 +877,14 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 {/* MOBILE SPECIFIC UI */}
                 {isMobile && (
                     <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end items-center px-10 md:px-6 pb-20 pointer-events-none">
-                        <div className={`transition-opacity duration-1000 flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 && hasIntroPlayed ? 'opacity-100' : 'opacity-0'}`}>
+                        <div
+                            className={`transition-all duration-1000 ease-out flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 ? 'translate-y-0 pointer-events-auto' : 'translate-y-8 pointer-events-none'}`}
+                            style={{
+                                opacity: loadProgress >= 100 ? 1 : 0,
+                                visibility: loadProgress >= 100 ? 'visible' : 'hidden',
+                                transitionDelay: loadProgress >= 100 ? '1500ms' : '0ms'
+                            }}
+                        >
                             <div className="flex flex-col gap-1 items-center">
                                 <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md">
                                     {content?.phase1 || homeContent.hero.phase1}
@@ -851,7 +902,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
 
                             <button
                                 onClick={onContactClick}
-                                className="pointer-events-auto mt-4 border border-white/20 px-10 py-4 font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
+                                className="mt-4 border border-white/20 px-10 py-4 font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
                                 style={{ backgroundColor: content?.ctaBg || '#ffffff', color: content?.ctaText || '#000000' }}
                             >
                                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />

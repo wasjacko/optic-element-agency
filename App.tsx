@@ -2,16 +2,25 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { AnimatePresence, motion, LayoutGroup, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
-const LazySection = ({ children, threshold = 0.1 }: { children: React.ReactNode, threshold?: number }) => {
+const LazySection = ({ children, threshold = 0.01 }: { children: React.ReactNode, threshold?: number }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: threshold });
+  // Using a soft margin prevents instant 0px-height crashes but still preloads exactly when 
+  // the user starts scrolling down, providing smooth performance.
+  // On mobile, we use a much smaller margin so we don't accidentally load the entire site at once while struggling with 3D.
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const isInView = useInView(ref, { once: true, margin: isMobile ? "200px" : "800px" });
 
   return (
-    <div ref={ref} className="min-h-[50px] w-full">
-      {isInView ? children : null}
+    <div ref={ref} className="w-full relative min-h-[50px]">
+      {isInView ? (
+        <Suspense fallback={<div className="h-[50px] w-full bg-transparent" />}>
+          {children}
+        </Suspense>
+      ) : null}
     </div>
   );
 };
+
 
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
@@ -97,6 +106,7 @@ export default function App() {
   });
   const [isScrolled, setIsScrolled] = useState(false);
   const [introCompleted, setIntroCompleted] = useState(false);
+  const [introExpanded, setIntroExpanded] = useState(false);
 
   const handlePreload = (page: string) => {
     if (page === 'about') factories.About();
@@ -107,14 +117,32 @@ export default function App() {
   };
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     updateTheme(defaultContent.theme);
-  }, []); // homeContent update should trigger HMR which re-runs this modulule, but React might keep state.
+
+    // Aggressively preload all heavy components in the background
+    // On mobile we wait longer to ensure the 3D intro plays snappily first without CPU competition
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const preloadTimer = setTimeout(() => {
+      factories.Brands();
+      factories.VideoSection();
+      factories.Projects();
+      factories.Testimonials();
+      factories.MissingElements();
+      factories.ProcessSprint();
+      factories.WorksPage();
+    }, isMobile ? 3000 : 100);
+
+    return () => clearTimeout(preloadTimer);
+  }, []);
   // Actually, standard HMR for JSON might not trigger component re-render unless the import itself changes.
   // We can trust Vite HMR to reload the module or update the object.
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 20);
     };
 
     const handleHashChange = () => {
@@ -191,111 +219,112 @@ export default function App() {
           onLabClick={handleLabClick}
           isScrolled={isScrolled}
           introCompleted={introCompleted}
+          introExpanded={introExpanded}
           activePage={activePage}
         />
 
         {/* EXCLUSIVE PAGE ROUTING */}
-        <LayoutGroup>
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
 
-            {/* 1. PROCESS PAGE */}
-            {activePage === 'admin' && (
-              <motion.div key="admin" {...pageTransition} className="z-[9999] relative">
-                <AdminRoute onBack={handleHomeClick} />
-              </motion.div>
-            )}
+          {/* 1. PROCESS PAGE */}
+          {activePage === 'admin' && (
+            <motion.div key="admin" {...pageTransition} className="z-[9999] relative">
+              <AdminRoute onBack={handleHomeClick} />
+            </motion.div>
+          )}
 
-            {activePage === 'process' && (
-              <motion.div key="process" {...pageTransition} className="pt-12 md:pt-20">
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <ProcessPage onContactClick={handleContactClick} data={cmsContent.processPage} />
-                  <Footer onContactClick={handleContactClick} />
-                </Suspense>
-              </motion.div>
-            )}
+          {activePage === 'process' && (
+            <motion.div key="process" {...pageTransition} className="pt-12 md:pt-20">
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <ProcessPage onContactClick={handleContactClick} data={cmsContent.processPage} />
+                <Footer onContactClick={handleContactClick} />
+              </Suspense>
+            </motion.div>
+          )}
 
-            {/* 1.5. THE LAB PAGE */}
-            {activePage === 'lab' && (
-              <motion.div key="lab" {...pageTransition} className="pt-12 md:pt-20">
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <TheLab onContactClick={handleContactClick} data={cmsContent.lab} />
-                  <Footer onContactClick={handleContactClick} />
-                </Suspense>
-              </motion.div>
-            )}
+          {/* 1.5. THE LAB PAGE */}
+          {activePage === 'lab' && (
+            <motion.div key="lab" {...pageTransition} className="pt-12 md:pt-20">
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <TheLab onContactClick={handleContactClick} data={cmsContent.lab} />
+                <Footer onContactClick={handleContactClick} />
+              </Suspense>
+            </motion.div>
+          )}
 
-            {/* 2. CONTACT PAGE */}
-            {activePage === 'contact' && (
-              <motion.div key="contact" {...pageTransition} className="pt-12 md:pt-20">
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <ContactPage onBack={handleHomeClick} data={cmsContent.contact} />
-                </Suspense>
-              </motion.div>
-            )}
+          {/* 2. CONTACT PAGE */}
+          {activePage === 'contact' && (
+            <motion.div key="contact" {...pageTransition} className="pt-12 md:pt-20">
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <ContactPage onBack={handleHomeClick} data={cmsContent.contact} />
+                <Footer onContactClick={handleContactClick} />
+              </Suspense>
+            </motion.div>
+          )}
 
-            {/* 3. ABOUT PAGE */}
-            {activePage === 'about' && (
-              <motion.div key="about" {...pageTransition} className="pt-12 md:pt-20">
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <About onContactClick={handleContactClick} data={cmsContent.about} />
-                  <Footer onContactClick={handleContactClick} />
-                </Suspense>
-              </motion.div>
-            )}
+          {/* 3. ABOUT PAGE */}
+          {activePage === 'about' && (
+            <motion.div key="about" {...pageTransition} className="pt-12 md:pt-20">
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <About onContactClick={handleContactClick} data={cmsContent.about} />
+                <Footer onContactClick={handleContactClick} />
+              </Suspense>
+            </motion.div>
+          )}
 
-            {/* 4. WORKS PAGE */}
-            {activePage === 'work' && (
-              <motion.div key="work" {...pageTransition} className="pt-12 md:pt-24">
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <WorksPage onContactClick={handleContactClick} data={cmsContent.worksPage} />
-                  <Footer onContactClick={handleContactClick} />
-                </Suspense>
-              </motion.div>
-            )}
+          {/* 4. WORKS PAGE */}
+          {activePage === 'work' && (
+            <motion.div key="work" {...pageTransition} className="pt-12 md:pt-24">
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <WorksPage onContactClick={handleContactClick} data={cmsContent.worksPage} />
+                <Footer onContactClick={handleContactClick} />
+              </Suspense>
+            </motion.div>
+          )}
 
-            {/* 5. HOME PAGE (Default) */}
-            {activePage === 'home' && (
-              <motion.div key="home" {...pageTransition}>
-                <div id="home">
-                  <Hero
-                    data={cmsContent.hero}
-                    theme={cmsContent.theme}
-                    onContactClick={handleContactClick}
-                    onIntroComplete={() => setIntroCompleted(true)}
-                  />
+          {/* 5. HOME PAGE (Default) */}
+          {activePage === 'home' && (
+            <motion.div key="home" {...pageTransition}>
+              <div id="home">
+                <Hero
+                  data={cmsContent.hero}
+                  theme={cmsContent.theme}
+                  onContactClick={handleContactClick}
+                  onIntroExpands={() => setIntroExpanded(true)}
+                  onIntroComplete={() => setIntroCompleted(true)}
+                />
+              </div>
+              <Suspense fallback={<div className="h-screen bg-black" />}>
+                <div className={`bg-white transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden pointer-events-none'}`}>
+                  <LazySection>
+                    <Brands title={cmsContent.brands?.title} data={cmsContent} />
+                  </LazySection>
+
+                  <LazySection>
+                    <MissingElements data={cmsContent.missingElements} />
+                  </LazySection>
+
+                  <LazySection>
+                    <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
+                  </LazySection>
+
+                  <LazySection>
+                    <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />
+                  </LazySection>
+
+                  <LazySection>
+                    <Testimonials data={cmsContent.testimonials} />
+                  </LazySection>
+
+                  <LazySection>
+                    <Footer onContactClick={handleContactClick} />
+                  </LazySection>
                 </div>
-                <Suspense fallback={<div className="h-screen bg-black" />}>
-                  <div className={`bg-white transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <LazySection threshold={0.01}>
-                      <Brands title={cmsContent.brands?.title} data={cmsContent} />
-                    </LazySection>
+              </Suspense>
+            </motion.div>
+          )}
 
-                    <LazySection threshold={0.01}>
-                      <MissingElements data={cmsContent.missingElements} />
-                    </LazySection>
-
-                    <LazySection threshold={0.01}>
-                      <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
-                    </LazySection>
-
-                    <LazySection threshold={0.01}>
-                      <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />
-                    </LazySection>
-
-                    <LazySection threshold={0.01}>
-                      <Testimonials data={cmsContent.testimonials} />
-                    </LazySection>
-
-                    <LazySection threshold={0.01}>
-                      <Footer onContactClick={handleContactClick} />
-                    </LazySection>
-                  </div>
-                </Suspense>
-              </motion.div>
-            )}
-
-          </AnimatePresence>
-        </LayoutGroup>
+        </AnimatePresence>
 
         {/* Local Content Editor (Removed) */}
         {/* <LocalAdmin /> */}
