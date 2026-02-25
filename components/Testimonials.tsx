@@ -128,7 +128,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-3xl font-black text-white uppercase leading-none font-sans tracking-tight drop-shadow-lg">
+                        <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans tracking-tight drop-shadow-lg break-words break-all whitespace-normal">
                             {reel.client}
                         </h3>
                         <div className="flex items-center gap-3">
@@ -250,7 +250,7 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
 
             <div className="absolute inset-0 flex flex-col justify-end p-5 pointer-events-none">
                 <div className="space-y-3">
-                    <h3 className="text-3xl font-black text-white uppercase leading-none font-sans drop-shadow-lg tracking-tight">
+                    <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight break-words break-all whitespace-normal">
                         {reel.client}
                     </h3>
                     <div className="flex items-center gap-3">
