@@ -20,18 +20,6 @@ const SERVICES = [
             title: 'RV PROMO',
             description: 'Dynamic promotional content showcasing lifestyle and utility with cinematic flair.',
             src: 'https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/1080p/mp4/file.mp4'
-         },
-         {
-            id: 'mexico-build',
-            title: 'MEXICO BUILD',
-            description: 'Impactful narrative focusing on community, construction, and the tangible difference made by specialized teams.',
-            src: 'https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/1080p/mp4/file.mp4'
-         },
-         {
-            id: 'masters-hype',
-            title: 'MASTERS HYPE',
-            description: 'Fast-paced, high-impact edit designed to build anticipation and drive momentum for major events.',
-            src: 'https://video.wixstatic.com/video/8fb0bb_2345e2ed454a472bacf9f6fee9b690d9/1080p/mp4/file.mp4'
          }
       ]
    },
