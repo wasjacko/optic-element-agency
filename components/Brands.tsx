@@ -1,5 +1,25 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef, useEffect } from 'react';
+import { motion, useInView, useSpring, useTransform } from 'framer-motion';
+
+const AnimatedCounter = ({ end, prefix = "", suffix = "" }: { end: number, prefix?: string, suffix?: string }) => {
+    const ref = useRef(null);
+    // Margin -50px ensures it starts counting exactly when it comes well into view
+    const inView = useInView(ref, { once: true, margin: "-50px" });
+    // Spring configuration maps directly to a "dialing-in" feel (fast to start, slows down smoothly at the end)
+    const spring = useSpring(0, { mass: 1, stiffness: 60, damping: 20 });
+
+    useEffect(() => {
+        if (inView) {
+            spring.set(end);
+        }
+    }, [inView, end, spring]);
+
+    const display = useTransform(spring, (current) => {
+        return prefix + Math.round(current).toLocaleString() + suffix;
+    });
+
+    return <motion.span ref={ref}>{display}</motion.span>;
+};
 
 const LOGO_IMAGES = [
     "https://static.wixstatic.com/media/8fb0bb_10196fa29d6049cf9c62e7151ea6ef82~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_10196fa29d6049cf9c62e7151ea6ef82~mv2.png",
@@ -105,11 +125,11 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                 {/* Discreet Impact Section */}
                 <div className="mt-24 md:mt-32 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
                     <div className="flex flex-col items-center">
-                        <div className="grid grid-cols-3 gap-4 md:gap-24 w-full md:w-[80%] mx-auto">
+                        <div className="grid grid-cols-3 gap-4 md:gap-24 w-full md:w-full max-w-4xl mx-auto px-4">
                             {[
-                                { value: "450+", label: "PROJECTS", desc: "Delivered Globally" },
-                                { value: "35+", label: "AWARDS WON", desc: "Creative Excellence" },
-                                { value: "2X", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
                             ].map((kpi, i) => (
                                 <motion.div
                                     key={i}
@@ -119,10 +139,10 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                                     viewport={{ once: true }}
                                     className="group flex flex-col items-center text-center"
                                 >
-                                    <div className="text-3xl md:text-3xl font-black mb-3 md:mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter">
-                                        {kpi.value}
+                                    <div className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 md:mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter tabular-nums whitespace-nowrap">
+                                        <AnimatedCounter end={kpi.number} prefix={kpi.prefix} suffix={kpi.suffix} />
                                     </div>
-                                    <div className="text-[10px] md:text-[9px] font-bold tracking-[0.2em] text-white/40 uppercase font-ocr">
+                                    <div className="text-[9px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.2em] text-white/40 uppercase font-ocr px-1 break-words">
                                         {kpi.label}
                                     </div>
                                 </motion.div>
