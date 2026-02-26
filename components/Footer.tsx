@@ -37,10 +37,10 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
           >
             <div className="space-y-1">
               <p className="text-lg md:text-xl font-light uppercase tracking-tight text-white">
-                1495 Poinsettia Ave Suite 146
+                1499 Poinsettia Ave Suite 164
               </p>
               <p className="text-lg md:text-xl font-light uppercase tracking-tight text-white/40">
-                San Diego, CA
+                Vista, CA
               </p>
             </div>
 
