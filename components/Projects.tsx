@@ -13,16 +13,6 @@ const PROJECTS = [
     src: "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/480p/mp4/file.mp4"
   },
   {
-    title: "MEXICO BUILD",
-    subtitle: "NUMERO 0006",
-    src: "https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/480p/mp4/file.mp4"
-  },
-  {
-    title: "MASTERS HYPE",
-    subtitle: "NUMERO 0007",
-    src: "https://video.wixstatic.com/video/8fb0bb_2345e2ed454a472bacf9f6fee9b690d9/480p/mp4/file.mp4"
-  },
-  {
     title: "INVESTOR LIFT",
     subtitle: "NUMERO 0008",
     src: "https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4"
