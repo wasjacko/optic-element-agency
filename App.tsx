@@ -264,7 +264,7 @@ export default function App() {
 
           {/* 3. ABOUT PAGE */}
           {activePage === 'about' && (
-            <motion.div key="about" {...pageTransition} className="pt-12 md:pt-20">
+            <motion.div key="about" {...pageTransition} className="pt-0">
               <Suspense fallback={<div className="h-screen bg-black" />}>
                 <About onContactClick={handleContactClick} data={cmsContent.about} />
                 <Footer onContactClick={handleContactClick} />
