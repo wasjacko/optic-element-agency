@@ -244,7 +244,7 @@ export default function App() {
 
           {/* 1.5. THE LAB PAGE */}
           {activePage === 'lab' && (
-            <motion.div key="lab" {...pageTransition} className="pt-12 md:pt-20">
+            <motion.div key="lab" {...pageTransition} className="pt-0">
               <Suspense fallback={<div className="h-screen bg-black" />}>
                 <TheLab onContactClick={handleContactClick} data={cmsContent.lab} />
                 <Footer onContactClick={handleContactClick} />

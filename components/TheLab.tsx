@@ -211,12 +211,12 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
     };
 
     return (
-        <div className="min-h-screen font-sans bg-white overflow-x-hidden pt-4 md:pt-24 selection:bg-black selection:text-white">
+        <div className="min-h-screen font-sans bg-white overflow-x-hidden pt-24 md:pt-32 selection:bg-black selection:text-white">
 
             {/* SECTION 1: HEADER */}
-            <section className="relative pt-2 md:pt-16 pb-6 bg-white">
+            <section className="relative pt-0 pb-0 bg-white">
                 <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black mb-6 uppercase text-center">
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black mb-4 md:mb-6 uppercase text-center">
                         {data?.title || "THE LAB"}
                     </h1>
                 </div>
