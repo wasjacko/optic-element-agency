@@ -50,11 +50,11 @@ const STEPS = [
   {
     id: "05",
     title: "Notify",
-    label: "QUALITY ASSURANCE",
-    description: "We send content previews for feedback and handle revisions to get everything client-approved.",
+    label: "From shoot to structure.",
+    description: "We edit and refine every asset to match your brand, strategy, and objectives, reviewed for clarity and performance.",
     icon: ScanEye,
     color: "#FF5000",
-    tag: "Get Your Input"
+    tag: "STAY ALIGNED"
   },
   {
     id: "06",
