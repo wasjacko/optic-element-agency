@@ -84,43 +84,7 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
       `}</style>
 
             <div className="max-w-7xl mx-auto px-10 md:px-6 text-center">
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    viewport={{ once: true }}
-                    className="font-mono text-sm md:text-base tracking-[0.3em] uppercase mb-16 transition-colors duration-500 font-bold"
-                    style={{ color: data?.brands?.titleColor || 'var(--color-primary)' }}
-                >
-                    {sectionTitle}
-                </motion.p>
-
-                <div className="relative w-full overflow-hidden mask-linear-fade">
-                    {/* Linear Gradient Masks for smooth fade out at edges */}
-                    <div className="absolute top-0 left-0 h-full w-24 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" style={{ '--color-bg': bgColor } as any} />
-                    <div className="absolute top-0 right-0 h-full w-24 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" style={{ '--color-bg': bgColor } as any} />
-
-                    <motion.div
-                        className="flex gap-16 md:gap-24 items-center w-max will-change-transform backface-hidden"
-                        animate={{ x: ["0%", "-50%"] }}
-                        transition={{
-                            duration: 40,
-                            ease: "linear",
-                            repeat: Infinity,
-                        }}
-                    >
-                        {[...images, ...images].map((src: string, i: number) => (
-                            <div key={i} className="flex-shrink-0 grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100">
-                                <img
-                                    src={src}
-                                    alt="Brand Logo"
-                                    className="max-w-[100px] h-auto object-contain max-h-[60px]"
-                                    loading="lazy"
-                                />
-                            </div>
-                        ))}
-                    </motion.div>
-                </div>
+                {/* Logo slider removed as requested */}
 
                 {/* Discreet Impact Section */}
                 <div className="mt-24 md:mt-32 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
