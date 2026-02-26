@@ -132,7 +132,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                         </h3>
                         <div className="flex items-center gap-3">
                             <span className="h-[1px] w-8 bg-[#FF5000]"></span>
-                            <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr">Watch Reel</span>
+                            <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr">WATCH VIDEO</span>
                         </div>
                     </div>
                 </div>
