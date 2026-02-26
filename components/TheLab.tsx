@@ -218,7 +218,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                 <img
                     src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
                     alt="Logo"
-                    className="h-16 md:h-20 w-auto object-contain"
+                    className="h-24 md:h-32 w-auto object-contain"
                 />
             </div>
 
