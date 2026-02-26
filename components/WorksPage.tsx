@@ -10,12 +10,6 @@ const SERVICES = [
       description: 'Cinematic storytelling that elevates brand identity, merges strategy with premium aesthetics to command audience attention.',
       videos: [
          {
-            id: 'lgcy-recruitment',
-            title: 'LGCY RECRUITMENT',
-            description: 'Cinematic storytelling that elevates brand identity, merges strategy with premium aesthetics to command audience attention.',
-            src: 'https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/1080p/mp4/file.mp4'
-         },
-         {
             id: 'koffee',
             title: 'KOFFEE CO.',
             description: 'Premium commercial production highlighting product quality and brand atmosphere.',
@@ -26,18 +20,6 @@ const SERVICES = [
             title: 'RV PROMO',
             description: 'Dynamic promotional content showcasing lifestyle and utility with cinematic flair.',
             src: 'https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/1080p/mp4/file.mp4'
-         },
-         {
-            id: 'inflatable',
-            title: 'INFLATABLE WORLD',
-            description: 'High-energy promotional coverage capturing the excitement and scale of dynamic events.',
-            src: 'https://video.wixstatic.com/video/8fb0bb_63f55faeec1442bf9076e87309bfdd83/1080p/mp4/file.mp4'
-         },
-         {
-            id: 'lgcy-mexico',
-            title: 'LGCY MEXICO',
-            description: 'Documentary-style storytelling that brings corporate incentives and travel experiences to life.',
-            src: 'https://video.wixstatic.com/video/8fb0bb_39fde8faf82540bc99862c5301f897be/1080p/mp4/file.mp4'
          },
          {
             id: 'mexico-build',

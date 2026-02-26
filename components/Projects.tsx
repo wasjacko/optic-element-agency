@@ -3,11 +3,6 @@ import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-mo
 
 const PROJECTS = [
   {
-    title: "LGCY RECRUITMENT",
-    subtitle: "NUMERO 0001",
-    src: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/480p/mp4/file.mp4"
-  },
-  {
     title: "KOFFEE CO.",
     subtitle: "NUMERO 0002",
     src: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4"
@@ -16,16 +11,6 @@ const PROJECTS = [
     title: "RV PROMO",
     subtitle: "NUMERO 0003",
     src: "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/480p/mp4/file.mp4"
-  },
-  {
-    title: "INFLATABLE WORLD",
-    subtitle: "NUMERO 0004",
-    src: "https://video.wixstatic.com/video/8fb0bb_63f55faeec1442bf9076e87309bfdd83/480p/mp4/file.mp4"
-  },
-  {
-    title: "LGCY MEXICO",
-    subtitle: "NUMERO 0005",
-    src: "https://video.wixstatic.com/video/8fb0bb_39fde8faf82540bc99862c5301f897be/480p/mp4/file.mp4"
   },
   {
     title: "MEXICO BUILD",

@@ -23,7 +23,7 @@
         "subtitle": "our proven system"
     },
     "works": {
-        "title": "OUR WORKS"
+        "title": "PROJECTS"
     },
     "testimonials": {
         "title": "VIDEO TESTIMONIALS",
@@ -124,12 +124,6 @@
                 "description": "Cinematic storytelling that elevates brand identity.",
                 "videos": [
                     {
-                        "id": "lgcy-recruitment",
-                        "title": "LGCY RECRUITMENT",
-                        "description": "Cinematic storytelling.",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/1080p/mp4/file.mp4"
-                    },
-                    {
                         "id": "koffee",
                         "title": "KOFFEE CO.",
                         "description": "Premium commercial production.",
@@ -140,18 +134,6 @@
                         "title": "RV PROMO",
                         "description": "Dynamic promotional content.",
                         "src": "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/1080p/mp4/file.mp4"
-                    },
-                    {
-                        "id": "inflatable",
-                        "title": "INFLATABLE WORLD",
-                        "description": "High-energy promotional coverage.",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_63f55faeec1442bf9076e87309bfdd83/1080p/mp4/file.mp4"
-                    },
-                    {
-                        "id": "lgcy-mexico",
-                        "title": "LGCY MEXICO",
-                        "description": "Documentary-style storytelling.",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_39fde8faf82540bc99862c5301f897be/1080p/mp4/file.mp4"
                     },
                     {
                         "id": "mexico-build",
