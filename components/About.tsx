@@ -245,13 +245,13 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
   return (
     <div
-      className="min-h-screen font-sans overflow-x-hidden pt-12 md:pt-24 selection:bg-black selection:text-white"
+      className="font-sans overflow-x-hidden pt-24 md:pt-32 selection:bg-black selection:text-white"
       style={{ backgroundColor: bgColor, color: txtColor }}
     >
 
       {/* SECTION 1: HEADER */}
       {(showAll || activeSection === 'header') && (
-        <section className="relative pt-6 pb-2" style={{ backgroundColor: 'transparent' }}>
+        <section className="relative pt-0 pb-0" style={{ backgroundColor: 'transparent' }}>
           <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-4 uppercase text-center" style={{ color: txtColor }}>
               {data?.title || "Who We Are"}
