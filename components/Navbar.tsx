@@ -58,7 +58,7 @@ const HoverGlitchText: React.FC<{ text: string, isHovered: boolean }> = ({ text,
   return (
     <span className="relative inline-block">
       <span className="opacity-0">{text}</span>
-      <span ref={spanRef} className="absolute top-0 left-0">{text}</span>
+      <span ref={spanRef} className="absolute top-0 left-0 pointer-events-none">{text}</span>
     </span>
   );
 };
