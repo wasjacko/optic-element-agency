@@ -14,20 +14,20 @@ const STEPS = [
   {
     id: "01",
     title: "Strategy",
-    label: "THE FOUNDATION",
+    label: "We define the North Star.",
     description: "We align on goals, positioning, and direction, then map the path forward before execution begins.",
     icon: BrainCircuit,
     color: "#FF5000",
-    tag: "We define the North Star."
+    tag: "Define the Vision"
   },
   {
     id: "02",
     title: "Plan",
-    label: "SCRIPT & STRUCTURE",
+    label: "With strategy set, we build the roadmap.",
     description: "We map your content inside our shared dashboard — outlining ideas, scripts, and structure before production begins.",
     icon: ScrollText,
     color: "#FF7030",
-    tag: "With strategy set, we build the roadmap."
+    tag: "Map Out the Content"
   },
   {
     id: "03",
