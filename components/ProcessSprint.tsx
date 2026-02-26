@@ -20,7 +20,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
 
 
   return (
-    <section id="process" className="bg-black py-12 md:py-32 relative overflow-hidden flex flex-col items-center justify-center min-h-[auto] md:min-h-[50vh]">
+    <section id="process" className="bg-black pt-12 pb-0 md:pt-32 md:pb-8 relative overflow-hidden flex flex-col items-center justify-center">
 
       {/* 1. HEADER */}
       <div className="flex flex-col items-center mb-12 md:mb-24 relative z-10 text-center">
@@ -108,7 +108,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
       </div>
 
       {/* 3. CTA BUTTON */}
-      <div className="mt-12 md:mt-24 relative z-10">
+      <div className="mt-10 md:mt-16 mb-4 md:mb-8 relative z-10">
         <button
           onClick={onProcessClick}
           className="bg-white text-black px-8 py-4 flex items-center gap-4 group hover:bg-[#FF5000] hover:text-white transition-all duration-500"
