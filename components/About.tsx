@@ -8,11 +8,12 @@ interface AboutProps {
 }
 
 const TEAM_MEMBERS = [
-  { name: "Santiago Castro", role: "COO", img: "/santiago.png" },
-  { name: "Dharimar Castro", role: "Creative Strategist", img: "/deedee%202025%20headshot.png" },
-  { name: "Deztney Ayala", role: "Client Success Manager", img: "/dez%202025%20headshot.png" },
-  { name: "Ryan Lotze", role: "Creative Lead Videographer", img: "/ryan%202025%20headshot.png" },
-  { name: "Nick", role: "Creative", img: "/nick%202025%20headshot.png" }
+  { name: "Santiago", role: "CEO", img: "/santiago.png" },
+  { name: "Deedee", role: "Relationship Success Manager", img: "/deedee%202025%20headshot.png" },
+  { name: "Dez", role: "COO", img: "/dez%202025%20headshot.png" },
+  { name: "Rob", role: "CMO", img: "/rob.png" },
+  { name: "Nick", role: "Creative lead", img: "/nick%202025%20headshot.png" },
+  { name: "Ryan", role: "Videographer/Editor", img: "/ryan%202025%20headshot.png" }
 ];
 
 // Added Scientific/Chemical Properties to each differentiator
