@@ -488,7 +488,6 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                 <div className="space-y-3 mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
                                     <h4 className="text-sm font-bold text-black uppercase tracking-wider mb-4 flex items-center justify-between">
                                         <span>Payment Details</span>
-                                        <span className="text-xs text-gray-400 bg-white px-2 py-1 rounded border border-gray-200">Secure (Test Mode)</span>
                                     </h4>
 
                                     <div className="grid grid-cols-1 gap-4">
