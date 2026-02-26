@@ -24,10 +24,10 @@ const STEPS = [
     id: "02",
     title: "Plan",
     label: "SCRIPT & STRUCTURE",
-    description: "You help fuel our shared content dashboard. We review ideas, scripts, and organize everything.",
+    description: "We map your content inside our shared dashboard — outlining ideas, scripts, and structure before production begins.",
     icon: ScrollText,
     color: "#FF7030",
-    tag: "Map Out the Content"
+    tag: "With strategy set, we build the roadmap."
   },
   {
     id: "03",
