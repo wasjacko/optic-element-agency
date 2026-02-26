@@ -59,11 +59,11 @@ const STEPS = [
   {
     id: "06",
     title: "Takeoff",
-    label: "LAUNCH & CELEBRATE",
-    description: "Final content is published, client wins are shared, and performance insights are gathered.",
+    label: "Launch. Distribute. Optimize.",
+    description: "We push content live, run campaigns, gather insights, and refine continuously improving each sprint.",
     icon: Rocket,
     color: "#FFDEB0",
-    tag: "Launch & Celebrate"
+    tag: "LAUNCH & REFINE"
   }
 ];
 export const ProcessPage = ({ onContactClick, data, activeSection }: { onContactClick: () => void, data?: any, activeSection?: string }) => {
