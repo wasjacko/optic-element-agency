@@ -320,17 +320,37 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
               ))}
             </div>
 
+            <div className="flex justify-center mt-12 md:mt-20">
+              <a
+                href="https://eszfe33i3kp.typeform.com/to/TwFZB6rL"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative px-6 py-4 md:py-3 bg-transparent text-white border border-white/20 font-bold text-[10px] sm:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-white hover:text-black w-full sm:w-auto text-center mx-4 sm:mx-0 overflow-hidden"
+              >
+                {/* Brackets */}
+                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/40 group-hover:border-black/30 transition-colors" />
+                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/40 group-hover:border-black/30 transition-colors" />
+                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/40 group-hover:border-black/30 transition-colors" />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/40 group-hover:border-black/30 transition-colors" />
+
+                {/* Glitch Overlay on Hover */}
+                <span className="absolute inset-0 bg-[#FF5000] mix-blend-multiply opacity-0 group-hover:animate-pulse-fast z-0" />
+
+                <span className="relative z-10">JOIN THE TEAM</span>
+              </a>
+            </div>
+
           </div>
         </section>
       )}
 
-      {/* SECTION 4: CORE VALUES 2.0 */}
+      {/* SECTION 4: CORE VALUES */}
       {(showAll || activeSection === 'diffs') && (
         <section className="pt-12 pb-32 border-t border-black/5 text-inherit" style={{ backgroundColor: 'transparent', borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}>
           <div className="max-w-7xl mx-auto px-10 md:px-6">
             <div className="flex flex-col items-center justify-center py-4 mb-12">
               <h2 className="text-2xl md:text-4xl font-black uppercase text-center leading-tight tracking-tighter cursor-default text-black">
-                Core Values 2.0
+                Core Values
               </h2>
             </div>
 
