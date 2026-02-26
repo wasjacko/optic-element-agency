@@ -6,9 +6,7 @@ import { Instagram, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 const REELS = [
     { id: "R_01", client: "omar_therockstar", url: "https://video.wixstatic.com/video/8fb0bb_26cfc458c0054812a82383379cb29c79/720p/mp4/file.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
     { id: "R_02", client: "PERSONAE 2", url: "https://video.wixstatic.com/video/8fb0bb_d6e089eee8c1427b867ec8d101a46274/720p/mp4/file.mp4", thumbnailTime: 1.0 },
-    { id: "R_04", client: "LGCY", url: "https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/1080p/mp4/file.mp4", thumbnailTime: 2.0 },
-    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
-    { id: "R_05", client: "KOFFEE CO.", url: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4" }
+    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" }
 ];
 
 const BASE_REVIEWS = [
