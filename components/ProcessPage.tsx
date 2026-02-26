@@ -15,10 +15,10 @@ const STEPS = [
     id: "01",
     title: "Strategy",
     label: "THE FOUNDATION",
-    description: "We align on goals, schedule your shoot, and kick things off with a strategy call.",
+    description: "We align on goals, positioning, and direction, then map the path forward before execution begins.",
     icon: BrainCircuit,
     color: "#FF5000",
-    tag: "Define the Vision"
+    tag: "We define the North Star."
   },
   {
     id: "02",
