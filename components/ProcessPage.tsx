@@ -41,8 +41,8 @@ const STEPS = [
   {
     id: "04",
     title: "Initiate",
-    label: "POST-PRODUCTION",
-    description: "Our team edits videos, designs graphics, and manages internal quality control behind the scenes.",
+    label: "From shoot to structure.",
+    description: "We edit and refine every asset to match your brand, strategy, and objectives, reviewed for clarity and performance.",
     icon: Wand2,
     color: "#FFA060",
     tag: "Edit + Polish"
