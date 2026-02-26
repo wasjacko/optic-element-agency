@@ -243,7 +243,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const progressBarWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="works" className="relative bg-black text-white w-full pt-10">
+    <section id="works" className="relative bg-black text-white w-full">
       {isMobile ? (
         <div className="flex flex-col items-center py-10 pb-20 w-full overflow-hidden">
           <h2 className="font-ocr font-black tracking-[0.15em] text-2xl mb-8 text-white uppercase text-center">{sectionTitle}</h2>
