@@ -410,14 +410,14 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     };
 
     return (
-        <section id="testimonials" className="relative z-10 w-full bg-white pt-32 sm:pt-40 pb-12 md:py-32 border-t border-black/[0.05] overflow-hidden">
+        <section id="testimonials" className="relative z-10 w-full bg-white pt-16 sm:pt-24 pb-12 md:pt-16 md:pb-32 border-t border-black/[0.05] overflow-hidden">
             {/* Light Mode Glow (Subtle) */}
             <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply bg-[#FF5000]/10" />
 
             <div className="w-full px-8 md:px-4 max-w-[1600px] mx-auto relative z-10">
 
                 {/* Section Header */}
-                <div className="flex flex-col items-center mt-12 md:mt-16 mb-16 text-center px-10 md:px-6">
+                <div className="flex flex-col items-center mt-4 md:mt-8 mb-16 text-center px-10 md:px-6">
                     <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap text-black drop-shadow-sm">
                         {data?.title || "VIDEO TESTIMONIALS"}
                     </h2>
