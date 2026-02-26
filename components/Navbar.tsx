@@ -83,7 +83,7 @@ const NavItem: React.FC<{ item: typeof NAV_ITEMS[0], activePage: string, handleL
       onMouseLeave={() => setIsHovered(false)}
       className="relative group flex flex-col items-center justify-center py-1 whitespace-nowrap"
     >
-      <span className={`text-[11px] font-mono font-bold transition-colors duration-300 uppercase tracking-[0.2em] ${activePage === 'lab' ? 'text-black' : 'text-white'}`}>
+      <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
         <HoverGlitchText text={item.label} isHovered={isHovered} />
       </span>
       <span className={`absolute bottom-0 left-0 h-[1px] bg-[var(--color-primary)] transition-all duration-300 ease-[0.16,1,0.3,1] ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
@@ -155,8 +155,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
       initial={{ y: "-100%" }}
       animate={{ y: isVisible && (introExpanded || introCompleted || activePage !== 'home') ? "0%" : "-100%" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 w-full z-[999] md:border-b will-change-transform backface-hidden ${activePage === 'lab' ? 'border-black/5' : 'border-white/5'}`}
-      style={{ backgroundColor: activePage === 'lab' ? '#ffffff' : 'var(--color-bg)' }}
+      className={`fixed top-0 left-0 w-full z-[999] md:border-b border-white/5 will-change-transform backface-hidden`}
+      style={{ backgroundColor: 'var(--color-bg)' }}
     >
       {/* Noise Texture */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
@@ -175,12 +175,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               onClick={(e) => { e.preventDefault(); onHomeClick(); }}
               className="flex items-center group transition-opacity hover:opacity-80"
             >
-              <img
-                src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
-                alt="Logo"
-                className={`h-8 md:h-10 w-auto transition-opacity group-hover:opacity-80 object-contain ${activePage === 'lab' ? '' : 'invert'}`}
-              />
+              <svg viewBox="0 0 100 100" className="h-10 w-10" fill="none">
+                {/* White Brackets */}
+                <path d="M0 0H30V10H10V30H0V0Z" fill="white" />
+                <path d="M70 0H100V30H90V10H70V0Z" fill="white" />
+                <path d="M100 70V100H70V90H90V70H100Z" fill="white" />
+                <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
 
+                {/* Orange Plus */}
+                <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+              </svg>
 
             </a>
 
@@ -209,12 +213,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               className="hidden md:block group relative px-8 py-3 bg-white/5 hover:bg-white transition-all duration-500 overflow-hidden border border-white/10 hover:border-white"
             >
               {/* Brackets/Corners */}
-              <div className={`absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors ${activePage === 'lab' ? 'border-black group-hover:border-[#FF5000]' : 'border-white group-hover:border-black'}`} />
-              <div className={`absolute top-0 right-0 w-2 h-2 border-t border-r transition-colors ${activePage === 'lab' ? 'border-black group-hover:border-[#FF5000]' : 'border-white group-hover:border-black'}`} />
-              <div className={`absolute bottom-0 left-0 w-2 h-2 border-b border-l transition-colors ${activePage === 'lab' ? 'border-black group-hover:border-[#FF5000]' : 'border-white group-hover:border-black'}`} />
-              <div className={`absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors ${activePage === 'lab' ? 'border-black group-hover:border-[#FF5000]' : 'border-white group-hover:border-black'}`} />
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white group-hover:border-black transition-colors" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white group-hover:border-black transition-colors" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white group-hover:border-black transition-colors" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white group-hover:border-black transition-colors" />
 
-              <span className={`text-[11px] font-mono font-bold transition-colors uppercase tracking-[0.3em] whitespace-nowrap ${activePage === 'lab' ? 'text-black group-hover:text-[#FF5000]' : 'text-white group-hover:text-black'}`}>
+              <span className="text-[11px] font-mono font-bold text-white group-hover:text-black transition-colors uppercase tracking-[0.3em] whitespace-nowrap">
                 <HoverGlitchText text="BOOK STUDIO" isHovered={isBookStudioHovered} />
               </span>
             </button>
@@ -238,7 +242,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
             </button>
 
             <button
-              className={`md:hidden hover:opacity-60 transition-colors p-1 ${activePage === 'lab' ? 'text-black' : 'text-white'}`}
+              className="md:hidden text-white hover:opacity-60 transition-colors p-1"
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
