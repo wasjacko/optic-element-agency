@@ -211,7 +211,16 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
     };
 
     return (
-        <div className="min-h-screen font-sans bg-white overflow-x-hidden pt-24 md:pt-32 selection:bg-black selection:text-white">
+        <div className="relative min-h-screen font-sans bg-white overflow-x-hidden pt-24 md:pt-32 selection:bg-black selection:text-white">
+
+            {/* LOGO IN TOP LEFT */}
+            <div className="absolute top-8 left-8 md:top-12 md:left-12 z-20">
+                <img
+                    src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
+                    alt="Logo"
+                    className="h-10 md:h-12 w-auto object-contain"
+                />
+            </div>
 
             {/* SECTION 1: HEADER */}
             <section className="relative pt-0 pb-0 bg-white">
