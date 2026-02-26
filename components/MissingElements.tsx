@@ -8,7 +8,7 @@ const ELEMENTS = [
         mass: '40.078',
         name: 'Identity',
         role: 'Brand Strategy',
-        desc: 'Crafting comprehensive visual systems. From logos to guidelines.'
+        desc: 'Optic Element is the trust pillar — designing strategic visual systems that shape perception, build reputation, and position you as the clear leader in your market. From identity to full brand architecture, we don’t just make you look good. We make you credible.'
     },
     {
         id: '05',
@@ -16,7 +16,7 @@ const ELEMENTS = [
         mass: '10.811',
         name: 'Growth',
         role: 'User Acquisition',
-        desc: 'Data-driven performance marketing to scale revenue.'
+        desc: 'Precise Acquisition is the marketing pillar — putting you in front of the right audience and converting attention into qualified clients. Clear messaging. Data-backed strategy. Predictable growth.'
     },
     {
         id: '01',
@@ -24,7 +24,7 @@ const ELEMENTS = [
         mass: '1.008',
         name: 'Content',
         role: 'Production Lab',
-        desc: 'High-fidelity assets. Photography, video, and 3D motion.'
+        desc: 'A 6,000 sq ft state-of-the-art content facility. Over 20 modular sets built for cinematic production, branded content, live events, and in-person funnels. This is where authority is captured at scale.'
     },
     {
         id: '15',
@@ -32,7 +32,7 @@ const ELEMENTS = [
         mass: '30.974',
         name: 'Systems',
         role: 'Operations',
-        desc: 'Automating workflows with Notion & Zapier for scalability.'
+        desc: 'Operational infrastructure for sustainable scale. Automated workflows. Clean systems. Execution without chaos.'
     },
 ];
 
