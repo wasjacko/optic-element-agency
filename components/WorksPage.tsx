@@ -229,8 +229,25 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                  <div className="flex flex-col w-full py-12 gap-24 md:gap-32">
                                     {currentService.videos.slice(0, visibleVideos).map((video: any) => (
                                        <div key={video.id} className={`group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}>
-                                          <video src={`${video.src}#t=0.001`} className="w-full h-full object-cover" muted loop playsInline preload="metadata" onMouseEnter={(e) => e.currentTarget.play()} onMouseLeave={(e) => e.currentTarget.pause()} />
-                                          <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90">
+                                          <video
+                                             src={`${video.src}#t=0.5`}
+                                             className="w-full h-full object-cover"
+                                             muted
+                                             loop
+                                             playsInline
+                                             preload="metadata"
+                                             onMouseEnter={(e) => {
+                                                const playPromise = e.currentTarget.play();
+                                                if (playPromise !== undefined) {
+                                                   playPromise.catch((error) => console.log("Video playback blocked:", error));
+                                                }
+                                             }}
+                                             onMouseLeave={(e) => {
+                                                e.currentTarget.pause();
+                                                e.currentTarget.currentTime = 0.5;
+                                             }}
+                                          />
+                                          <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none">
                                              <h3 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">{video.title}</h3>
                                              <p className="text-white/60 font-mono text-[10px] uppercase tracking-widest pl-4 border-l border-[#FF5000]">{video.description}</p>
                                           </div>
@@ -247,8 +264,25 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
                                        {currentService.videos.map((video: any) => (
                                           <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5">
-                                             <video src={`${video.src}#t=0.001`} className="w-full h-full object-cover" muted loop playsInline preload="metadata" onMouseEnter={(e) => e.currentTarget.play()} onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }} />
-                                             <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/90 opacity-0 group-hover:opacity-100 transition-opacity">
+                                             <video
+                                                src={`${video.src}#t=0.5`}
+                                                className="w-full h-full object-cover"
+                                                muted
+                                                loop
+                                                playsInline
+                                                preload="metadata"
+                                                onMouseEnter={(e) => {
+                                                   const playPromise = e.currentTarget.play();
+                                                   if (playPromise !== undefined) {
+                                                      playPromise.catch((error) => console.log("Video playback blocked:", error));
+                                                   }
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                   e.currentTarget.pause();
+                                                   e.currentTarget.currentTime = 0.5;
+                                                }}
+                                             />
+                                             <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/90 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                                 <h3 className="text-2xl font-black text-white uppercase mb-2">{video.title}</h3>
                                                 <p className="text-xs font-mono text-[#FF5000]">{video.description}</p>
                                              </div>
