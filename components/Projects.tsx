@@ -3,24 +3,29 @@ import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-mo
 
 const PROJECTS = [
   {
-    title: "KOFFEE CO.",
+    title: "PROPERTY 06",
+    subtitle: "NUMERO 0001",
+    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ANqDa3RcBW2t8G8gYtP9cRM/Horizontal%20Content/Property%2006%20Vertical.MP4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=x8wc249z&raw=1"
+  },
+  {
+    title: "THE ONE",
     subtitle: "NUMERO 0002",
-    src: "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4"
+    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AJ7dRMXLIyKrMH0etl_Cqy0/Horizontal%20Content/THE%20ONE%20v2.mov?rlkey=ecoqcz4h9sos2wo3filjcmake&st=j4vwn6e8&raw=1"
   },
   {
-    title: "RV PROMO",
+    title: "SEASON TRAILER",
     subtitle: "NUMERO 0003",
-    src: "https://video.wixstatic.com/video/8fb0bb_b2dfc21f1d514060ab32a9e3004397bc/480p/mp4/file.mp4"
+    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AEdgEqThS3wHY7jVy7yAIGU/Horizontal%20Content/Season%20trailerV4.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=9aexfx03&raw=1"
   },
   {
-    title: "INVESTOR LIFT",
-    subtitle: "NUMERO 0008",
-    src: "https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4"
+    title: "PROPERTY 07",
+    subtitle: "NUMERO 0004",
+    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AOXNGR1uNFCUGRNqolBS6BM/Horizontal%20Content/Property%2007%20V4.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=okq98v3t&raw=1"
   },
   {
-    title: "DASFLEET",
-    subtitle: "NUMERO 0009",
-    src: "https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/480p/mp4/file.mp4"
+    title: "MAFIA BOSS",
+    subtitle: "NUMERO 0005",
+    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ALSAU4uXizMclreOTmrnIQo/Horizontal%20Content/YTDown.com_YouTube_Ex-Mafia-Boss-I-Made-8-Million-Every-Wee_Media_ZAocWXnHSOw_001_1080p.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=1c289jaj&raw=1"
   }
 ];
 

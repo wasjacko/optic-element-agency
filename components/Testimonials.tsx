@@ -7,7 +7,9 @@ const REELS = [
     { id: "R_01", client: "OMAR ELATTAR", url: "https://video.wixstatic.com/video/8fb0bb_26cfc458c0054812a82383379cb29c79/720p/mp4/file.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
     { id: "R_02", client: "MATTHEW WELSH", url: "https://video.wixstatic.com/video/8fb0bb_d6e089eee8c1427b867ec8d101a46274/720p/mp4/file.mp4", thumbnailTime: 1.0 },
     { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
-    { id: "R_06", client: "DR. MATT", url: "https://www.dropbox.com/scl/fo/vnntf4dqsa4jsink02qaa/AP7f_lAi0IXVleCpG3ICCj8/Dr.Matt.mov?rlkey=fm3ospfg7f5q186wm339q69a4&st=wvpnc1pf&raw=1", thumbnailTime: 1.0 }
+    { id: "R_06", client: "DR. MATT", url: "https://www.dropbox.com/scl/fo/vnntf4dqsa4jsink02qaa/AP7f_lAi0IXVleCpG3ICCj8/Dr.Matt.mov?rlkey=fm3ospfg7f5q186wm339q69a4&st=wvpnc1pf&raw=1", thumbnailTime: 1.0 },
+    { id: "R_07", client: "EUGENE NEAL", url: "/assets/eugene-neal.mp4", thumbnailTime: 0.5 },
+    { id: "R_08", client: "BRETT", url: "/assets/brett.mov", thumbnailTime: 1.0 }
 ];
 
 const BASE_REVIEWS = [
@@ -90,8 +92,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
             animate={{
                 scale: isActive ? 1.0 : 0.85,
                 zIndex: isActive ? 10 : 5 - Math.abs(offset),
-                rotateY: offset * -15, // Rotate cards inward
-                opacity: Math.abs(offset) >= 2 ? 0 : 1 // Hide edge cards (buffer)
+                opacity: Math.abs(offset) >= 3 ? 0 : 1 // Support up to 5 visible items
             }}
             transition={{ type: "spring", stiffness: 80, damping: 30, mass: 1.5 }}
             style={{
@@ -169,7 +170,7 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
     return (
         <div className="relative w-full h-[600px] flex items-center justify-center overflow-visible">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-                <div className="w-full max-w-[850px] flex justify-between px-4">
+                <div className="w-full max-w-[720px] flex justify-between px-4">
                     <button onClick={handlePrev} className="bg-white text-black w-14 h-14 flex items-center justify-center shadow-xl pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100">
                         <ChevronLeft size={24} />
                     </button>
@@ -179,32 +180,58 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
                 </div>
             </div>
 
-            <div className="relative w-full max-w-5xl h-full flex items-center justify-center perspective-[1000px]">
-                {sortedItems.map((item) => {
+            <div className="relative w-full max-w-4xl h-full flex items-center justify-center">
+                {items.map((item, index) => {
                     const originalIndex = items.indexOf(item);
-                    const slot = getSlot(originalIndex);
-                    let x = 0; let zIndex = 0; let scale = 1; let opacity = 1;
-                    if (slot === 0) { x = 0; zIndex = 50; scale = 1; }
-                    else if (slot === 1) { x = 240; zIndex = 30; scale = 0.85; }
-                    else if (slot === 2) { x = 450; zIndex = 10; scale = 0.7; }
-                    else if (slot === 3) { x = -450; zIndex = 10; scale = 0.7; }
-                    else { x = -240; zIndex = 30; scale = 0.85; }
+                    const slot = (originalIndex - activeIndex + items.length) % items.length;
+
+                    // Map items to a symmetric range [-2, -1, 0, 1, 2]
+                    let positionIndex = slot;
+                    if (slot > items.length / 2) positionIndex = slot - items.length;
+
+                    const x = positionIndex * 180; // Serré (était 280)
+                    const zIndex = 50 - Math.abs(positionIndex) * 10;
+                    const scale = 1 - Math.abs(positionIndex) * 0.15;
+                    const opacity = 1 - Math.abs(positionIndex) * 0.1; // Plus d'opacité (était 0.3)
+                    const rotateY = positionIndex * -25;
+
+                    const isVisible = Math.abs(positionIndex) <= 2;
 
                     return (
                         <motion.div
                             key={item.id}
-                            className="absolute will-change-transform backface-hidden"
-                            animate={{ x, scale, zIndex, opacity, rotateY: 0 }}
-                            transition={{ type: "spring", stiffness: 60, damping: 20 }}
-                            style={{ width: '320px', height: '570px', transform: 'translateZ(0)' }}
+                            className="absolute will-change-transform"
+                            initial={false}
+                            animate={{
+                                x,
+                                scale: isVisible ? scale : 0.5,
+                                zIndex: isVisible ? zIndex : -1,
+                                opacity: isVisible ? opacity : 0,
+                                rotateY: 0,
+                                filter: Math.abs(positionIndex) > 0 ? "blur(1px)" : "blur(0px)"
+                            }}
+                            transition={{
+                                type: "spring",
+                                stiffness: 90,
+                                damping: 25,
+                                mass: 1,
+                                opacity: { duration: 0.2 } // Fade out quickly
+                            }}
+                            style={{
+                                width: '280px',
+                                height: '500px',
+                                pointerEvents: isVisible ? 'auto' : 'none'
+                            }}
                         >
                             <ReelCoverflowCard
                                 reel={item}
-                                isActive={slot === 0}
-                                offset={0}
+                                isActive={positionIndex === 0}
+                                offset={positionIndex}
                                 onClick={() => {
-                                    if (slot === 1) handleNext();
-                                    if (slot === 2) handlePrev();
+                                    if (positionIndex === 1) handleNext();
+                                    if (positionIndex === -1) handlePrev();
+                                    if (positionIndex === 2) handleNext(); // Jump 2
+                                    if (positionIndex === -2) handlePrev(); // Jump 2
                                 }}
                             />
                         </motion.div>
