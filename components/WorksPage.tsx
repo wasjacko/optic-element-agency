@@ -96,28 +96,10 @@ const SERVICES = [
       description: 'High-impact short-form content designed for maximum engagement and social reach.',
       videos: [
          {
-            id: 'cost-of-alone',
-            title: 'THE COST OF ALONE',
-            description: 'STRATEGY & GROWTH',
-            src: '/assets/cost-of-alone.mp4'
-         },
-         {
-            id: 'alyssa-v3',
-            title: 'ALYSSA V3',
-            description: 'BRAND EDIT',
-            src: '/assets/alyssa-v3.mp4'
-         },
-         {
             id: 'valor-eoy-2025',
             title: 'VALOR EOY 2025',
             description: 'EVENT HIGHLIGHTS',
             src: '/assets/valor-eoy-2025.mp4'
-         },
-         {
-            id: 'nutrient-timing',
-            title: 'NUTRIENT TIMING',
-            description: 'PERFORMANCE & NUTRITION',
-            src: '/assets/nutrient-timing.mp4'
          },
          {
             id: 'lambros-v3',
@@ -126,46 +108,40 @@ const SERVICES = [
             src: '/assets/lambros-v3.mp4'
          },
          {
-            id: 'dog-treats',
-            title: 'DOG TREATS',
-            description: 'PRODUCT HIGHLIGHT',
-            src: '/assets/dog-treats.mp4'
-         },
-         {
-            id: 'follower-ad-1',
-            title: 'FOLLOWER AD 1',
-            description: 'SOCIAL AD',
-            src: '/assets/follower-ad-1.mp4'
-         },
-         {
-            id: 'social-promo-1',
-            title: 'SOCIAL PROMO 1',
+            id: 'merch-edit-v3',
+            title: 'MERCH EDIT V3',
             description: 'VERTICAL EDIT',
-            src: '/assets/social-promo-1.mp4'
+            src: '/assets/merch-edit-v3.mp4'
          },
          {
-            id: 'social-promo-2',
-            title: 'SOCIAL PROMO 2',
-            description: 'VERTICAL EDIT',
-            src: '/assets/social-promo-2.mp4'
+            id: 'snapinsta-1',
+            title: 'SOCIAL EDIT 01',
+            description: 'CONTENT STRATEGY',
+            src: '/assets/snapinsta-1.mp4'
          },
          {
-            id: 'social-promo-3',
-            title: 'SOCIAL PROMO 3',
-            description: 'VERTICAL EDIT',
-            src: '/assets/social-promo-3.mp4'
+            id: 'snapinsta-2',
+            title: 'SOCIAL EDIT 02',
+            description: 'VIRAL HOOK',
+            src: '/assets/snapinsta-2.mp4'
          },
          {
-            id: 'social-promo-4',
-            title: 'SOCIAL PROMO 4',
-            description: 'VERTICAL EDIT',
-            src: '/assets/social-promo-4.mp4'
+            id: 'snapinsta-3',
+            title: 'SOCIAL EDIT 03',
+            description: 'STORYTELLING',
+            src: '/assets/snapinsta-3.mp4'
          },
          {
-            id: 'social-promo-5',
-            title: 'SOCIAL PROMO 5',
-            description: 'VERTICAL EDIT',
-            src: '/assets/social-promo-5.mp4'
+            id: 'snapinsta-4',
+            title: 'SOCIAL EDIT 04',
+            description: 'BRAND REACH',
+            src: '/assets/snapinsta-4.mp4'
+         },
+         {
+            id: 'snapinsta-5',
+            title: 'SOCIAL EDIT 05',
+            description: 'HIGH IMPACT',
+            src: '/assets/snapinsta-5.mp4'
          }
       ]
    },
