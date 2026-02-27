@@ -96,6 +96,60 @@ const SERVICES = [
       description: 'High-impact short-form content designed for maximum engagement and social reach.',
       videos: [
          {
+            id: 'cost-of-alone',
+            title: 'THE COST OF ALONE',
+            description: 'STRATEGY & GROWTH',
+            src: '/assets/cost-of-alone.mp4'
+         },
+         {
+            id: 'alyssa-v3',
+            title: 'ALYSSA V3',
+            description: 'BRAND EDIT',
+            src: '/assets/alyssa-v3.mp4'
+         },
+         {
+            id: 'valor-eoy-2025',
+            title: 'VALOR EOY 2025',
+            description: 'EVENT HIGHLIGHTS',
+            src: '/assets/valor-eoy-2025.mp4'
+         },
+         {
+            id: 'nutrient-timing',
+            title: 'NUTRIENT TIMING',
+            description: 'PERFORMANCE & NUTRITION',
+            src: '/assets/nutrient-timing.mp4'
+         },
+         {
+            id: 'lambros-v3',
+            title: 'LAMBROS V3',
+            description: 'SOCIAL EDIT',
+            src: '/assets/lambros-v3.mp4'
+         },
+         {
+            id: 'dog-treats',
+            title: 'DOG TREATS',
+            description: 'PRODUCT HIGHLIGHT',
+            src: '/assets/dog-treats.mp4'
+         },
+         {
+            id: 'follower-ad-1',
+            title: 'FOLLOWER AD 1',
+            description: 'SOCIAL AD',
+            src: '/assets/follower-ad-1.mp4'
+         },
+         {
+            id: 'social-promo-1',
+            title: 'SOCIAL PROMO 1',
+            description: 'VERTICAL EDIT',
+            src: '/assets/social-promo-1.mp4'
+         },
+         {
+            id: 'social-promo-2',
+            title: 'SOCIAL PROMO 2',
+            description: 'VERTICAL EDIT',
+            src: '/assets/social-promo-2.mp4'
+         },
+         {
             id: 'social-promo-3',
             title: 'SOCIAL PROMO 3',
             description: 'VERTICAL EDIT',
@@ -112,18 +166,6 @@ const SERVICES = [
             title: 'SOCIAL PROMO 5',
             description: 'VERTICAL EDIT',
             src: '/assets/social-promo-5.mp4'
-         },
-         {
-            id: 'cost-of-alone',
-            title: 'THE COST OF ALONE',
-            description: 'STRATEGY & GROWTH',
-            src: '/assets/cost-of-alone.mp4'
-         },
-         {
-            id: 'alyssa-v3',
-            title: 'ALYSSA V3',
-            description: 'BRAND EDIT',
-            src: '/assets/alyssa-v3.mp4'
          }
       ]
    },
