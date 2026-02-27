@@ -130,28 +130,76 @@
                         "src": "/assets/pv-recap.mov"
                     },
                     {
+                        "id": "founders-circle",
+                        "title": "FOUNDERS CIRCLE",
+                        "description": "VSL PROJECT",
+                        "src": "/assets/founders-circle.mp4"
+                    },
+                    {
+                        "id": "grant-cardone",
+                        "title": "GRANT CARDONE",
+                        "description": "500B CRISIS",
+                        "src": "/assets/grant-cardone.mp4"
+                    },
+                    {
                         "id": "andrew-vsl",
                         "title": "ANDREW VSL",
                         "description": "BRAND STORY",
-                        "src": "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ALHz6ku9MUx4WP6Drr7Hbdw/Horizontal%20Content/ANDREW%20VSL.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=w1o3tl98&raw=1"
+                        "src": "/assets/andrew-vsl.mp4"
                     },
                     {
-                        "id": "koffee-co",
-                        "title": "KOFFEE CO.",
-                        "description": "Premium commercial production.",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4"
-                    },
-                    {
-                        "id": "property-06",
-                        "title": "PROPERTY 06",
-                        "description": "REAL ESTATE SHOWCASE",
-                        "src": "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ANqDa3RcBW2t8G8gYtP9cRM/Horizontal%20Content/Property%2006%20Vertical.MP4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=x8wc249z&raw=1"
+                        "id": "ex-mafia",
+                        "title": "EX-MAFIA BOSS",
+                        "description": "YOUTUBE PROMO",
+                        "src": "/assets/ex-mafia.mp4"
                     },
                     {
                         "id": "the-one",
                         "title": "THE ONE",
                         "description": "PREMIUM FEATURE",
-                        "src": "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AJ7dRMXLIyKrMH0etl_Cqy0/Horizontal%20Content/THE%20ONE%20v2.mov?rlkey=ecoqcz4h9sos2wo3filjcmake&st=j4vwn6e8&raw=1"
+                        "src": "/assets/the-one.mp4"
+                    },
+                    {
+                        "id": "property-06",
+                        "title": "PROPERTY 06",
+                        "description": "REAL ESTATE SHOWCASE",
+                        "src": "/assets/property-06.mp4"
+                    },
+                    {
+                        "id": "property-07",
+                        "title": "PROPERTY 07",
+                        "description": "REAL ESTATE SHOWCASE",
+                        "src": "/assets/property-07.mp4"
+                    },
+                    {
+                        "id": "season-trailer",
+                        "title": "SEASON TRAILER",
+                        "description": "SHOW HIGHLIGHTS",
+                        "src": "/assets/season-trailer.mp4"
+                    },
+                    {
+                        "id": "real-estate-advice",
+                        "title": "100M CRE ADVICE",
+                        "description": "INVESTING ADVICE",
+                        "src": "/assets/real-estate-advice.mp4"
+                    },
+                    {
+                        "id": "koffee",
+                        "title": "KOFFEE CO.",
+                        "description": "PREMIUM COMMERCIAL",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "dasfleet",
+                        "title": "DASFLEET",
+                        "description": "LUX CAR CLUB",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4"
+                    },
+                    {
+                        "id": "passionate-few",
+                        "title": "PASSIONATE FEW",
+                        "description": "HOUSE BUILD TRIP",
+                        "src": "https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4"
                     }
                 ]
             },
