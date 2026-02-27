@@ -230,7 +230,8 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                     {currentService.videos.slice(0, visibleVideos).map((video: any) => (
                                        <div key={video.id} className={`group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}>
                                           <video
-                                             src={`${video.src}#t=0.5`}
+                                             src={video.src}
+                                             poster={video.src ? video.src.replace('.mp4', '.jpg') : undefined}
                                              className="w-full h-full object-cover"
                                              muted
                                              loop
@@ -244,7 +245,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                              }}
                                              onMouseLeave={(e) => {
                                                 e.currentTarget.pause();
-                                                e.currentTarget.currentTime = 0.5;
+                                                e.currentTarget.currentTime = 0;
                                              }}
                                           />
                                           <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none">
@@ -265,7 +266,8 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                        {currentService.videos.map((video: any) => (
                                           <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5">
                                              <video
-                                                src={`${video.src}#t=0.5`}
+                                                src={video.src}
+                                                poster={video.src ? video.src.replace('.mp4', '.jpg') : undefined}
                                                 className="w-full h-full object-cover"
                                                 muted
                                                 loop
@@ -279,7 +281,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                                 }}
                                                 onMouseLeave={(e) => {
                                                    e.currentTarget.pause();
-                                                   e.currentTarget.currentTime = 0.5;
+                                                   e.currentTarget.currentTime = 0;
                                                 }}
                                              />
                                              <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/90 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
