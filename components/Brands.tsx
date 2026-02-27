@@ -26,8 +26,6 @@ const LOGO_IMAGES = [
     "https://static.wixstatic.com/media/8fb0bb_0d5ae6c432754b53bfb74c18a31de09e~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_0d5ae6c432754b53bfb74c18a31de09e~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_52736c58c8a147fabdcd89bd259c7aa3~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_52736c58c8a147fabdcd89bd259c7aa3~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_f87b0fac1ef2443489c6d114aaf5521c~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_f87b0fac1ef2443489c6d114aaf5521c~mv2.png",
-    "https://static.wixstatic.com/media/8fb0bb_98f25b27839644728ceb8ceff04aac43~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_98f25b27839644728ceb8ceff04aac43~mv2.png",
-    "https://static.wixstatic.com/media/8fb0bb_7ed4a5779f7945999dc781dd501f841f~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_7ed4a5779f7945999dc781dd501f841f~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_680d0b9de5a149a1afb6259f2fa3c18a~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_680d0b9de5a149a1afb6259f2fa3c18a~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_a7fa8416e5fd4346a648ef5c5bc8cab5~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_a7fa8416e5fd4346a648ef5c5bc8cab5~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_e809a5010d714be985ecf442e990aa53~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_e809a5010d714be985ecf442e990aa53~mv2.png",
@@ -38,7 +36,8 @@ const LOGO_IMAGES = [
     "https://static.wixstatic.com/media/8fb0bb_92f87f8f536742419f6ee8c768f741be~mv2.png/v1/fit/w_123,h_50,q_90,enc_avif,quality_auto/8fb0bb_92f87f8f536742419f6ee8c768f741be~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_7a239f824fab4f279ce9b1f7da792f93~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_7a239f824fab4f279ce9b1f7da792f93~mv2.png",
     "https://static.wixstatic.com/media/8fb0bb_f8ce5cf6e1e64583a7e273e52a0cdb7f~mv2.png/v1/fit/w_123,h_123,q_90,enc_avif,quality_auto/8fb0bb_f8ce5cf6e1e64583a7e273e52a0cdb7f~mv2.png",
-    "https://static.wixstatic.com/media/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png"
+    "https://static.wixstatic.com/media/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png/v1/fit/w_124,h_123,q_90,enc_avif,quality_auto/8fb0bb_7b7fbe258dfe416eb25850bc4c3f6bee~mv2.png",
+    "/assets/anau-logo.png"
 ];
 
 const LogoReveal: React.FC<{ src: string; delay?: number }> = ({ src, delay = 0 }) => {
@@ -84,10 +83,57 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
       `}</style>
 
             <div className="max-w-7xl mx-auto px-10 md:px-6 text-center">
-                {/* Logo slider removed as requested */}
+                {/* Discreet Brand Title */}
+                <div className="mb-12">
+                    <motion.h2
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase font-ocr opacity-50"
+                        style={{ color: data?.brands?.titleColor || 'var(--color-text)' }}
+                    >
+                        {sectionTitle}
+                    </motion.h2>
+                </div>
+
+                {/* Restored Logo Slider */}
+                {/* Optimized Seamless Logo Marquee */}
+                <div className="relative overflow-hidden py-12 mb-10 w-full group">
+                    {/* Gradient Masks */}
+                    <div className="absolute inset-y-0 left-0 w-24 md:w-48 bg-gradient-to-r from-[var(--color-bg)] to-transparent z-10 pointer-events-none" />
+                    <div className="absolute inset-y-0 right-0 w-24 md:w-48 bg-gradient-to-l from-[var(--color-bg)] to-transparent z-10 pointer-events-none" />
+
+                    <motion.div
+                        className="flex w-fit"
+                        animate={{ x: ["0%", "-50%"] }}
+                        transition={{
+                            duration: 35,
+                            repeat: Infinity,
+                            ease: "linear",
+                            repeatType: "loop"
+                        }}
+                    >
+                        {/* Group 1 */}
+                        <div className="flex gap-20 items-center px-10">
+                            {images.map((src: string, i: number) => (
+                                <div key={`g1-${i}`} className="flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-50 hover:opacity-100 shrink-0">
+                                    <img src={src} alt="Brand" className="max-w-[100px] h-auto object-contain max-h-[50px]" />
+                                </div>
+                            ))}
+                        </div>
+                        {/* Group 2 (Identical for seamless reset) */}
+                        <div className="flex gap-20 items-center px-10">
+                            {images.map((src: string, i: number) => (
+                                <div key={`g2-${i}`} className="flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-50 hover:opacity-100 shrink-0">
+                                    <img src={src} alt="Brand" className="max-w-[100px] h-auto object-contain max-h-[50px]" />
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                </div>
 
                 {/* Discreet Impact Section */}
-                <div className="mt-24 md:mt-32 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
+                <div className="mt-12 md:mt-24 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
                     <div className="flex flex-col items-center">
                         <div className="grid grid-cols-3 gap-4 md:gap-24 w-full md:w-full max-w-4xl mx-auto px-4">
                             {[

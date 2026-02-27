@@ -215,21 +215,29 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
 
             {/* SECTION 1: HEADER & ALIGNED LOGO */}
             <section className="relative bg-white w-full mb-4 md:mb-6">
-                {/* Logo alignment matches Navbar perfectly: px-10 md:px-32 > max-w-[1800px] > ml-0 md:ml-4 */}
-                <div className="absolute inset-0 flex items-center justify-center px-10 md:px-32 pointer-events-none z-20">
+                {/* Logo alignment matches Navbar perfectly on Desktop */}
+                <div className="hidden md:flex absolute inset-0 items-center justify-center px-10 md:px-32 pointer-events-none z-20">
                     <div className="relative w-full max-w-[1800px] flex items-center justify-start h-full">
                         <div className="ml-0 md:ml-4 pointer-events-auto flex items-center">
                             <img
                                 src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
                                 alt="Logo"
-                                className="h-16 md:h-20 w-auto object-contain"
+                                className="h-20 w-auto object-contain"
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase text-center leading-none">
+                    {/* Mobile Logo: visible only on mobile, smaller, and placed above the title to avoid overlap */}
+                    <div className="md:hidden mb-6">
+                        <img
+                            src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
+                            alt="Logo"
+                            className="h-10 w-auto object-contain"
+                        />
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase text-center leading-none">
                         {data?.title || "THE LAB"}
                     </h1>
                 </div>
