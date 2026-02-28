@@ -311,8 +311,14 @@
                 "id": "photo",
                 "label": "Photography",
                 "type": "image",
-                "description": "High-end visual assets.",
-                "images": []
+                "description": "High-end visual assets captured with editorial precision, defining your brand’s visual language across all digital touchpoints.",
+                "images": [
+                    "/assets/photography/photo1.jpg",
+                    "/assets/photography/photo2.jpg",
+                    "/assets/photography/photo3.jpg",
+                    "/assets/photography/photo4.jpg",
+                    "/assets/photography/photo5.jpg"
+                ]
             }
         ]
     },
