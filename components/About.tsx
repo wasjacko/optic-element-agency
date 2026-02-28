@@ -10,7 +10,7 @@ interface AboutProps {
 const TEAM_MEMBERS = [
   { name: "Santiago", role: "CEO", img: "/santiago-headshot-2025.png" },
   { name: "Deedee", role: "Relationship Success Manager", img: "/deedee%202025%20headshot.png" },
-  { name: "Dez", role: "COO", img: "/dez%202025%20headshot.png" },
+  { name: "Dez", role: "Client Success manager", img: "/dez%202025%20headshot.png" },
   { name: "Rob", role: "CMO", img: "/rob-headshot-2025.png" },
   { name: "Nick", role: "Creative lead", img: "/nick-2025-v2.png" },
   { name: "Ryan", role: "Videographer/Editor", img: "/ryan%202025%20headshot.png" }
