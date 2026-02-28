@@ -313,11 +313,33 @@
                 "type": "image",
                 "description": "High-end visual assets captured with editorial precision, defining your brand’s visual language across all digital touchpoints.",
                 "images": [
-                    "/assets/photography/photo1.jpg",
-                    "/assets/photography/photo2.jpg",
-                    "/assets/photography/photo3.jpg",
-                    "/assets/photography/photo4.jpg",
-                    "/assets/photography/photo5.jpg"
+                    "/assets/photography/photo_1.jpg",
+                    "/assets/photography/photo_2.jpg",
+                    "/assets/photography/photo_3.jpg",
+                    "/assets/photography/photo_4.jpg",
+                    "/assets/photography/photo_5.jpg",
+                    "/assets/photography/photo_6.jpg",
+                    "/assets/photography/photo_7.jpg",
+                    "/assets/photography/photo_8.jpg",
+                    "/assets/photography/photo_9.jpg",
+                    "/assets/photography/photo_10.jpg",
+                    "/assets/photography/photo_11.jpg",
+                    "/assets/photography/photo_12.jpg",
+                    "/assets/photography/photo_13.jpg",
+                    "/assets/photography/photo_14.jpg",
+                    "/assets/photography/photo_15.jpg",
+                    "/assets/photography/photo_16.jpg",
+                    "/assets/photography/photo_17.jpg",
+                    "/assets/photography/photo_18.jpg",
+                    "/assets/photography/photo_19.jpg",
+                    "/assets/photography/photo_20.jpg",
+                    "/assets/photography/photo_21.jpg",
+                    "/assets/photography/photo_22.jpg",
+                    "/assets/photography/photo_23.jpg",
+                    "/assets/photography/photo_24.jpg",
+                    "/assets/photography/photo_25.jpg",
+                    "/assets/photography/photo_26.jpg",
+                    "/assets/photography/photo_27.jpg"
                 ]
             }
         ]
