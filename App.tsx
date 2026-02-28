@@ -129,11 +129,7 @@ export default function App() {
       factories.Brands();
       factories.VideoSection();
       factories.Projects();
-      factories.Testimonials();
-      factories.MissingElements();
-      factories.ProcessSprint();
-      factories.WorksPage();
-    }, isMobile ? 3000 : 100);
+    }, isMobile ? 3000 : 3000);
 
     return () => clearTimeout(preloadTimer);
   }, []);

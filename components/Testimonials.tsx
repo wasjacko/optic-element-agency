@@ -114,6 +114,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                     loop
                     muted
                     playsInline
+                    preload="metadata"
                     className="w-full h-full object-cover"
                 />
 
