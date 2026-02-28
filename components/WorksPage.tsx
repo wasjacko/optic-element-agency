@@ -199,11 +199,11 @@ const SERVICES = [
       type: 'image',
       description: 'High-end visual assets captured with editorial precision, defining your brand’s visual language across all digital touchpoints.',
       images: [
-         'https://static.wixstatic.com/media/8fb0bb_f35bdf8c081b4821af4a51eb4563f15c~mv2.jpg/v1/fill/w_1260,h_1892,q_95,enc_avif,quality_auto/8fb0bb_f35bdf8c081b4821af4a51eb4563f15c~mv2.jpg',
-         'https://static.wixstatic.com/media/8fb0bb_7b343c64695d4252a18bb07053c4229f~mv2.jpg/v1/fill/w_1264,h_1896,q_95,enc_avif,quality_auto/8fb0bb_7b343c64695d4252a18bb07053c4229f~mv2.jpg',
-         'https://static.wixstatic.com/media/8fb0bb_0a3dd121529446a6be4f1dd429d55660~mv2.jpg/v1/fill/w_1260,h_1892,q_95,enc_avif,quality_auto/8fb0bb_0a3dd121529446a6be4f1dd429d55660~mv2.jpg',
-         'https://static.wixstatic.com/media/8fb0bb_82f99e32ae5e4db189345d44083638ae~mv2.jpg/v1/fill/w_1264,h_1896,q_95,enc_avif,quality_auto/8fb0bb_82f99e32ae5e4db189345d44083638ae~mv2.jpg',
-         'https://static.wixstatic.com/media/8fb0bb_246ec8a099cf4a80a1547044c12499e4~mv2.jpg/v1/fill/w_1260,h_840,q_95,enc_avif,quality_auto/8fb0bb_246ec8a099cf4a80a1547044c12499e4~mv2.jpg'
+         '/assets/photography/photo1.jpg',
+         '/assets/photography/photo2.jpg',
+         '/assets/photography/photo3.jpg',
+         '/assets/photography/photo4.jpg',
+         '/assets/photography/photo5.jpg'
       ]
    },
 ];
