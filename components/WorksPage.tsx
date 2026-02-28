@@ -142,6 +142,54 @@ const SERVICES = [
             title: 'SOCIAL EDIT 05',
             description: 'HIGH IMPACT',
             src: '/assets/snapinsta-5.mp4'
+         },
+         {
+            id: 'dog-treats',
+            title: 'DOG TREATS',
+            description: 'PRODUCT HIGHLIGHT',
+            src: '/assets/dog-treats.mp4'
+         },
+         {
+            id: 'follower-ad-1',
+            title: 'FOLLOWER AD 1',
+            description: 'SOCIAL AD',
+            src: '/assets/follower-ad-1.mp4'
+         },
+         {
+            id: 'alyssa-v3',
+            title: 'ALYSSA V3',
+            description: 'BRAND EDIT',
+            src: '/assets/alyssa-v3.mp4'
+         },
+         {
+            id: 'cost-of-alone',
+            title: 'THE COST OF ALONE',
+            description: 'STRATEGY & GROWTH',
+            src: '/assets/cost-of-alone.mp4'
+         },
+         {
+            id: 'nutrient-timing',
+            title: 'NUTRIENT TIMING',
+            description: 'PERFORMANCE & NUTRITION',
+            src: '/assets/nutrient-timing.mp4'
+         },
+         {
+            id: 'wix-short-1',
+            title: 'KOFFEE CO. SHORT',
+            description: 'CAFE PREMIER',
+            src: 'https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4'
+         },
+         {
+            id: 'passionate-few-short',
+            title: 'PASSIONATE FEW SHORT',
+            description: 'HOUSE BUILD TRIP',
+            src: 'https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4'
+         },
+         {
+            id: 'dasfleet-short',
+            title: 'DASFLEET SHORT',
+            description: 'LUX CAR CLUB',
+            src: 'https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4'
          }
       ]
    },
