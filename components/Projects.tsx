@@ -88,7 +88,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
   return (
     <motion.div
       ref={cardRef}
-      className="will-change-transform group cursor-pointer backface-hidden"
+      className="will-change-transform group cursor-pointer backface-hidden transform-gpu"
       style={{
         position: 'absolute',
         top: '30%',

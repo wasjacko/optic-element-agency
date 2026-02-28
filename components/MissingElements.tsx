@@ -36,15 +36,7 @@ const ELEMENTS = [
     },
 ];
 
-const ParallaxCard = ({ el, index, scrollYProgress }: { el: any, index: number, scrollYProgress: any }) => {
-    const [isMobile, setIsMobile] = React.useState(false);
-    React.useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
+const ParallaxCard = ({ el, index, scrollYProgress, isMobile }: { el: any, index: number, scrollYProgress: any, isMobile: boolean }) => {
     // Parallax Logic: Even items move down, Odd items move up relative to scroll
     const y = useTransform(
         scrollYProgress,
@@ -108,6 +100,14 @@ const ParallaxCard = ({ el, index, scrollYProgress }: { el: any, index: number, 
 
 export const MissingElements: React.FC<{ data?: any[] }> = ({ data }) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = React.useState(false);
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start end", "end start"]
@@ -129,6 +129,7 @@ export const MissingElements: React.FC<{ data?: any[] }> = ({ data }) => {
                             el={el}
                             index={index}
                             scrollYProgress={scrollYProgress}
+                            isMobile={isMobile}
                         />
                     ))}
                 </div>

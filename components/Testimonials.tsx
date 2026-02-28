@@ -87,7 +87,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
     return (
 
         <motion.div
-            className="absolute overflow-hidden cursor-pointer bg-neutral-900 border border-white/10 shadow-2xl"
+            className="absolute overflow-hidden cursor-pointer bg-neutral-900 border border-white/10 shadow-2xl transform-gpu"
             initial={false}
             animate={{
                 scale: isActive ? 1.0 : 0.85,

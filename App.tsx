@@ -1,27 +1,7 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { AnimatePresence, motion, LayoutGroup, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
-const LazySection = ({ children, threshold = 0.01 }: { children: React.ReactNode, threshold?: number }) => {
-  const ref = useRef(null);
-  // Using a soft margin prevents instant 0px-height crashes but still preloads exactly when 
-  // the user starts scrolling down, providing smooth performance.
-  // On mobile, we use a much smaller margin so we don't accidentally load the entire site at once while struggling with 3D.
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const isInView = useInView(ref, { once: true, margin: isMobile ? "200px" : "800px" });
-
-  return (
-    <div ref={ref} className="w-full relative min-h-[50px]">
-      {isInView ? (
-        <Suspense fallback={<div className="h-[50px] w-full bg-transparent" />}>
-          {children}
-        </Suspense>
-      ) : null}
-    </div>
-  );
-};
-
-
+// --- Shared Components (Synchronous) ---
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -29,10 +9,44 @@ import { Dashboard } from './components/admin/Dashboard';
 import { LoginPage } from './components/admin/LoginPage';
 import { AuthProvider, useAuth } from './components/auth/AuthContext';
 import { getCMSContent } from './src/utils/cms-client';
+import homeContent from './src/data/homeContent.json';
 
-import defaultContent from './src/data/homeContent.json';
+// --- Lazy Components ---
+const factories = {
+  Brands: () => import('./components/Brands').then(module => ({ default: module.Brands })),
+  Projects: () => import('./components/Projects').then(module => ({ default: module.Projects })),
+  Testimonials: () => import('./components/Testimonials').then(module => ({ default: module.Testimonials })),
+  MissingElements: () => import('./components/MissingElements').then(module => ({ default: module.MissingElements })),
+  ProcessSprint: () => import('./components/ProcessSprint').then(module => ({ default: module.ProcessSprint })),
+  WorksPage: () => import('./components/WorksPage').then(module => ({ default: module.WorksPage })),
+  About: () => import('./components/About').then(module => ({ default: module.About })),
+  TheLab: () => import('./components/TheLab').then(module => ({ default: module.TheLab })),
+  ProcessPage: () => import('./components/ProcessPage').then(module => ({ default: module.ProcessPage })),
+  ContactPage: () => import('./components/ContactPage').then(module => ({ default: module.ContactPage })),
+  Footer: () => import('./components/Footer').then(module => ({ default: module.Footer })),
+};
 
-// --- Theme Initialization ---
+const Brands = React.lazy(factories.Brands);
+const Projects = React.lazy(factories.Projects);
+const Testimonials = React.lazy(factories.Testimonials);
+const MissingElements = React.lazy(factories.MissingElements);
+const ProcessSprint = React.lazy(factories.ProcessSprint);
+const WorksPage = React.lazy(factories.WorksPage);
+const About = React.lazy(factories.About);
+const TheLab = React.lazy(factories.TheLab);
+const ProcessPage = React.lazy(factories.ProcessPage);
+const ContactPage = React.lazy(factories.ContactPage);
+const Footer = React.lazy(factories.Footer);
+
+// --- Utilities ---
+const LazySection = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Suspense fallback={<div className="h-[200px] w-full flex items-center justify-center bg-[#050505] text-white/20 font-mono text-[10px] uppercase tracking-widest">Preloading Section...</div>}>
+      {children}
+    </Suspense>
+  );
+};
+
 const updateTheme = (theme: any) => {
   if (!theme) return;
   const root = document.documentElement;
@@ -42,243 +56,79 @@ const updateTheme = (theme: any) => {
   root.style.setProperty('--color-accent', theme.accent || '#000000');
 };
 
-
-// --- Loading Factories for Preloading ---
-const factories = {
-  Brands: () => import('./components/Brands').then(module => ({ default: module.Brands })),
-  VideoSection: () => import('./components/VideoSection').then(module => ({ default: module.VideoSection })),
-  Projects: () => import('./components/Projects').then(module => ({ default: module.Projects })),
-  Testimonials: () => import('./components/Testimonials').then(module => ({ default: module.Testimonials })),
-  About: () => import('./components/About').then(module => ({ default: module.About })),
-  ContactPage: () => import('./components/ContactPage').then(module => ({ default: module.ContactPage })),
-  Footer: () => import('./components/Footer').then(module => ({ default: module.Footer })),
-  WorksPage: () => import('./components/WorksPage').then(module => ({ default: module.WorksPage })),
-  ProcessPage: () => import('./components/ProcessPage').then(module => ({ default: module.ProcessPage })),
-  DataMetrics: () => import('./components/DataMetrics').then(module => ({ default: module.DataMetrics })),
-  CompanyValues: () => import('./components/CompanyValues').then(module => ({ default: module.CompanyValues })),
-  ProcessSprint: () => import('./components/ProcessSprint').then(module => ({ default: module.ProcessSprint })),
-  TheLab: () => import('./components/TheLab').then(module => ({ default: module.TheLab })),
-  MissingElements: () => import('./components/MissingElements').then(module => ({ default: module.MissingElements })),
-};
-
-const Brands = React.lazy(factories.Brands);
-const VideoSection = React.lazy(factories.VideoSection);
-const Projects = React.lazy(factories.Projects);
-const Testimonials = React.lazy(factories.Testimonials);
-const About = React.lazy(factories.About);
-const ContactPage = React.lazy(factories.ContactPage);
-const Footer = React.lazy(factories.Footer);
-const WorksPage = React.lazy(factories.WorksPage);
-const ProcessPage = React.lazy(factories.ProcessPage);
-const DataMetrics = React.lazy(factories.DataMetrics);
-const CompanyValues = React.lazy(factories.CompanyValues);
-const ProcessSprint = React.lazy(factories.ProcessSprint);
-const TheLab = React.lazy(factories.TheLab);
-const MissingElements = React.lazy(factories.MissingElements);
-
 type Page = 'home' | 'about' | 'work' | 'process' | 'contact' | 'lab' | 'admin';
 
-// -- Admin Guard Wrapper --
-const AdminRoute: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { isAuthenticated, isLoading, logout } = useAuth();
-
-  // Force logout when leaving the Admin View
-  useEffect(() => {
-    return () => {
-      logout();
-    };
-  }, []);
-
-  if (isLoading) return <div className="bg-black h-screen w-full" />;
-  if (!isAuthenticated) return <LoginPage />;
-  return <Dashboard onBack={onBack} />;
+const AdminRoute = ({ onBack }: { onBack: () => void }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <div className="h-screen flex items-center justify-center bg-black font-mono text-white tracking-[0.3em]">SECURE_AUTH_INIT</div>;
+  return isAuthenticated ? <Dashboard onBack={onBack} /> : <LoginPage />;
 };
 
-export default function App() {
-  const [activePage, setActivePage] = useState<Page>(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.slice(1);
-      if (['about', 'work', 'process', 'contact', 'lab', 'admin'].includes(hash)) {
-        return hash as Page;
-      }
-    }
-    return 'home';
-  });
-  const [isScrolled, setIsScrolled] = useState(false);
+function App() {
+  const [activePage, setActivePage] = useState<Page>('home');
   const [introCompleted, setIntroCompleted] = useState(false);
-  const [introExpanded, setIntroExpanded] = useState(false);
-
-  const handlePreload = (page: string) => {
-    if (page === 'about') factories.About();
-    if (page === 'work') factories.WorksPage();
-    if (page === 'process') factories.ProcessPage();
-    if (page === 'lab') factories.TheLab();
-    if (page === 'contact') factories.ContactPage();
-  };
+  const [cmsContent, setCmsContent] = useState<any>(homeContent);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-    updateTheme(defaultContent.theme);
-
-    // Aggressively preload all heavy components in the background
-    // On mobile we wait longer to ensure the 3D intro plays snappily first without CPU competition
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-    const preloadTimer = setTimeout(() => {
-      factories.Brands();
-      factories.VideoSection();
-      factories.Projects();
-    }, isMobile ? 3000 : 3000);
-
-    return () => clearTimeout(preloadTimer);
-  }, []);
-  // Actually, standard HMR for JSON might not trigger component re-render unless the import itself changes.
-  // We can trust Vite HMR to reload the module or update the object.
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1);
-      if (['about', 'work', 'process', 'contact', 'lab', 'admin'].includes(hash)) {
-        setActivePage(hash as Page);
-      } else {
-        setActivePage('home');
+    updateTheme(homeContent.theme);
+    const loadCMS = async () => {
+      try {
+        const data = await getCMSContent();
+        if (data) {
+          setCmsContent(data);
+          updateTheme(data.theme);
+        }
+      } catch (err) {
+        console.warn("CMS fallback active");
       }
     };
+    loadCMS();
 
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('hashchange', handleHashChange);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('hashchange', handleHashChange);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-
-  // CMS State
-  const [cmsContent, setCmsContent] = useState<any>(defaultContent);
-
-  // Fetch CMS Data
-  useEffect(() => {
-    getCMSContent().then(data => {
-      if (data) {
-        console.log("Loaded CMS Content:", data);
-        setCmsContent(data);
-      }
-    });
-  }, []);
-
-  // Update Theme when Content Changes
-  useEffect(() => {
-    if (cmsContent?.theme) {
-      updateTheme(cmsContent.theme);
-    }
-  }, [cmsContent]);
-
-  // -- Navigation Handlers --
 
   const navigateTo = (page: Page) => {
     setActivePage(page);
     window.location.hash = page === 'home' ? '' : page;
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo(0, 0);
   };
 
-  const handleContactClick = () => navigateTo('contact');
-  const handleProcessClick = () => navigateTo('process');
   const handleHomeClick = () => navigateTo('home');
   const handleAboutClick = () => navigateTo('about');
   const handleWorksClick = () => navigateTo('work');
   const handleLabClick = () => navigateTo('lab');
+  const handleProcessClick = () => navigateTo('process');
+  const handleContactClick = () => navigateTo('contact');
 
   const pageTransition = {
-    initial: { opacity: 0, y: 10, filter: "blur(10px)" },
-    animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-    exit: { opacity: 0, y: -10, filter: "blur(10px)" },
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: 0.6, ease: "easeOut" }
   };
 
   return (
     <AuthProvider>
-      <div className="min-h-screen text-white selection:bg-[var(--color-primary)] selection:text-white cursor-none" style={{ backgroundColor: 'var(--color-bg)' }}>
+      <div className="min-h-screen text-white bg-[#050505]" style={{ backgroundColor: 'var(--color-bg)' }}>
         <CustomCursor />
-        <Navbar
-          onContactClick={handleContactClick}
-          onProcessClick={handleProcessClick}
-          onPreload={handlePreload}
-          onHomeClick={handleHomeClick}
-          onAboutClick={handleAboutClick}
-          onWorksClick={handleWorksClick}
-          onLabClick={handleLabClick}
-          isScrolled={isScrolled}
-          introCompleted={introCompleted}
-          introExpanded={introExpanded}
-          activePage={activePage}
-        />
+        {activePage !== 'admin' && (
+          <Navbar
+            activePage={activePage}
+            onHomeClick={handleHomeClick}
+            onAboutClick={handleAboutClick}
+            onWorksClick={handleWorksClick}
+            onProcessClick={handleProcessClick}
+            onLabClick={handleLabClick}
+            onContactClick={handleContactClick}
+            isScrolled={isScrolled}
+            introCompleted={introCompleted}
+          />
+        )}
 
-        {/* EXCLUSIVE PAGE ROUTING */}
         <AnimatePresence mode="wait">
-
-          {/* 1. PROCESS PAGE */}
-          {activePage === 'admin' && (
-            <motion.div key="admin" {...pageTransition} className="z-[9999] relative">
-              <AdminRoute onBack={handleHomeClick} />
-            </motion.div>
-          )}
-
-          {activePage === 'process' && (
-            <motion.div key="process" {...pageTransition} className="pt-12 md:pt-20">
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <ProcessPage onContactClick={handleContactClick} data={cmsContent.processPage} />
-                <Footer onContactClick={handleContactClick} />
-              </Suspense>
-            </motion.div>
-          )}
-
-          {/* 1.5. THE LAB PAGE */}
-          {activePage === 'lab' && (
-            <motion.div key="lab" {...pageTransition} className="pt-0">
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <TheLab onContactClick={handleContactClick} data={cmsContent.lab} />
-                <Footer onContactClick={handleContactClick} />
-              </Suspense>
-            </motion.div>
-          )}
-
-          {/* 2. CONTACT PAGE */}
-          {activePage === 'contact' && (
-            <motion.div key="contact" {...pageTransition} className="pt-12 md:pt-20">
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <ContactPage onBack={handleHomeClick} data={cmsContent.contact} />
-                <Footer onContactClick={handleContactClick} />
-              </Suspense>
-            </motion.div>
-          )}
-
-          {/* 3. ABOUT PAGE */}
-          {activePage === 'about' && (
-            <motion.div key="about" {...pageTransition} className="pt-0">
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <About onContactClick={handleContactClick} data={cmsContent.about} />
-                <Footer onContactClick={handleContactClick} />
-              </Suspense>
-            </motion.div>
-          )}
-
-          {/* 4. WORKS PAGE */}
-          {activePage === 'work' && (
-            <motion.div key="work" {...pageTransition} className="pt-12 md:pt-24">
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <WorksPage onContactClick={handleContactClick} data={cmsContent.worksPage} />
-                <Footer onContactClick={handleContactClick} />
-              </Suspense>
-            </motion.div>
-          )}
-
-          {/* 5. HOME PAGE (Default) */}
           {activePage === 'home' && (
             <motion.div key="home" {...pageTransition}>
               <div id="home">
@@ -286,45 +136,59 @@ export default function App() {
                   data={cmsContent.hero}
                   theme={cmsContent.theme}
                   onContactClick={handleContactClick}
-                  onIntroExpands={() => setIntroExpanded(true)}
                   onIntroComplete={() => setIntroCompleted(true)}
                 />
               </div>
-              <Suspense fallback={<div className="h-screen bg-black" />}>
-                <div className={`bg-white transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden pointer-events-none'}`}>
-                  <LazySection>
-                    <Brands title={cmsContent.brands?.title} data={cmsContent} />
-                  </LazySection>
-
-                  <LazySection>
-                    <MissingElements data={cmsContent.missingElements} />
-                  </LazySection>
-
-                  <LazySection>
-                    <ProcessSprint onProcessClick={handleProcessClick} data={cmsContent.sprint} />
-                  </LazySection>
-
-                  <LazySection>
-                    <Projects onWorksClick={handleWorksClick} title={cmsContent.works?.title} data={cmsContent} />
-                  </LazySection>
-
-                  <LazySection>
-                    <Testimonials data={cmsContent.testimonials} />
-                  </LazySection>
-
-                  <LazySection>
-                    <Footer onContactClick={handleContactClick} />
-                  </LazySection>
-                </div>
-              </Suspense>
+              <div className={`transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0'}`}>
+                <LazySection><Brands title={cmsContent.brands?.title} data={cmsContent} /></LazySection>
+                <LazySection><ProcessSprint data={cmsContent.sprint} /></LazySection>
+                <LazySection><MissingElements data={cmsContent.missingElements} /></LazySection>
+                <LazySection><Projects data={cmsContent.projects} onWorksClick={handleWorksClick} /></LazySection>
+                <LazySection><Testimonials data={cmsContent.testimonials} /></LazySection>
+                <LazySection><Footer onContactClick={handleContactClick} /></LazySection>
+              </div>
             </motion.div>
           )}
 
-        </AnimatePresence>
+          {activePage === 'about' && (
+            <motion.div key="about" {...pageTransition}>
+              <About data={cmsContent.about} onContactClick={handleContactClick} />
+            </motion.div>
+          )}
 
-        {/* Local Content Editor (Removed) */}
-        {/* <LocalAdmin /> */}
+          {activePage === 'work' && (
+            <motion.div key="work" {...pageTransition}>
+              <WorksPage data={cmsContent.worksPage} onContactClick={handleContactClick} />
+            </motion.div>
+          )}
+
+          {activePage === 'process' && (
+            <motion.div key="process" {...pageTransition}>
+              <ProcessPage onBack={handleHomeClick} />
+            </motion.div>
+          )}
+
+          {activePage === 'lab' && (
+            <motion.div key="lab" {...pageTransition}>
+              <TheLab data={cmsContent.lab} onContactClick={handleContactClick} />
+            </motion.div>
+          )}
+
+          {activePage === 'contact' && (
+            <motion.div key="contact" {...pageTransition}>
+              <ContactPage data={cmsContent.contact} onBack={handleHomeClick} />
+            </motion.div>
+          )}
+
+          {activePage === 'admin' && (
+            <motion.div key="admin" {...pageTransition}>
+              <AdminRoute onBack={handleHomeClick} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </AuthProvider>
   );
 }
+
+export default App;

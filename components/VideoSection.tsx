@@ -87,7 +87,7 @@ export const VideoSection: React.FC<{ data?: any }> = ({ data }) => {
                 <motion.video
                   ref={videoRef}
                   preload="metadata"
-                  className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'blur-0 opacity-100' : 'blur-md opacity-80'}`}
+                  className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'opacity-100' : 'opacity-80'}`}
                   autoPlay loop muted={isMuted} playsInline
                   src={videoUrl}
                   poster={videoUrl.replace('.mp4', '.jpg')}

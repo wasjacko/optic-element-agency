@@ -140,28 +140,13 @@ declare module '@react-three/fiber' {
 }
 
 // --- Global State for Intro ---
+// --- Global State for Intro (Module level to survive React lifecycle but reset on page refresh) ---
 let hasIntroPlayed = false;
 
 
 // --- Components ---
-const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: string }>(({ texture, attach }, ref) => {
-    // Clone texture to allow independent UVs if needed, or primarily to ensure shader access without conflict
-    const localTexture = useMemo(() => texture.clone(), [texture]);
-    const [videoSize, setVideoSize] = useState(new THREE.Vector2(1, 1));
-
-    useEffect(() => {
-        const video = localTexture.image;
-        if (video instanceof HTMLVideoElement) {
-            const updateSize = () => {
-                if (video.videoWidth && video.videoHeight) setVideoSize(new THREE.Vector2(video.videoWidth, video.videoHeight));
-            };
-            if (video.readyState >= 1) updateSize();
-            video.addEventListener('loadedmetadata', updateSize);
-            return () => video.removeEventListener('loadedmetadata', updateSize);
-        }
-    }, [localTexture]);
-
-    return <imageRevealMaterial ref={ref} attach={attach} uTexture={localTexture} uVideoSize={videoSize} transparent={true} side={THREE.DoubleSide} depthWrite={true} />;
+const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: string; videoSize: THREE.Vector2 }>(({ texture, attach, videoSize }, ref) => {
+    return <imageRevealMaterial ref={ref} attach={attach} uTexture={texture} uVideoSize={videoSize} transparent={true} side={THREE.DoubleSide} depthWrite={true} />;
 });
 
 const ChevronGeometry = () => {
@@ -278,7 +263,7 @@ const GlitchReveal: React.FC<{ text: string, delay?: number, className?: string,
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroExpands, onIntroComplete, content, theme, currentPhase, isMobile }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean, onExpansionStart?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroExpands, onIntroComplete, content, theme, currentPhase, isMobile, onExpansionStart }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
@@ -310,15 +295,18 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
     const timer = useRef(0);
     const introPhase = useRef(0);
+    const expansionStartFired = useRef(false); // Ensures onExpansionStart is called only once
 
     // Skip intro if already played in this session (reset on refresh)
     // Skip intro if already played in this session (reset on refresh)
     useEffect(() => {
         if (hasIntroPlayed) {
-            timer.current = 10.0;
-            introPhase.current = 1.0;
+            // JUMP DIRECTLY TO PHASE 3 (READY TO BUILD)
+            // No white screen, no slide-ins, just the cube and the final button.
+            timer.current = 15.0; // Way past early phases
+            introPhase.current = 1.0; // Fully expanded
             if (onIntroExpands) onIntroExpands();
-            if (onIntroComplete && isMobile) onIntroComplete();
+            if (onIntroComplete) onIntroComplete();
         }
     }, [onIntroComplete]);
 
@@ -326,10 +314,24 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     const lastScrollTime = useRef(0);
     const globalMouse = useRef(new THREE.Vector2(0, 0));
 
+    const [videoSize, setVideoSize] = useState(new THREE.Vector2(1, 1));
+
+    useEffect(() => {
+        const video = sharedTexture.image;
+        if (video instanceof HTMLVideoElement) {
+            const updateSize = () => {
+                if (video.videoWidth && video.videoHeight) setVideoSize(new THREE.Vector2(video.videoWidth, video.videoHeight));
+            };
+            if (video.readyState >= 1) updateSize();
+            video.addEventListener('loadedmetadata', updateSize);
+            return () => video.removeEventListener('loadedmetadata', updateSize);
+        }
+    }, [sharedTexture]);
+
     const stateRef = useRef({
-        lerpPhase: 0, // Always start at 0 to ensure cinematic phases are visible
+        lerpPhase: hasIntroPlayed ? 3.0 : 0, // On return: snap to Phase 3 (centered, no left-right sweep)
         rotation: new THREE.Euler(0, 0, 0),
-        springScale: hasIntroPlayed ? 1.0 : 0,
+        springScale: 0, // Always start at 0 — cube grows from nothing every time
         springVel: 0,
         mouseVel: new THREE.Vector2(0, 0),
         prevMouse: new THREE.Vector2(0, 0),
@@ -408,18 +410,21 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         // Visibility Logic
         globalOpacity.current = 1.0;
 
-        // Intro Expansion Logic (Starts at 3.5s)
+        // Intro Expansion Logic (Starts at INTRO_START seconds)
         if (elapsed > INTRO_START && introPhase.current < 1) {
-            introPhase.current += dt * 8.0; // Hyper fast expansion (doubled speed)
+            // Signal loader hide ONCE as soon as cube starts expanding
+            if (!expansionStartFired.current && onExpansionStart) {
+                expansionStartFired.current = true;
+                onExpansionStart();
+            }
+            introPhase.current += dt * 8.0; // Hyper fast expansion
             if (introPhase.current >= 1) {
                 introPhase.current = 1;
                 if (!hasIntroPlayed) {
                     hasIntroPlayed = true;
-                    // Trigger menu appearance exactly when expansion finishes
                     if (onIntroExpands) onIntroExpands();
+                    if (onIntroComplete) onIntroComplete();
                 }
-                // Desktop relies on manual scroll phase to unlock site. Mobile unlocks automatically.
-                if (onIntroComplete && isMobile) onIntroComplete();
             }
         }
 
@@ -434,7 +439,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             // Keep it perfectly centered horizontally, but moved up slightly more to match new cube height
             activeMouse = new THREE.Vector2(0, 0.45);
 
-            // Sudden reveal right before the end of the loading phase
+            // Reveal when loading is done
             targetInfluence = elapsed > 2.5 ? 1.8 : 0.0;
         } else {
             if (currentPhase === 1) {
@@ -444,6 +449,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 activeMouse = s.phase2Mouse;
                 targetInfluence = 1.5;
             }
+            // Phase 0: use actual mouse position so the shader hole follows cursor during expansion
         }
 
         s.lerpMouse.lerp(activeMouse, dt * 5.0);
@@ -621,7 +627,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 <mesh ref={meshRef}>
                     <boxGeometry args={[3, 3, 3]} />
                     {[0, 1, 2, 3, 4, 5].map((index) => (
-                        <VideoFace key={index} texture={sharedTexture} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
+                        <VideoFace key={index} texture={sharedTexture} videoSize={videoSize} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
                     ))}
                 </mesh>
 
@@ -654,8 +660,9 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
     const isInView = useInView(sectionRef, { margin: "100px" });
-    const phaseRef = useRef(0);
-    const [currentPhase, setCurrentPhase] = useState(phaseRef.current);
+    const phaseRef = useRef(hasIntroPlayed ? 3 : 0);
+    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
+    // Even if it played, we start loadProgress at 0 but speed up the loading time
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
     const lastScrollTime = useRef(0);
 
@@ -729,31 +736,41 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     }, [loadProgress, isMobile, currentPhase, onIntroComplete]);
 
 
-    // Loader Logic
+    // Loader Logic — only runs on first visit
     useEffect(() => {
+        // On return visits, loadProgress already starts at 101 — nothing to do
         if (hasIntroPlayed) return;
+
+        const loaderSpeed = isMobile ? 10 : 25;
+        const startDelay = isMobile ? 200 : 500;
 
         let interval: NodeJS.Timeout;
         const timer = setTimeout(() => {
             interval = setInterval(() => {
                 setLoadProgress(prev => {
+                    // If forced to 101+ from outside (expansion started), stop interval
+                    if (prev > 100) {
+                        clearInterval(interval);
+                        return prev;
+                    }
                     if (prev >= 100) {
                         clearInterval(interval);
                         return 100;
                     }
                     return prev + 1;
                 });
-            }, isMobile ? 10 : 25); // Mobile drastically faster loader
-        }, isMobile ? 200 : 500);
+            }, loaderSpeed);
+        }, startDelay);
 
-        // Safety Reveal Timeout
+        // Safety Reveal Timeout — in case animation never fires
         const safetyTimer = setTimeout(() => {
             if (!hasIntroPlayed) {
                 hasIntroPlayed = true;
+                setLoadProgress(101); // Force-hide loader
                 if (onIntroExpands) onIntroExpands();
-                if (onIntroComplete && isMobile) onIntroComplete();
+                if (onIntroComplete) onIntroComplete();
             }
-        }, isMobile ? 3000 : 6000);
+        }, isMobile ? 3000 : 8000);
 
         return () => {
             clearTimeout(timer);
@@ -806,6 +823,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                             currentPhase={isMobile ? 3 : currentPhase}
                             isMobile={isMobile}
                             onIntroExpands={onIntroExpands}
+                            onExpansionStart={() => setLoadProgress(101)}
                         />
                     </Suspense>
                 </Canvas>
