@@ -404,9 +404,15 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                  )
                               )
                            ) : (
-                              <div className={`columns-1 md:columns-3 gap-4 p-8 space-y-4`}>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1 px-1 md:px-0">
                                  {currentService.images?.map((img: string, idx: number) => (
-                                    <img key={idx} src={img} className="w-full rounded-sm opacity-90 hover:opacity-100 transition-opacity" />
+                                    <div key={idx} className="aspect-[4/5] overflow-hidden bg-gray-100">
+                                       <img
+                                          src={img}
+                                          className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-all duration-700 hover:scale-110"
+                                          loading="lazy"
+                                       />
+                                    </div>
                                  ))}
                               </div>
                            )}
