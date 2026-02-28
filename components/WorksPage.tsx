@@ -205,7 +205,14 @@ const SERVICES = [
          '/assets/photography/photo_4.jpg',
          '/assets/photography/photo_5.jpg',
          '/assets/photography/photo_6.jpg',
-         '/assets/photography/photo_7.jpg'
+         '/assets/photography/photo_7.jpg',
+         '/assets/photography/photo_8.jpg',
+         '/assets/photography/photo_9.jpg',
+         '/assets/photography/photo_10.jpg',
+         '/assets/photography/photo_11.jpg',
+         '/assets/photography/photo_12.jpg',
+         '/assets/photography/photo_13.jpg',
+         '/assets/photography/photo_14.jpg'
       ]
    },
 ];
