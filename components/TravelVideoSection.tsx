@@ -7,22 +7,22 @@ const TRAVEL_VIDEOS = [
     {
         id: '0738',
         title: 'MEXICO HOUSE BUILD',
-        url: 'https://video.wixstatic.com/video/8fb0bb_37ccb7c01fb5468d9465985f791cef9f/1080p/mp4/file.mp4'
+        url: '/assets/mexico-house.mp4'
     },
     {
         id: '0548',
         title: 'LGCY MASTERS HYPE VIDEO',
-        url: 'https://video.wixstatic.com/video/8fb0bb_2345e2ed454a472bacf9f6fee9b690d9/1080p/mp4/file.mp4'
+        url: '/assets/lgcy-masters.mp4'
     },
     {
         id: '0436',
         title: 'LGCY SOLAR RECUITMENT VIDEO',
-        url: 'https://video.wixstatic.com/video/8fb0bb_b9a25be31bc34c65970d07346fe1f732/480p/mp4/file.mp4'
+        url: '/assets/lgcy-solar.mp4'
     },
     {
         id: '0348',
         title: 'KOFFEE CO.',
-        url: 'https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/480p/mp4/file.mp4'
+        url: '/assets/koffee-commercial.mp4'
     }
 ];
 
