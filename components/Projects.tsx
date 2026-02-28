@@ -5,27 +5,32 @@ const PROJECTS = [
   {
     title: "PROPERTY 06",
     subtitle: "NUMERO 0001",
-    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ANqDa3RcBW2t8G8gYtP9cRM/Horizontal%20Content/Property%2006%20Vertical.MP4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=x8wc249z&raw=1"
+    src: "/assets/property-06.mp4",
+    poster: "/assets/property-06.jpg"
   },
   {
     title: "THE ONE",
     subtitle: "NUMERO 0002",
-    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AJ7dRMXLIyKrMH0etl_Cqy0/Horizontal%20Content/THE%20ONE%20v2.mov?rlkey=ecoqcz4h9sos2wo3filjcmake&st=j4vwn6e8&raw=1"
+    src: "/assets/the-one.mp4",
+    poster: "/assets/the-one.jpg"
   },
   {
     title: "SEASON TRAILER",
     subtitle: "NUMERO 0003",
-    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AEdgEqThS3wHY7jVy7yAIGU/Horizontal%20Content/Season%20trailerV4.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=9aexfx03&raw=1"
+    src: "/assets/season-trailer.mp4",
+    poster: "/assets/season-trailer.jpg"
   },
   {
     title: "PROPERTY 07",
     subtitle: "NUMERO 0004",
-    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/AOXNGR1uNFCUGRNqolBS6BM/Horizontal%20Content/Property%2007%20V4.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=okq98v3t&raw=1"
+    src: "/assets/property-07.mp4",
+    poster: "/assets/property-07.jpg"
   },
   {
     title: "MAFIA BOSS",
     subtitle: "NUMERO 0005",
-    src: "https://www.dropbox.com/scl/fo/gq9u9ugq1bg0xxkruhd2h/ALSAU4uXizMclreOTmrnIQo/Horizontal%20Content/YTDown.com_YouTube_Ex-Mafia-Boss-I-Made-8-Million-Every-Wee_Media_ZAocWXnHSOw_001_1080p.mp4?rlkey=ecoqcz4h9sos2wo3filjcmake&st=1c289jaj&raw=1"
+    src: "/assets/ex-mafia.mp4",
+    poster: "/assets/ex-mafia.jpg"
   }
 ];
 
@@ -114,6 +119,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
           <video
             ref={videoRef}
             src={project.src}
+            poster={project.poster}
             muted
             playsInline
             preload="auto"
@@ -162,7 +168,8 @@ const MobileProjectCard = ({ project }: { project: any }) => {
         <div className="absolute inset-0 z-10">
           <video
             ref={videoRef}
-            src={`${project.src}#t=5`}
+            src={project.src}
+            poster={project.poster}
             loop
             muted
             playsInline
