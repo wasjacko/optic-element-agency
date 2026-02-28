@@ -220,7 +220,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                     <div className="relative w-full max-w-[1800px] flex items-center justify-start h-full">
                         <div className="ml-0 md:ml-4 pointer-events-auto flex items-center">
                             <img
-                                src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
+                                src="/assets/lab-logo-black.png"
                                 alt="Logo"
                                 className="h-20 w-auto object-contain"
                             />
