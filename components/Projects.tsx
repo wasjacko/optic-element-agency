@@ -122,7 +122,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
             poster={project.poster}
             muted
             playsInline
-            preload="auto"
+            preload="none"
             onLoadedData={(e) => {
               e.currentTarget.currentTime = startTime;
             }}
@@ -173,7 +173,7 @@ const MobileProjectCard = ({ project }: { project: any }) => {
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
           />
         </div>
@@ -198,7 +198,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
 
   const sourceProjects = cmsProjects.length > 0 ? cmsProjects : PROJECTS;
   const displayProjects = Array(2).fill(sourceProjects).flat();
-  const sectionTitle = title || "OUR WORKS";
+  const sectionTitle = title || "PROJECTS";
 
   const [isMobile, setIsMobile] = React.useState(false);
   useEffect(() => {

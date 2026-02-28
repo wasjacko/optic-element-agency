@@ -9,21 +9,7 @@ interface ContactPageProps {
 
 
 export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSection?: string }> = ({ onBack, data, activeSection }) => {
-   useEffect(() => {
-      const script = document.createElement('script');
-      script.src = "https://link.coursecreator360.com/js/form_embed.js";
-      script.type = "text/javascript";
-      script.async = true;
-      document.body.appendChild(script);
-
-      return () => {
-         const existingScript = document.querySelector(`script[src="${script.src}"]`);
-         if (existingScript) {
-            document.body.removeChild(existingScript);
-         }
-      };
-   }, []);
-
+   // No need for external script for the booking iframe since it's hosted externally.
    const showAll = !activeSection;
    const bgColor = data?.backgroundColor || '#ffffff';
    const txtColor = data?.textColor || '#000000';
@@ -111,10 +97,10 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                      className="w-full h-full min-h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
                   >
                      <iframe
-                        src="https://link.coursecreator360.com/widget/booking/RlMrAimbZK24RJaAPTRd"
+                        src="https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd"
                         style={{ width: '100%', height: '100%', minHeight: '800px', border: 'none', overflow: 'hidden' }}
                         scrolling="no"
-                        id="hXJBwsvLd5zqdlB4RsAG_1708144586889"
+                        id="cgeV18JSg30NhG1v1URd_1772211767012"
                         title="Booking Calendar"
                      />
                   </motion.div>

@@ -210,11 +210,11 @@ const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(
     );
 });
 
-const TacticalText: React.FC<{ children: React.ReactNode, visible: boolean, className?: string, color?: string, weight?: string, size?: string, tracking?: string, noAnimation?: boolean }> = ({ children, visible, className = "", color, weight = "font-black", size = "text-xl md:text-4xl", tracking = "tracking-tighter", noAnimation = false }) => {
+const TacticalText: React.FC<{ children: React.ReactNode, visible: boolean, className?: string, color?: string, weight?: string, size?: string, tracking?: string, noAnimation?: boolean, shadow?: string }> = ({ children, visible, className = "", color, weight = "font-black", size = "text-xl md:text-4xl", tracking = "tracking-tighter", noAnimation = false, shadow = "drop-shadow-md" }) => {
     return (
         <div className={`relative inline-block ${className}`}>
             <div className={`relative overflow-hidden ${noAnimation ? '' : 'transition-[width] duration-1000 ease-[0.16,1,0.3,1]'} ${visible ? 'w-full' : 'w-0'}`}>
-                <span className={`${weight} ${tracking} ${size} uppercase leading-none font-sans whitespace-nowrap drop-shadow-md`} style={{ color: color || '#ffffff' }}>
+                <span className={`${weight} ${tracking} ${size} uppercase leading-none font-sans whitespace-nowrap ${shadow}`} style={{ color: color || '#ffffff' }}>
                     {children}
                 </span>
             </div>
@@ -470,10 +470,10 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         let targetScale = 0.001;
 
         if (isMobile) {
-            targetScale = 0.70; // 0.75 - 0.05 from Phase 3
+            targetScale = 0.55; // Reduced from 0.70
             // Snap the spring instantly so there's no growth animation on mobile
-            if (s.springScale < 0.6) {
-                s.springScale = 0.70;
+            if (s.springScale < 0.5) {
+                s.springScale = 0.55;
             }
         } else {
             const easedP = easeInOutQuart(introPhase.current);
@@ -897,7 +897,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
 
                 {/* MOBILE SPECIFIC UI */}
                 {isMobile && (
-                    <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end items-center px-10 md:px-6 pb-20 pointer-events-none">
+                    <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end items-center px-10 md:px-6 pb-[25vh] pointer-events-none">
                         <div
                             className={`transition-all duration-1000 ease-out flex flex-col items-center text-center gap-6 w-full max-w-sm uppercase ${loadProgress >= 100 ? 'translate-y-0 pointer-events-auto' : 'translate-y-8 pointer-events-none'}`}
                             style={{
@@ -989,12 +989,32 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                                         weight="font-black"
                                         size="text-[10px] md:text-xs"
                                         tracking="tracking-[0.4em]"
+                                        shadow=""
                                         noAnimation
                                     >
                                         {content?.cta || homeContent.hero.cta}
                                     </TacticalText>
                                 </div>
                             </button>
+                        </div>
+
+                        {/* DESKTOP SCROLL INDICATOR */}
+                        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 transition-opacity duration-1000 ${loadProgress >= 101 ? 'opacity-40 hover:opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <span className="font-ocr text-[8px] uppercase tracking-[0.3em] font-medium text-white">Scroll</span>
+                            <div className="w-[1px] h-8 bg-white/20 relative overflow-hidden">
+                                <motion.div
+                                    className="w-full h-full bg-white origin-top"
+                                    animate={{
+                                        y: ['-100%', '100%'],
+                                        opacity: [0, 1, 0]
+                                    }}
+                                    transition={{
+                                        duration: 1.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                />
+                            </div>
                         </div>
                     </>
                 )}

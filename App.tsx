@@ -65,7 +65,10 @@ const AdminRoute = ({ onBack }: { onBack: () => void }) => {
 };
 
 function App() {
-  const [activePage, setActivePage] = useState<Page>('home');
+  const [activePage, setActivePage] = useState<Page>(() => {
+    const hash = window.location.hash.replace('#', '');
+    return (['home', 'about', 'work', 'process', 'contact', 'lab', 'admin'].includes(hash) ? hash : 'home') as Page;
+  });
   const [introCompleted, setIntroCompleted] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
   const [isScrolled, setIsScrolled] = useState(false);

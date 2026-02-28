@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 const SERVICES = [
    {
@@ -96,6 +96,12 @@ const SERVICES = [
       description: 'High-impact short-form content designed for maximum engagement and social reach.',
       videos: [
          {
+            id: 'snapinsta-1',
+            title: 'SOCIAL EDIT 01',
+            description: 'CONTENT STRATEGY',
+            src: '/assets/snapinsta-1.mp4'
+         },
+         {
             id: 'valor-eoy-2025',
             title: 'VALOR EOY 2025',
             description: 'EVENT HIGHLIGHTS',
@@ -112,12 +118,6 @@ const SERVICES = [
             title: 'MERCH EDIT V3',
             description: 'VERTICAL EDIT',
             src: '/assets/merch-edit-v3.mp4'
-         },
-         {
-            id: 'snapinsta-1',
-            title: 'SOCIAL EDIT 01',
-            description: 'CONTENT STRATEGY',
-            src: '/assets/snapinsta-1.mp4'
          },
          {
             id: 'snapinsta-2',
@@ -233,6 +233,55 @@ interface WorksPageProps {
    onContactClick: () => void;
 }
 
+const MobileVideoCard = ({ video, currentService }: { video: any, currentService: any }) => {
+   const videoRef = useRef<HTMLVideoElement>(null);
+   const [isPlaying, setIsPlaying] = useState(false);
+
+   const togglePlay = () => {
+      if (videoRef.current) {
+         if (isPlaying) {
+            videoRef.current.pause();
+         } else {
+            videoRef.current.play().catch(() => { });
+         }
+         setIsPlaying(!isPlaying);
+      }
+   };
+
+   return (
+      <div
+         className={`cursor-pointer group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}
+         onClick={togglePlay}
+      >
+         <video
+            ref={videoRef}
+            src={video.src ? `${video.src}#t=0.001` : ''}
+            poster={video.src ? video.src.replace(/\.(mp4|mov)$/i, '.jpg') : undefined}
+            className="w-full h-full object-cover"
+            playsInline
+            loop
+            preload="metadata"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+         />
+
+         {/* Custom Big Play Button overlay */}
+         <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 pointer-events-none ${isPlaying ? 'opacity-0' : 'opacity-100 bg-black/10'}`}
+         >
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/10 shadow-lg z-20">
+               <Play size={24} className="text-white ml-[3px]" fill="currentColor" />
+            </div>
+         </div>
+
+         <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none z-10">
+            <h3 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">{video.title}</h3>
+            <p className="text-white/60 font-mono text-[10px] uppercase tracking-widest pl-4 border-l border-[#FF5000]">{video.description}</p>
+         </div>
+      </div>
+   );
+};
+
 export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: string }> = ({ onContactClick, data, activeSection }) => {
    const [activeService, setActiveService] = useState(0);
    const [activeVideo, setActiveVideo] = useState(0);
@@ -273,12 +322,12 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
    const accentColor = data?.accentColor || '#FF5000';
 
    return (
-      <div className={`min-h-screen ${!showAll ? 'pt-12' : ''}`} style={{ backgroundColor: bgColor, color: txtColor }}>
+      <div className={`min-h-screen ${!showAll ? 'pt-24' : 'pt-28'}`} style={{ backgroundColor: bgColor, color: txtColor }}>
          <div className="relative z-10 flex flex-col">
             {(showAll || activeSection === 'gallery') && (
                <>
                   <div className="sticky top-0 z-40 backdrop-blur-md border-b" style={{ backgroundColor: bgColor ? `${bgColor}cc` : 'rgba(255,255,255,0.8)', borderColor: 'rgba(0,0,0,0.05)' }}>
-                     <div className="max-w-7xl mx-auto px-10 md:px-6 h-20 flex items-center justify-start md:justify-between overflow-x-auto no-scrollbar">
+                     <div className="max-w-7xl mx-auto px-10 md:px-6 h-20 flex items-center justify-start md:justify-between overflow-x-auto no-scrollbar pb-1">
                         <div className="flex items-center gap-6 md:gap-8 min-w-max">
                            {services.map((service: any, index: number) => (
                               <button key={service.id} onClick={() => setActiveService(index)} className="group relative flex flex-col items-center gap-1">
@@ -297,31 +346,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                               isMobile ? (
                                  <div className="flex flex-col w-full py-12 gap-24 md:gap-32">
                                     {currentService.videos.slice(0, visibleVideos).map((video: any) => (
-                                       <div key={video.id} className={`group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}>
-                                          <video
-                                             src={video.src}
-                                             poster={video.src ? video.src.replace('.mp4', '.jpg') : undefined}
-                                             className="w-full h-full object-cover"
-                                             muted
-                                             loop
-                                             playsInline
-                                             preload="metadata"
-                                             onMouseEnter={(e) => {
-                                                const playPromise = e.currentTarget.play();
-                                                if (playPromise !== undefined) {
-                                                   playPromise.catch((error) => console.log("Video playback blocked:", error));
-                                                }
-                                             }}
-                                             onMouseLeave={(e) => {
-                                                e.currentTarget.pause();
-                                                e.currentTarget.currentTime = 0;
-                                             }}
-                                          />
-                                          <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none">
-                                             <h3 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">{video.title}</h3>
-                                             <p className="text-white/60 font-mono text-[10px] uppercase tracking-widest pl-4 border-l border-[#FF5000]">{video.description}</p>
-                                          </div>
-                                       </div>
+                                       <MobileVideoCard key={video.id} video={video} currentService={currentService} />
                                     ))}
                                     {visibleVideos < currentService.videos.length && (
                                        <div className="flex justify-center pb-24">

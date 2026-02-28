@@ -279,13 +279,13 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
               <video
                 ref={videoRef}
-                src={data?.videoUrl || "/assets/about-video.mp4"}
-                poster={(data?.videoUrl || "/assets/about-video.mp4").replace('.mp4', '.jpg')}
+                src={`${data?.videoUrl || "/assets/about-video.mp4"}#t=0.001`}
+                poster={(data?.videoUrl || "/assets/about-video.mp4").replace(/\.(mp4|mov)$/i, '.jpg')}
                 autoPlay
                 loop
                 muted
                 playsInline
-                preload="metadata"
+                preload="auto"
                 className="w-full h-full object-cover grayscale"
               />
             </div>
