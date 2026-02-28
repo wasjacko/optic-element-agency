@@ -73,19 +73,19 @@ const SERVICES = [
             id: 'koffee',
             title: 'KOFFEE CO.',
             description: 'PREMIUM COMMERCIAL',
-            src: 'https://video.wixstatic.com/video/8fb0bb_4722b88e8b614accaadc3be3ba825bf7/1080p/mp4/file.mp4'
+            src: '/assets/koffee-commercial.mp4'
          },
          {
             id: 'dasfleet',
             title: 'DASFLEET',
             description: 'LUX CAR CLUB',
-            src: 'https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4'
+            src: '/assets/dasfleet-short.mp4'
          },
          {
             id: 'passionate-few',
             title: 'PASSIONATE FEW',
             description: 'HOUSE BUILD TRIP',
-            src: 'https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4'
+            src: '/assets/passionate-few-short.mp4'
          }
       ]
    },
@@ -205,27 +205,7 @@ const SERVICES = [
          '/assets/photography/photo_4.jpg',
          '/assets/photography/photo_5.jpg',
          '/assets/photography/photo_6.jpg',
-         '/assets/photography/photo_7.jpg',
-         '/assets/photography/photo_8.jpg',
-         '/assets/photography/photo_9.jpg',
-         '/assets/photography/photo_10.jpg',
-         '/assets/photography/photo_11.jpg',
-         '/assets/photography/photo_12.jpg',
-         '/assets/photography/photo_13.jpg',
-         '/assets/photography/photo_14.jpg',
-         '/assets/photography/photo_15.jpg',
-         '/assets/photography/photo_16.jpg',
-         '/assets/photography/photo_17.jpg',
-         '/assets/photography/photo_18.jpg',
-         '/assets/photography/photo_19.jpg',
-         '/assets/photography/photo_20.jpg',
-         '/assets/photography/photo_21.jpg',
-         '/assets/photography/photo_22.jpg',
-         '/assets/photography/photo_23.jpg',
-         '/assets/photography/photo_24.jpg',
-         '/assets/photography/photo_25.jpg',
-         '/assets/photography/photo_26.jpg',
-         '/assets/photography/photo_27.jpg'
+         '/assets/photography/photo_7.jpg'
       ]
    },
 ];
