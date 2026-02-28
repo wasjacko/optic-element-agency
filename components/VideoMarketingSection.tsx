@@ -24,7 +24,8 @@ export const VideoMarketingSection = () => {
                 >
                     <video
                         ref={videoRef}
-                        src="https://video.wixstatic.com/video/8fb0bb_6471e8a538c04daa982acd5e0dac1447/1080p/mp4/file.mp4"
+                        src="/assets/video-marketing-showcase.mp4"
+                        poster="/assets/video-marketing-showcase.jpg"
                         className="w-full h-full object-cover grayscale transition-all duration-1000"
                         autoPlay muted loop playsInline
                     />

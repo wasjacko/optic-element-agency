@@ -90,6 +90,7 @@ export const VideoSection: React.FC<{ data?: any }> = ({ data }) => {
                   className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'blur-0 opacity-100' : 'blur-md opacity-80'}`}
                   autoPlay loop muted={isMuted} playsInline
                   src={videoUrl}
+                  poster={videoUrl.replace('.mp4', '.jpg')}
                 />
               </div>
 

@@ -4,12 +4,12 @@ import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo, useInVi
 import { Instagram, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 const REELS = [
-    { id: "R_01", client: "OMAR ELATTAR", url: "https://video.wixstatic.com/video/8fb0bb_26cfc458c0054812a82383379cb29c79/720p/mp4/file.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
-    { id: "R_02", client: "MATTHEW WELSH", url: "https://video.wixstatic.com/video/8fb0bb_d6e089eee8c1427b867ec8d101a46274/720p/mp4/file.mp4", thumbnailTime: 1.0 },
-    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://video.wixstatic.com/video/8fb0bb_bbef9fb4c4564d3181bc316e6496109b/720p/mp4/file.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
-    { id: "R_06", client: "DR. MATT", url: "https://www.dropbox.com/scl/fo/vnntf4dqsa4jsink02qaa/AP7f_lAi0IXVleCpG3ICCj8/Dr.Matt.mov?rlkey=fm3ospfg7f5q186wm339q69a4&st=wvpnc1pf&raw=1", thumbnailTime: 1.0 },
+    { id: "R_01", client: "OMAR ELATTAR", url: "/assets/testimonial-omar.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
+    { id: "R_02", client: "MATTHEW WELSH", url: "/assets/testimonial-matthew.mp4", thumbnailTime: 1.0 },
+    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "/assets/testimonial-clarence.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
+    { id: "R_06", client: "DR. MATT", url: "/assets/testimonial-matt.mp4", thumbnailTime: 1.0 },
     { id: "R_07", client: "EUGENE NEAL", url: "/assets/eugene-neal.mp4", thumbnailTime: 0.5 },
-    { id: "R_08", client: "BRETT", url: "/assets/brett.mov", thumbnailTime: 1.0 }
+    { id: "R_08", client: "BRETT", url: "/assets/brett.mp4", thumbnailTime: 1.0 }
 ];
 
 const BASE_REVIEWS = [
@@ -110,6 +110,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                 <video
                     ref={videoRef}
                     src={reel.url}
+                    poster={reel.url.replace(/\.(mp4|mov)/, '.jpg')}
                     loop
                     muted
                     playsInline
@@ -267,6 +268,7 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
             <video
                 ref={videoRef}
                 src={reel.url}
+                poster={reel.url.replace(/\.(mp4|mov)/, '.jpg')}
                 loop
                 muted
                 playsInline

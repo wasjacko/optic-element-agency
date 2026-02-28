@@ -279,7 +279,8 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
               <video
                 ref={videoRef}
-                src={data?.videoUrl || "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4"}
+                src={data?.videoUrl || "/assets/about-video.mp4"}
+                poster={(data?.videoUrl || "/assets/about-video.mp4").replace('.mp4', '.jpg')}
                 autoPlay
                 loop
                 muted
