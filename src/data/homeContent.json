@@ -291,19 +291,19 @@
                         "id": "wix-short-1",
                         "title": "KOFFEE CO. SHORT",
                         "description": "CAFE PREMIER",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_27627ec09f7e4a349e6efcaa71d751f4/480p/mp4/file.mp4"
+                        "src": "/assets/wix-short-1.mp4"
                     },
                     {
                         "id": "passionate-few-short",
                         "title": "PASSIONATE FEW SHORT",
                         "description": "HOUSE BUILD TRIP",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4"
+                        "src": "/assets/passionate-few-short.mp4"
                     },
                     {
                         "id": "dasfleet-short",
                         "title": "DASFLEET SHORT",
                         "description": "LUX CAR CLUB",
-                        "src": "https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4"
+                        "src": "/assets/dasfleet-short.mp4"
                     }
                 ]
             },
