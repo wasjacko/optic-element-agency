@@ -31,15 +31,7 @@ const LOGO_IMAGES = [
     "/assets/brands/brand_4.png",
     "/assets/brands/brand_5.png",
     "/assets/brands/brand_6.png",
-    "/assets/brands/brand_7.png",
-    "/assets/brands/brand_8.png",
-    "/assets/brands/brand_9.png",
-    "/assets/brands/brand_10.png",
-    "/assets/brands/brand_11.png",
-    "/assets/brands/brand_12.png",
-    "/assets/brands/brand_13.png",
-    "/assets/brands/brand_14.png",
-    "/assets/brands/brand_15.png"
+    "/assets/brands/brand_7.png"
 ];
 
 const LogoReveal: React.FC<{ src: string; delay?: number }> = ({ src, delay = 0 }) => {

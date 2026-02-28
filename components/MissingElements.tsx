@@ -116,13 +116,11 @@ export const MissingElements: React.FC<{ data?: any[] }> = ({ data }) => {
     const displayElements = data || ELEMENTS;
 
     return (
-        <section ref={containerRef} className="bg-white text-black py-32 border-t border-gray-100 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-10 md:px-6">
-
-
+        <section ref={containerRef} className="bg-white text-black py-32 md:py-40 border-t border-gray-100 overflow-hidden flex items-center min-h-[60vh]">
+            <div className="max-w-7xl mx-auto px-10 md:px-6 w-full">
 
                 {/* Grid with Parallax */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-16 items-start min-h-[400px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-16 items-center">
                     {displayElements.map((el, index) => (
                         <ParallaxCard
                             key={el.id}

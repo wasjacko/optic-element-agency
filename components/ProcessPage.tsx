@@ -71,6 +71,9 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Force scroll to top when page mounts
+    window.scrollTo(0, 0);
+
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);

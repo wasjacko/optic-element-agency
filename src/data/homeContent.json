@@ -210,6 +210,12 @@
                 "description": "High-impact short-form content.",
                 "videos": [
                     {
+                        "id": "snapinsta-1",
+                        "title": "SOCIAL EDIT 01",
+                        "description": "CONTENT STRATEGY",
+                        "src": "/assets/snapinsta-1.mp4"
+                    },
+                    {
                         "id": "valor-eoy-2025",
                         "title": "VALOR EOY 2025",
                         "description": "EVENT HIGHLIGHTS",
@@ -226,12 +232,6 @@
                         "title": "MERCH EDIT V3",
                         "description": "VERTICAL EDIT",
                         "src": "/assets/merch-edit-v3.mp4"
-                    },
-                    {
-                        "id": "snapinsta-1",
-                        "title": "SOCIAL EDIT 01",
-                        "description": "CONTENT STRATEGY",
-                        "src": "/assets/snapinsta-1.mp4"
                     },
                     {
                         "id": "snapinsta-2",
