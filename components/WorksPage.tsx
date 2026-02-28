@@ -212,7 +212,18 @@ const SERVICES = [
          '/assets/photography/photo_11.jpg',
          '/assets/photography/photo_12.jpg',
          '/assets/photography/photo_13.jpg',
-         '/assets/photography/photo_14.jpg'
+         '/assets/photography/photo_14.jpg',
+         '/assets/photography/photo_15.jpg',
+         '/assets/photography/photo_16.jpg',
+         '/assets/photography/photo_17.jpg',
+         '/assets/photography/photo_18.jpg',
+         '/assets/photography/photo_19.jpg',
+         '/assets/photography/photo_20.jpg',
+         '/assets/photography/photo_21.jpg',
+         '/assets/photography/photo_22.jpg',
+         '/assets/photography/photo_23.jpg',
+         '/assets/photography/photo_24.jpg',
+         '/assets/photography/photo_25.jpg'
       ]
    },
 ];
