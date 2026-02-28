@@ -86,7 +86,7 @@ export const VideoSection: React.FC<{ data?: any }> = ({ data }) => {
               <div className="absolute inset-0 overflow-hidden">
                 <motion.video
                   ref={videoRef}
-                  preload="auto"
+                  preload="metadata"
                   className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'blur-0 opacity-100' : 'blur-md opacity-80'}`}
                   autoPlay loop muted={isMuted} playsInline
                   src={videoUrl}

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import { useInView } from 'framer-motion';
 import * as THREE from 'three';
 import { Canvas, useFrame, extend, useThree, ThreeElement } from '@react-three/fiber';
 import { shaderMaterial, useVideoTexture, Html, PerspectiveCamera, Environment } from '@react-three/drei';
@@ -653,6 +653,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
         CUBE_VIDEO_URL
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
+    const isInView = useInView(sectionRef, { margin: "100px" });
     const phaseRef = useRef(0);
     const [currentPhase, setCurrentPhase] = useState(phaseRef.current);
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
@@ -767,46 +768,48 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
 
     return (
         <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
-            <Canvas
-                dpr={isMobile ? [0.8, 1] : [1, 1.2]}
-                performance={{ min: 0.5 }}
-                gl={{
-                    alpha: true,
-                    antialias: false,
-                    powerPreference: "high-performance",
-                    stencil: false,
-                    depth: true
-                }}
-                onCreated={({ gl }) => {
-                    gl.setClearColor(0x000000, 0);
-                }}
-            >
-                <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />
-                <ambientLight intensity={0.6} />
-                <pointLight position={[10, 10, 10]} intensity={2.0} />
-                <pointLight position={[-10, 5, 10]} intensity={1.0} color="#ffffff" />
-                <Suspense fallback={
-                    <group position={[0, isMobile ? 1.5 : 0, 0]} rotation={[0.15, 0.4, 0.02]} scale={isMobile ? 0.7 : 0.15}>
-                        <mesh>
-                            <boxGeometry args={[3, 3, 3]} />
-                            <meshBasicMaterial color="#111111" />
-                        </mesh>
-                    </group>
-                }>
-                    <ShowcaseCube
-                        videos={videos}
-                        scale={1}
-                        sectionRef={sectionRef}
-                        onContactClick={onContactClick}
-                        onIntroComplete={onIntroComplete}
-                        content={content}
-                        theme={currentTheme}
-                        currentPhase={isMobile ? 3 : currentPhase}
-                        isMobile={isMobile}
-                        onIntroExpands={onIntroExpands}
-                    />
-                </Suspense>
-            </Canvas>
+            {isInView && (
+                <Canvas
+                    dpr={isMobile ? [0.8, 1] : [0.9, 1.1]}
+                    performance={{ min: 0.65 }}
+                    gl={{
+                        alpha: true,
+                        antialias: false,
+                        powerPreference: "high-performance",
+                        stencil: false,
+                        depth: true
+                    }}
+                    onCreated={({ gl }) => {
+                        gl.setClearColor(0x000000, 0);
+                    }}
+                >
+                    <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={45} />
+                    <ambientLight intensity={0.6} />
+                    <pointLight position={[10, 10, 10]} intensity={2.0} />
+                    <pointLight position={[-10, 5, 10]} intensity={1.0} color="#ffffff" />
+                    <Suspense fallback={
+                        <group position={[0, isMobile ? 1.5 : 0, 0]} rotation={[0.15, 0.4, 0.02]} scale={isMobile ? 0.7 : 0.15}>
+                            <mesh>
+                                <boxGeometry args={[3, 3, 3]} />
+                                <meshBasicMaterial color="#111111" />
+                            </mesh>
+                        </group>
+                    }>
+                        <ShowcaseCube
+                            videos={videos}
+                            scale={1}
+                            sectionRef={sectionRef}
+                            onContactClick={onContactClick}
+                            onIntroComplete={onIntroComplete}
+                            content={content}
+                            theme={currentTheme}
+                            currentPhase={isMobile ? 3 : currentPhase}
+                            isMobile={isMobile}
+                            onIntroExpands={onIntroExpands}
+                        />
+                    </Suspense>
+                </Canvas>
+            )}
 
             {/* UI Overlay - Absolutely Static */}
             <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
