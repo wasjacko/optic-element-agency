@@ -14,29 +14,15 @@ const getOptimizedWixUrl = (url: string, isMobile: boolean) => {
 const LAB_IMAGES = [
     "/assets/lab/lab_1.jpg",
     "/assets/lab/lab_2.jpg",
-    "/assets/lab/lab_3.jpg",
-    "/assets/lab/lab_4.jpg",
+    "/assets/lab/lab_3.mp4",
+    "/assets/lab/lab_4.mp4",
     "/assets/lab/lab_5.jpg",
-    "/assets/lab/lab_6.jpg",
-    "/assets/lab/lab_7.jpg",
-    "/assets/lab/lab_8.jpg",
-    "/assets/lab/lab_9.jpg",
-    "/assets/lab/lab_10.jpg",
-    "/assets/lab/lab_11.jpg",
-    "/assets/lab/lab_12.jpg",
-    "/assets/lab/lab_13.jpg",
-    "/assets/lab/lab_14.jpg",
-    "/assets/lab/lab_15.jpg",
-    "/assets/lab/lab_16.jpg",
-    "/assets/lab/lab_17.jpg",
-    "/assets/lab/lab_18.jpg",
-    "/assets/lab/lab_19.jpg",
-    "/assets/lab/lab_20.jpg",
-    "/assets/lab/lab_21.jpg",
-    "/assets/lab/lab_22.jpg"
+    "/assets/lab/lab_6.jpg"
 ];
 
 const ALL_GALLERY_IMAGES = [...LAB_IMAGES];
+
+const isVideo = (url: string) => url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.mov');
 
 interface TheLabProps {
     onContactClick: () => void;
@@ -250,12 +236,23 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                         className="relative w-full h-full overflow-hidden cursor-pointer group"
                         onClick={() => openGallery(0)}
                     >
-                        <img
-                            src={getOptimizedWixUrl(LAB_IMAGES[0], isMobile)}
-                            alt="Main Studio"
-                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-                            loading="lazy"
-                        />
+                        {isVideo(LAB_IMAGES[0]) ? (
+                            <video
+                                src={LAB_IMAGES[0]}
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+                            />
+                        ) : (
+                            <img
+                                src={getOptimizedWixUrl(LAB_IMAGES[0], isMobile)}
+                                alt="Main Studio"
+                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+                                loading="lazy"
+                            />
+                        )}
                         <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <span className="text-white font-medium tracking-wide text-sm">Main Studio Floor</span>
                         </div>
@@ -265,15 +262,26 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                         {LAB_IMAGES.slice(1, 4).map((img, idx) => (
                             <div
                                 key={idx}
-                                className="relative w-full h-full overflow-hidden cursor-pointer group"
+                                className="relative w-full h-full overflow-hidden cursor-pointer group bg-black"
                                 onClick={() => openGallery(idx + 1)}
                             >
-                                <img
-                                    src={getOptimizedWixUrl(img, isMobile)}
-                                    alt={`Studio Detail ${idx + 1}`}
-                                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-                                    loading="lazy"
-                                />
+                                {isVideo(img) ? (
+                                    <video
+                                        src={img}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+                                    />
+                                ) : (
+                                    <img
+                                        src={getOptimizedWixUrl(img, isMobile)}
+                                        alt={`Studio Detail ${idx + 1}`}
+                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+                                        loading="lazy"
+                                    />
+                                )}
                             </div>
                         ))}
                         <div
@@ -281,12 +289,16 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                             onClick={() => openGallery(4)}
                         >
                             <div className="absolute inset-0 opacity-40">
-                                <img src={LAB_IMAGES[4]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" alt="background" />
+                                {isVideo(LAB_IMAGES[4]) ? (
+                                    <video src={LAB_IMAGES[4]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" autoPlay muted loop playsInline />
+                                ) : (
+                                    <img src={LAB_IMAGES[4]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" alt="background" />
+                                )}
                             </div>
                             <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors duration-300" />
                             <div className="relative z-10 flex flex-col items-center">
                                 <Grid className="text-white w-6 h-6 mb-2" strokeWidth={1.5} />
-                                <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter">+17</span>
+                                <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter">+{Math.max(0, ALL_GALLERY_IMAGES.length - 4)}</span>
                                 <span className="text-[10px] font-mono uppercase tracking-widest text-white/80">View Gallery</span>
                             </div>
                         </div>
@@ -612,16 +624,31 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                             onClick={(e) => e.stopPropagation()}
                         >
                             <AnimatePresence mode="wait">
-                                <motion.img
-                                    key={currentImageIndex}
-                                    src={getOptimizedWixUrl(ALL_GALLERY_IMAGES[currentImageIndex], isMobile)}
-                                    alt="Gallery preview"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="max-w-full max-h-[85vh] object-contain shadow-2xl"
-                                />
+                                {isVideo(ALL_GALLERY_IMAGES[currentImageIndex]) ? (
+                                    <motion.video
+                                        key={`video-${currentImageIndex}`}
+                                        src={ALL_GALLERY_IMAGES[currentImageIndex]}
+                                        autoPlay
+                                        controls
+                                        playsInline
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                    />
+                                ) : (
+                                    <motion.img
+                                        key={`img-${currentImageIndex}`}
+                                        src={getOptimizedWixUrl(ALL_GALLERY_IMAGES[currentImageIndex], isMobile)}
+                                        alt="Gallery preview"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                    />
+                                )}
                             </AnimatePresence>
                             <button onClick={closeGallery} className="absolute top-4 right-4 md:top-8 md:right-8 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all group">
                                 <span className="text-xs font-bold tracking-widest uppercase hidden md:block group-hover:pr-2 transition-all">Close</span>
