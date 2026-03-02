@@ -12,14 +12,13 @@ const getOptimizedWixUrl = (url: string, isMobile: boolean) => {
 };
 
 const LAB_IMAGES = [
-    "/assets/lab/lab_1.jpg",
+    "/assets/lab/lab_10.jpg",
     "/assets/lab/lab_2.jpg",
     "/assets/lab/lab_5.jpg",
     "/assets/lab/lab_6.jpg",
     "/assets/lab/lab_7.jpg",
     "/assets/lab/lab_8.jpg",
     "/assets/lab/lab_9.jpg",
-    "/assets/lab/lab_10.jpg",
     "/assets/lab/lab_11.jpg",
     "/assets/lab/lab_12.jpg",
     "/assets/lab/lab_13.jpg",
