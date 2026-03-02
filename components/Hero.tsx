@@ -171,7 +171,7 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
     )
 });
 
-const INNER_CUBE_VIDEO = "/assets/cube_video.mp4";
+const INNER_CUBE_VIDEO = "https://www.dropbox.com/scl/fi/fo2f5ljsd200ev2xvgq3f/oE-Showreel-2026.mp4?rlkey=eoyb2krqx9yqd5c2r3r582t35&st=ka3o5qm6&raw=1";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
     const localTexture = useMemo(() => texture.clone(), [texture]);
@@ -644,7 +644,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 };
 
 // --- Main Hero Component ---
-const CUBE_VIDEO_URL = "/assets/cube_video.mp4";
+const CUBE_VIDEO_URL = "https://www.dropbox.com/scl/fi/fo2f5ljsd200ev2xvgq3f/oE-Showreel-2026.mp4?rlkey=eoyb2krqx9yqd5c2r3r582t35&st=ka3o5qm6&raw=1";
 
 export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete }) => {
     const content = data || homeContent.hero;
