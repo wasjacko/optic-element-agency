@@ -17,7 +17,19 @@ const LAB_IMAGES = [
     "/assets/lab/lab_3.mp4",
     "/assets/lab/lab_4.mp4",
     "/assets/lab/lab_5.jpg",
-    "/assets/lab/lab_6.jpg"
+    "/assets/lab/lab_6.jpg",
+    "/assets/lab/lab_7.jpg",
+    "/assets/lab/lab_8.jpg",
+    "/assets/lab/lab_9.jpg",
+    "/assets/lab/lab_10.jpg",
+    "/assets/lab/lab_11.jpg",
+    "/assets/lab/lab_12.jpg",
+    "/assets/lab/lab_13.jpg",
+    "/assets/lab/lab_14.jpg",
+    "/assets/lab/lab_15.jpg",
+    "/assets/lab/lab_16.jpg",
+    "/assets/lab/lab_17.jpg",
+    "/assets/lab/lab_18.jpg"
 ];
 
 const ALL_GALLERY_IMAGES = [...LAB_IMAGES];
