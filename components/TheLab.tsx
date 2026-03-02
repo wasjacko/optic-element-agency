@@ -14,8 +14,6 @@ const getOptimizedWixUrl = (url: string, isMobile: boolean) => {
 const LAB_IMAGES = [
     "/assets/lab/lab_1.jpg",
     "/assets/lab/lab_2.jpg",
-    "/assets/lab/lab_3.mp4",
-    "/assets/lab/lab_4.mp4",
     "/assets/lab/lab_5.jpg",
     "/assets/lab/lab_6.jpg",
     "/assets/lab/lab_7.jpg",
