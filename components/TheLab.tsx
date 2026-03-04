@@ -236,94 +236,71 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                 </div>
             </section>
 
-            {/* SECTION 2: SHOWCASE GALLERY (Full Width) */}
-            <section className="w-full h-[85vh] relative mb-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full w-full">
-                    <div
-                        className="relative w-full h-full overflow-hidden cursor-pointer group"
-                        onClick={() => openGallery(0)}
-                    >
-                        {isVideo(LAB_IMAGES[0]) ? (
-                            <video
-                                src={LAB_IMAGES[0]}
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-                            />
-                        ) : (
-                            <img
-                                src={getOptimizedWixUrl(LAB_IMAGES[0], isMobile)}
-                                alt="Main Studio"
-                                className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-                                loading="lazy"
-                            />
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <span className="text-white font-medium tracking-wide text-sm">Main Studio Floor</span>
+            {/* SECTION 2: SHOWCASE GALLERY (Full Width Video + Grid Below) */}
+            <section className="w-full relative mb-12 px-6 md:px-32">
+                <div className="max-w-[1800px] mx-auto">
+                    {/* Main FPV Video */}
+                    <div className="relative w-full aspect-video md:h-[80vh] overflow-hidden group shadow-2xl">
+                        <video
+                            src="/videos/studioflythrough.mp4"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span className="text-white font-medium tracking-[0.2em] text-xs uppercase underline-offset-8 underline decoration-[#FF5000]">Studio FPV Flythrough</span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 w-full h-full">
-                        {LAB_IMAGES.slice(1, 4).map((img, idx) => (
+                    {/* Secondary Image Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 h-[40vh] md:h-[50vh]">
+                        {LAB_IMAGES.slice(0, 3).map((img, idx) => (
                             <div
                                 key={idx}
-                                className="relative w-full h-full overflow-hidden cursor-pointer group bg-black"
-                                onClick={() => openGallery(idx + 1)}
+                                className="relative w-full h-full overflow-hidden cursor-pointer group bg-black shadow-lg"
+                                onClick={() => openGallery(idx)}
                             >
-                                {isVideo(img) ? (
-                                    <video
-                                        src={img}
-                                        autoPlay
-                                        muted
-                                        loop
-                                        playsInline
-                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-                                    />
-                                ) : (
-                                    <img
-                                        src={getOptimizedWixUrl(img, isMobile)}
-                                        alt={`Studio Detail ${idx + 1}`}
-                                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-                                        loading="lazy"
-                                    />
-                                )}
+                                <img
+                                    src={getOptimizedWixUrl(img, isMobile)}
+                                    alt={`Studio Detail ${idx + 1}`}
+                                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.05]"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
                             </div>
                         ))}
                         <div
-                            className="relative w-full h-full bg-[#050505] cursor-pointer group flex flex-col items-center justify-center gap-3 overflow-hidden"
-                            onClick={() => openGallery(4)}
+                            className="relative w-full h-full bg-[#050505] cursor-pointer group flex flex-col items-center justify-center gap-3 overflow-hidden shadow-lg border border-white/5"
+                            onClick={() => openGallery(3)}
                         >
                             <div className="absolute inset-0 opacity-40">
-                                {isVideo(LAB_IMAGES[4]) ? (
-                                    <video src={LAB_IMAGES[4]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" autoPlay muted loop playsInline />
-                                ) : (
-                                    <img src={LAB_IMAGES[4]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" alt="background" />
-                                )}
+                                <img src={LAB_IMAGES[3]} className="w-full h-full object-cover grayscale blur-[2px] scale-110" alt="background" />
                             </div>
                             <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors duration-300" />
                             <div className="relative z-10 flex flex-col items-center">
                                 <Grid className="text-white w-6 h-6 mb-2" strokeWidth={1.5} />
-                                <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter">+{Math.max(0, ALL_GALLERY_IMAGES.length - 4)}</span>
-                                <span className="text-[10px] font-mono uppercase tracking-widest text-white/80">View Gallery</span>
+                                <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter">+{Math.max(0, ALL_GALLERY_IMAGES.length - 3)}</span>
+                                <span className="text-[10px] font-mono uppercase tracking-widest text-white/80">Gallery</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Floating CTA */}
-                <div className="absolute top-12 left-1/2 -translate-x-1/2 z-20">
+                <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
                     <button
                         onClick={() => {
                             document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className="bg-white text-black px-10 py-4 font-bold uppercase tracking-widest text-sm hover:scale-105 transition-transform shadow-2xl flex items-center gap-2"
+                        className="bg-white text-black px-10 py-4 font-bold uppercase tracking-widest text-[10px] shadow-2xl flex items-center gap-4 rounded-none border border-black/10"
                     >
-                        Book The Lab <ArrowRight size={16} />
+                        // BOOK THE LAB <div className="w-1 h-1 bg-[#FF5000] animate-pulse" /><ArrowRight size={14} />
                     </button>
                 </div>
             </section>
+
 
             {/* SECTION 3: LIGHT & CLEAN BOOKING SYSTEM (Left: Config | Right: Form) */}
             <section id="booking-section" className="bg-neutral-50 py-12 md:py-24 px-6 md:px-0">
