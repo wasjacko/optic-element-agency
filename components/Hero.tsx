@@ -171,7 +171,7 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
     )
 });
 
-const INNER_CUBE_VIDEO = "/assets/main-reel.mp4";
+const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026.mp4";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
     const localTexture = useMemo(() => texture.clone(), [texture]);
