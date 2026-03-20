@@ -3,7 +3,7 @@ import { useInView } from 'framer-motion';
 import * as THREE from 'three';
 import { Canvas, useFrame, extend, useThree, ThreeElement } from '@react-three/fiber';
 import { shaderMaterial, useVideoTexture, Html, PerspectiveCamera, Environment } from '@react-three/drei';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import homeContent from '../src/data/homeContent.json';
 
 // --- Material Definition ---
@@ -626,7 +626,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             <group ref={groupRef} scale={scale}>
 
 
-                <mesh ref={meshRef}>
+                <mesh ref={meshRef} onClick={() => { if (onIntroComplete) (window as any).openHeroVideo?.(); }}>
                     <boxGeometry args={[3, 3, 3]} />
                     {[0, 1, 2, 3, 4, 5].map((index) => (
                         <VideoFace key={index} texture={sharedTexture} videoSize={videoSize} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
@@ -642,6 +642,58 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 </group>
             </group>
         </>
+    );
+};
+const VideoModal = ({ videoSrc, isOpen, onClose }: { videoSrc: string, isOpen: boolean, onClose: () => void }) => {
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-12"
+                    onClick={onClose}
+                >
+                    <motion.button
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        onClick={onClose}
+                        className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-[10000]"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </motion.button>
+
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        className="relative w-full max-w-6xl aspect-video bg-black shadow-2xl overflow-hidden border border-white/10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Tactical Brackets */}
+                        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/20 z-50 pointer-events-none" />
+                        <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white/20 z-50 pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white/20 z-50 pointer-events-none" />
+                        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white/20 z-50 pointer-events-none" />
+
+                        <video
+                            src={videoSrc}
+                            className="w-full h-full object-contain"
+                            controls
+                            autoPlay
+                            playsInline
+                        />
+
+                        <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">OFFICIAL SHOWREEL</h3>
+                            <p className="text-xs font-mono text-white/40 uppercase tracking-[0.3em] pl-4 border-l border-[#EF5304]">CORE_PROJECT_2026</p>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 
@@ -666,7 +718,14 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
     // Even if it played, we start loadProgress at 0 but speed up the loading time
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
+    const [isHeroVideoOpen, setIsHeroVideoOpen] = useState(false);
     const lastScrollTime = useRef(0);
+
+    // Expose openHeroVideo to the global scope for the Canvas component to reach it
+    useEffect(() => {
+        (window as any).openHeroVideo = () => setIsHeroVideoOpen(true);
+        return () => { delete (window as any).openHeroVideo; };
+    }, []);
 
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {
@@ -1029,6 +1088,12 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 )}
 
             </div>
+            
+            <VideoModal 
+                videoSrc={CUBE_VIDEO_URL} 
+                isOpen={isHeroVideoOpen} 
+                onClose={() => setIsHeroVideoOpen(false)} 
+            />
         </section>
     );
 };

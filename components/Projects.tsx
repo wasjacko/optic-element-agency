@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
 
 const PROJECTS = [
   {
@@ -39,7 +39,60 @@ const CARD_WIDTH = 250;
 const CARD_HEIGHT = 250;
 const GAP = 100;
 
-const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, index: number, scrollX: any }) => {
+const VideoModal = ({ video, isOpen, onClose }: { video: any, isOpen: boolean, onClose: () => void }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-12"
+          onClick={onClose}
+        >
+          <motion.button
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            onClick={onClose}
+            className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-[10000]"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </motion.button>
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-6xl aspect-video bg-black shadow-2xl overflow-hidden border border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Tactical Brackets */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/20 z-50 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white/20 z-50 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white/20 z-50 pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white/20 z-50 pointer-events-none" />
+
+            <video
+              src={video.src}
+              className="w-full h-full object-contain"
+              controls
+              autoPlay
+              playsInline
+            />
+
+            <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+              <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">{video.title}</h3>
+              <p className="text-xs font-mono text-white/40 uppercase tracking-[0.3em] pl-4 border-l border-[#EF5304]">{video.subtitle}</p>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const ParabolicCard = React.memo(({ project, index, scrollX, onClick }: { project: any, index: number, scrollX: any, onClick: () => void }) => {
   const myPosition = index * (CARD_WIDTH + GAP);
 
   const startTime = 5;
@@ -88,6 +141,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
   return (
     <motion.div
       ref={cardRef}
+      onClick={onClick}
       className="will-change-transform group cursor-pointer backface-hidden transform-gpu"
       style={{
         position: 'absolute',
@@ -144,7 +198,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
   );
 });
 
-const MobileProjectCard = ({ project }: { project: any }) => {
+const MobileProjectCard = ({ project, onClick }: { project: any, onClick: () => void }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { amount: 0.6 });
@@ -158,7 +212,7 @@ const MobileProjectCard = ({ project }: { project: any }) => {
   }, [isInView]);
 
   return (
-    <div ref={containerRef} className="min-w-[85vw] snap-center shrink-0">
+    <div ref={containerRef} onClick={onClick} className="min-w-[85vw] snap-center shrink-0">
       <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
         {/* Brackets */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
@@ -187,6 +241,7 @@ const MobileProjectCard = ({ project }: { project: any }) => {
 };
 
 export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, data?: any }> = ({ onWorksClick, title, data }) => {
+  const [selectedVideo, setSelectedVideo] = React.useState<any>(null);
   // Extract project from data.worksPage.services if available
   const cmsProjects = data?.worksPage?.services?.reduce((acc: any[], service: any) => {
     const serviceVideos = service.videos?.map((v: any, i: number) => ({
@@ -244,7 +299,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   ::-webkit-scrollbar { display: none; }
               `}</style>
             {sourceProjects.map((project: any, i: number) => (
-              <MobileProjectCard key={i} project={project} />
+              <MobileProjectCard key={i} project={project} onClick={() => setSelectedVideo(project)} />
             ))}
           </div>
           <div className="mt-8">
@@ -279,6 +334,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   index={i}
                   project={project}
                   scrollX={scrollX}
+                  onClick={() => setSelectedVideo(project)}
                 />
               ))}
             </div>
@@ -305,6 +361,11 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
           </div>
         </div>
       )}
+      <VideoModal
+        video={selectedVideo}
+        isOpen={!!selectedVideo}
+        onClose={() => setSelectedVideo(null)}
+      />
     </section>
   );
 };
