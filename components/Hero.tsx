@@ -174,37 +174,35 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
 const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026.mp4";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
-    const localTexture = useMemo(() => texture.clone(), [texture]);
-
     useEffect(() => {
-        const video = localTexture.image;
+        const video = texture.image;
         if (video instanceof HTMLVideoElement) {
             const handleResize = () => {
                 if (video.videoWidth && video.videoHeight) {
                     const videoAspect = video.videoWidth / video.videoHeight;
                     const targetAspect = 1.0;
                     if (videoAspect > targetAspect) {
-                        localTexture.repeat.set(targetAspect / videoAspect, 1);
-                        localTexture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
+                        texture.repeat.set(targetAspect / videoAspect, 1);
+                        texture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
                     } else {
-                        localTexture.repeat.set(1, videoAspect / targetAspect);
-                        localTexture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
+                        texture.repeat.set(1, videoAspect / targetAspect);
+                        texture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
                     }
-                    localTexture.matrixAutoUpdate = false;
-                    localTexture.updateMatrix();
+                    texture.matrixAutoUpdate = false;
+                    texture.updateMatrix();
                 }
             };
             if (video.readyState >= 1) handleResize();
             video.addEventListener('loadedmetadata', handleResize);
             return () => video.removeEventListener('loadedmetadata', handleResize);
         }
-    }, [localTexture]);
+    }, [texture]);
 
     return (
         <mesh ref={ref} scale={[0.99, 0.99, 0.99]}>
             <boxGeometry args={[3.0, 3.0, 3.0]} />
             {[0, 1, 2, 3, 4, 5].map((i) => (
-                <meshBasicMaterial key={i} attach={`material-${i}`} map={localTexture} toneMapped={false} />
+                <meshBasicMaterial key={i} attach={`material-${i}`} map={texture} toneMapped={false} />
             ))}
         </mesh>
     );
@@ -273,13 +271,20 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
     // LOAD VIDEO ONCE (SHARED) - Optimization for fast loading & Shader Fix
     const sharedTexture = useVideoTexture(INNER_CUBE_VIDEO, {
-        unsuspend: 'loadedmetadata',
         muted: true,
         loop: true,
         start: true,
         crossOrigin: 'Anonymous',
         playsInline: true
     });
+
+    useEffect(() => {
+        const video = sharedTexture.image;
+        if (video instanceof HTMLVideoElement) {
+            video.muted = true;
+            video.play().catch(() => { });
+        }
+    }, [sharedTexture]);
 
     const { viewport, gl } = useThree();
 
