@@ -1,7 +1,4 @@
-
-// Client for CMS Backend (localhost:3001)
-
-const API_URL = import.meta.env.VITE_AUTH_API_URL || "http://localhost:3001/api";
+const API_URL = "/api";
 
 export async function getCMSContent(): Promise<any> {
     try {
