@@ -1,10 +1,10 @@
 let _prisma: any = null;
 
-function getPrisma() {
+async function initPrisma() {
     if (!_prisma) {
         try {
-            // Dynamic require to avoid crash at import time if Prisma isn't configured
-            const { PrismaClient } = require('@prisma/client');
+            const mod = await import('@prisma/client');
+            const PrismaClient = mod.PrismaClient;
             _prisma = new PrismaClient();
         } catch (e: any) {
             console.error('Prisma initialization failed:', e.message);
@@ -14,10 +14,26 @@ function getPrisma() {
     return _prisma;
 }
 
-// Proxy that lazily initializes Prisma only when actually used
+// Export a function to get prisma lazily
+export async function getPrismaClient() {
+    return initPrisma();
+}
+
+// Also export a proxy for backward compatibility with sync access
 const prisma = new Proxy({} as any, {
     get(_target, prop) {
-        return getPrisma()[prop];
+        if (!_prisma) {
+            // If prisma hasn't been initialized yet, try sync approach
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const { PrismaClient } = require('@prisma/client') as any;
+                _prisma = new PrismaClient();
+            } catch (e: any) {
+                console.error('Prisma lazy init failed:', e.message);
+                throw new Error('Database not configured');
+            }
+        }
+        return _prisma[prop];
     }
 });
 
