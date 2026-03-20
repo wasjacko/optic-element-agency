@@ -7,18 +7,36 @@ import jwt from 'jsonwebtoken';
 // In production, use Redis or Database
 const otpStore = new Map<string, { code: string, expiresAt: number }>();
 
-const ALLOWED_ADMIN_EMAILS = (process.env.ALLOWED_EMAILS || "").split(",");
+const ALLOWED_ADMIN_EMAILS = (process.env.ALLOWED_EMAILS || "")
+    .replace(/"/g, "")
+    .split(",")
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+
+// Rate limit: track last OTP request time per email (30s cooldown)
+const otpCooldownStore = new Map<string, number>();
+const OTP_COOLDOWN_MS = 30 * 1000; // 30 seconds
 
 export const requestLoginCode = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { email } = req.body;
+        const { email: rawEmail } = req.body;
+        const email = (rawEmail || "").trim().toLowerCase();
 
         if (!email || !ALLOWED_ADMIN_EMAILS.includes(email)) {
             // Security: Always return success even if email is invalid to prevent enumeration
-            // But for this specific "single admin" case, we can be strict or loose.
-            // Let's just return success with a fake delay.
             await new Promise(r => setTimeout(r, 1000));
             return res.json({ success: true, message: "Code sent if email is authorized." });
+        }
+
+        // Check cooldown
+        const lastRequest = otpCooldownStore.get(email) || 0;
+        const elapsed = Date.now() - lastRequest;
+        if (elapsed < OTP_COOLDOWN_MS) {
+            const waitSec = Math.ceil((OTP_COOLDOWN_MS - elapsed) / 1000);
+            return res.status(429).json({ 
+                success: false, 
+                message: `Please wait ${waitSec}s before requesting a new code.` 
+            });
         }
 
         // Generate 6-digit Code
@@ -30,6 +48,9 @@ export const requestLoginCode = async (req: Request, res: Response): Promise<any
             expiresAt: Date.now() + 5 * 60 * 1000
         });
 
+        // Mark cooldown
+        otpCooldownStore.set(email, Date.now());
+
         // Send Email
         await sendLoginCode(email, code);
 
@@ -37,7 +58,7 @@ export const requestLoginCode = async (req: Request, res: Response): Promise<any
 
     } catch (error) {
         console.error("Login Request Error:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ success: false, message: "Server error. Please try again." });
     }
 };
 

@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../auth/AuthContext';
-import { Lock, Mail, ArrowRight, Loader2, Key } from 'lucide-react';
+import { Lock, Mail, ArrowRight, Loader2, Key, CheckCircle2, Timer } from 'lucide-react';
+
+const OTP_COOLDOWN = 30; // seconds
 
 export const LoginPage: React.FC = () => {
     const { requestOtp, verifyOtp, isLocked, lockoutTimeLeft } = useAuth();
@@ -15,9 +17,37 @@ export const LoginPage: React.FC = () => {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Cooldown state
+    const [cooldown, setCooldown] = useState(0);
+    const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Cleanup cooldown interval
+    useEffect(() => {
+        return () => {
+            if (cooldownRef.current) clearInterval(cooldownRef.current);
+        };
+    }, []);
+
+    const startCooldown = () => {
+        setCooldown(OTP_COOLDOWN);
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
+        cooldownRef.current = setInterval(() => {
+            setCooldown(prev => {
+                if (prev <= 1) {
+                    if (cooldownRef.current) clearInterval(cooldownRef.current);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (isLocked || isSubmitting) return;
+
+        // Block if cooldown is active (only for EMAIL step)
+        if (step === 'EMAIL' && cooldown > 0) return;
 
         setIsSubmitting(true);
         setError(false);
@@ -35,7 +65,8 @@ export const LoginPage: React.FC = () => {
                 const res = await requestOtp(email);
                 if (res.success) {
                     setStep('CODE');
-                    setMessage("An access code has been sent to your email.");
+                    setMessage("✓ Code sent — check your inbox.");
+                    startCooldown();
                 } else {
                     setError(true);
                     setMessage(res.message || "Failed to send code.");
@@ -57,7 +88,31 @@ export const LoginPage: React.FC = () => {
             }
         } catch (e) {
             setError(true);
-            setMessage("Network error. Please try again.");
+            setMessage("Connection error — server unreachable.");
+        }
+
+        setIsSubmitting(false);
+    };
+
+    const handleResendCode = async () => {
+        if (cooldown > 0 || isSubmitting || isLocked) return;
+
+        setIsSubmitting(true);
+        setError(false);
+        setMessage('');
+
+        try {
+            const res = await requestOtp(email);
+            if (res.success) {
+                setMessage("✓ New code sent — check your inbox.");
+                startCooldown();
+            } else {
+                setError(true);
+                setMessage(res.message || "Failed to resend code.");
+            }
+        } catch (e) {
+            setError(true);
+            setMessage("Connection error — server unreachable.");
         }
 
         setIsSubmitting(false);
@@ -144,33 +199,63 @@ export const LoginPage: React.FC = () => {
                     </div>
 
                     {/* Status Message */}
-                    {(error || message) && (
-                        <div className={`text-xs font-medium text-center p-3 rounded-lg ${error ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
-                            {message}
-                        </div>
-                    )}
+                    <AnimatePresence mode="wait">
+                        {(error || message) && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`text-xs font-medium text-center p-3 rounded-lg flex items-center justify-center gap-2 ${error ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}`}
+                            >
+                                {!error && <CheckCircle2 size={14} />}
+                                {message}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <button
                         type="submit"
-                        disabled={isLocked || isSubmitting}
+                        disabled={isLocked || isSubmitting || (step === 'EMAIL' && cooldown > 0)}
                         className="w-full bg-gray-900 hover:bg-black text-white font-medium text-sm rounded-xl py-3.5 transition-all shadow-lg shadow-gray-900/10 hover:shadow-gray-900/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (
                             <>
-                                {step === 'EMAIL' ? 'Send Code' : 'Verify & Login'}
-                                {!isSubmitting && <ArrowRight size={16} />}
+                                {step === 'EMAIL'
+                                    ? (cooldown > 0 ? `Wait ${cooldown}s` : 'Send Code')
+                                    : 'Verify & Login'
+                                }
+                                {!isSubmitting && cooldown === 0 && <ArrowRight size={16} />}
+                                {cooldown > 0 && step === 'EMAIL' && <Timer size={14} />}
                             </>
                         )}
                     </button>
 
                     {step === 'CODE' && (
-                        <button
-                            type="button"
-                            onClick={() => { setStep('EMAIL'); setError(false); setMessage(''); }}
-                            className="w-full text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors py-2"
-                        >
-                            Use a different email
-                        </button>
+                        <div className="flex items-center justify-between">
+                            <button
+                                type="button"
+                                onClick={() => { setStep('EMAIL'); setError(false); setMessage(''); setCooldown(0); if (cooldownRef.current) clearInterval(cooldownRef.current); }}
+                                className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors py-2"
+                            >
+                                ← Different email
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleResendCode}
+                                disabled={cooldown > 0 || isSubmitting || isLocked}
+                                className="text-xs font-medium transition-colors py-2 disabled:cursor-not-allowed"
+                                style={{ color: cooldown > 0 ? '#9ca3af' : '#EF5304' }}
+                            >
+                                {cooldown > 0 ? (
+                                    <span className="flex items-center gap-1">
+                                        <Timer size={12} />
+                                        Resend in {cooldown}s
+                                    </span>
+                                ) : (
+                                    'Resend code'
+                                )}
+                            </button>
+                        </div>
                     )}
 
                 </form>
