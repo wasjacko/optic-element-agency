@@ -3,14 +3,14 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "api/index.ts"
     }
   ],
-  "framework": "vite",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "vercel-node@latest"
+    }
+  },
   "installCommand": "npm install",
   "buildCommand": "vite build && prisma generate --schema=backend/prisma/schema.prisma"
 }
