@@ -4,10 +4,10 @@ import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo, useInVi
 import { Instagram, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 const REELS = [
+    { id: "R_06", client: "DR. MATT", url: "/assets/testimonial-matt.mp4", thumbnailTime: 1.0 },
     { id: "R_01", client: "OMAR ELATTAR", url: "/assets/testimonial-omar.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
     { id: "R_02", client: "MATTHEW WELSH", url: "/assets/testimonial-matthew.mp4", thumbnailTime: 1.0 },
     { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "/assets/testimonial-clarence.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
-    { id: "R_06", client: "DR. MATT", url: "/assets/testimonial-matt.mp4", thumbnailTime: 1.0 },
     { id: "R_07", client: "EUGENE NEAL", url: "/assets/eugene-neal.mp4", thumbnailTime: 0.5 },
     { id: "R_08", client: "BRETT", url: "/assets/brett.mp4", thumbnailTime: 1.0 }
 ];
@@ -109,8 +109,8 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                 {/* Video / Thumbnail */}
                 <video
                     ref={videoRef}
-                    src={reel.url}
-                    poster={reel.url.replace(/\.(mp4|mov)/, '.jpg')}
+                    src={reel.url || reel.src}
+                    poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                     loop
                     muted
                     playsInline
@@ -131,10 +131,10 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
 
                     <div className="space-y-4">
                         <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans tracking-tight drop-shadow-lg break-words break-all whitespace-normal">
-                            {reel.client}
+                            {reel.client || reel.title}
                         </h3>
                         <div className="flex items-center gap-3">
-                            <span className="h-[1px] w-8 bg-[#FF5000]"></span>
+                            <span className="h-[1px] w-8 bg-[#EF5304]"></span>
                             <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr">WATCH VIDEO</span>
                         </div>
                     </div>
@@ -268,8 +268,8 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
 
             <video
                 ref={videoRef}
-                src={reel.url}
-                poster={reel.url.replace(/\.(mp4|mov)/, '.jpg')}
+                src={reel.url || reel.src}
+                poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                 loop
                 muted
                 playsInline
@@ -280,10 +280,10 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
             <div className="absolute inset-0 flex flex-col justify-end p-5 pointer-events-none">
                 <div className="space-y-3">
                     <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight break-words break-all whitespace-normal">
-                        {reel.client}
+                        {reel.client || reel.title}
                     </h3>
                     <div className="flex items-center gap-3">
-                        <span className="h-[2px] w-8 bg-[#FF5000]"></span>
+                        <span className="h-[2px] w-8 bg-[#EF5304]"></span>
                         <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr font-bold">Watch</span>
                     </div>
                 </div>
@@ -410,6 +410,11 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
 export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     const activeReels = data?.reels || REELS;
     const activeReviews = data?.reviews || GOOGLE_REVIEWS;
+    
+    // We append copies if we want a looping slider on desktop, 
+    // but the component logic below might need adjustment if count is small.
+    const sliderReviews = activeReviews.length > 0 ? [...activeReviews, ...activeReviews] : [];
+
     const [visibleReviews, setVisibleReviews] = useState(3);
     const [isMobile, setIsMobile] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -423,11 +428,13 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     }, []);
 
     const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+        const pageCount = Math.ceil(sliderReviews.length / ITEMS_PER_VIEW);
+        setCurrentIndex((prev) => (prev + 1) % pageCount);
     };
 
     const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + Math.ceil(activeReviews.length / ITEMS_PER_VIEW)) % Math.ceil(activeReviews.length / ITEMS_PER_VIEW));
+        const pageCount = Math.ceil(sliderReviews.length / ITEMS_PER_VIEW);
+        setCurrentIndex((prev) => (prev - 1 + pageCount) % pageCount);
     };
 
     const loadMore = () => {
@@ -439,15 +446,15 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     };
 
     return (
-        <section id="testimonials" className="relative z-10 w-full bg-white pt-16 sm:pt-24 pb-12 md:pt-16 md:pb-32 border-t border-black/[0.05] overflow-hidden">
+        <section id="testimonials" className="relative z-10 w-full pt-16 sm:pt-24 pb-12 md:pt-16 md:pb-32 border-t border-black/[0.05] overflow-hidden" style={{ backgroundColor: data?.backgroundColor || '#ffffff' }}>
             {/* Light Mode Glow (Subtle) */}
-            <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply bg-[#FF5000]/10" />
+            <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] blur-[120px] rounded-full pointer-events-none opacity-40 mix-blend-multiply" style={{ backgroundColor: data?.accentColor || '#EF5304' }} />
 
             <div className="w-full px-8 md:px-4 max-w-[1600px] mx-auto relative z-10">
 
                 {/* Section Header */}
                 <div className="flex flex-col items-center mt-4 md:mt-8 mb-16 text-center px-10 md:px-6">
-                    <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap text-black drop-shadow-sm">
+                    <h2 className="font-sans font-black tracking-widest text-2xl md:text-4xl uppercase leading-none whitespace-nowrap drop-shadow-sm" style={{ color: data?.titleColor || '#000000' }}>
                         {data?.title || "VIDEO TESTIMONIALS"}
                     </h2>
                 </div>
@@ -464,7 +471,7 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                 {/* Google Testimonials Header & Nav */}
                 <div className="border-t border-black/[0.05] pt-12 pb-16 relative">
                     <div className="flex justify-center mb-6">
-                        <h3 className="text-black font-ocr text-xs tracking-[0.2em] uppercase font-bold text-center">
+                        <h3 className="font-ocr text-xs tracking-[0.2em] uppercase font-bold text-center" style={{ color: data?.titleColor || '#000000' }}>
                             {data?.reviewsTitle || "CLIENT REVIEWS"}
                         </h3>
                     </div>
@@ -492,7 +499,7 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                                     animate={{ x: `-${currentIndex * 100}%` }}
                                     transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
                                 >
-                                    {activeReviews.map((review: any, i: number) => (
+                                    {sliderReviews.map((review: any, i: number) => (
                                         <motion.div
                                             key={review.id}
                                             className="min-w-full md:min-w-[25%] px-3 shrink-0"
@@ -518,12 +525,13 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                                 {visibleReviews < Math.min(activeReviews.length, 9) && (
                                     <button
                                         onClick={loadMore}
-                                        className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
+                                        className="group relative px-6 py-3 transition-all duration-500 overflow-hidden border hover:opacity-80"
+                                        style={{ borderColor: data?.titleColor || '#000000', color: data?.titleColor || '#000000', backgroundColor: 'transparent' }}
                                     >
-                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
-                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
-                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
-                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
                                         <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">SEE MORE</span>
                                     </button>
                                 )}
@@ -531,12 +539,13 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                                 {visibleReviews > 3 && (
                                     <button
                                         onClick={showLess}
-                                        className="group relative px-6 py-3 bg-white/5 hover:bg-black transition-all duration-500 overflow-hidden border border-black/10 hover:border-black text-black hover:text-white"
+                                        className="group relative px-6 py-3 transition-all duration-500 overflow-hidden border hover:opacity-80"
+                                        style={{ borderColor: data?.titleColor || '#000000', color: data?.titleColor || '#000000', backgroundColor: 'transparent' }}
                                     >
-                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black transition-colors" />
-                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black transition-colors" />
-                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black transition-colors" />
-                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black transition-colors" />
+                                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
+                                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors" style={{ borderColor: data?.titleColor || '#000000' }} />
                                         <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] whitespace-nowrap">SEE LESS</span>
                                     </button>
                                 )}

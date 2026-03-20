@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical, RotateCcw, AlertCircle, Clock, ChevronRight } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { getCMSContent, saveCMSContent } from '../../src/utils/cms-client';
 
@@ -11,6 +11,7 @@ import { Brands } from '../Brands';
 import { VideoSection } from '../VideoSection';
 import { Projects } from '../Projects';
 import { ProcessSprint } from '../ProcessSprint';
+import { MissingElements } from '../MissingElements';
 import { Testimonials } from '../Testimonials';
 import { About } from '../About';
 import { ContactPage } from '../ContactPage';
@@ -27,10 +28,21 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [content, setContent] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isResetting, setIsResetting] = useState(false);
     const [status, setStatus] = useState<string>('');
     const [activePage, setActivePage] = useState<string>('home');
     const [activeSection, setActiveSection] = useState<string>('hero');
     const [previewKey, setPreviewKey] = useState(0);
+    const [pendingCount, setPendingCount] = useState(0);
+    const [latestBookings, setLatestBookings] = useState<any[]>([]);
+    const [isDirty, setIsDirty] = useState(false);
+    const [toasts, setToasts] = useState<{ id: string, message: string, type: 'success' | 'error' | 'info' }[]>([]);
+
+    const addToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+        const id = Math.random().toString(36).substr(2, 9);
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+    };
 
     // Live Theme Preview
     useEffect(() => {
@@ -42,69 +54,74 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     }, [content]);
 
-    // Fetch on mount
     useEffect(() => {
         setIsLoading(true);
-        getCMSContent().then(data => {
+
+        const fetchAll = async () => {
+            const data = await getCMSContent();
             if (data) {
-                // Ensure brands object exists with defaults if missing
-                if (!data.brands) {
-                    data.brands = {
-                        title: "Brands We Serve",
-                        items: [
-                            "Investor Lift", "The Passionate Few", "LGC I Power",
-                            "The Coffe Co", "Devotion To Dogs", "The Maverick Entrepreneur",
-                            "Exhort Else", "Mindcore", "Minico Shibin", "Unbroken Fitness Solution"
-                        ],
-                        backgroundColor: "#0d0d0d",
-                        titleColor: "#ff7300",
-                        brandColor: "#ffffff"
-                    };
-                }
+                const mergeDefaults = (obj: any, defaults: any) => {
+                    const res = { ...defaults, ...(obj || {}) };
+                    for (const key in defaults) {
+                        if (res[key] === undefined || res[key] === '') {
+                            res[key] = defaults[key];
+                        }
+                    }
+                    return res;
+                };
 
-                // Ensure Sprint object exists
-                if (!data.sprint) {
-                    data.sprint = {
-                        title: "S.P.R.I.N.T",
-                        subtitle: "// our proven system",
-                        cta: "OUR DETAILLED PROCESS",
-                        steps: [
-                            { id: "01", title: "STRATEGY", first: "S", rest: "TRATEGY", detail: "Define the Vision" },
-                            { id: "02", title: "PLAN", first: "P", rest: "LAN", detail: "Map Out the Content" },
-                            { id: "03", title: "ROLE", first: "R", rest: "OLE", detail: "Lights, Camera, Action." },
-                            { id: "04", title: "INITIATE", first: "I", rest: "NITIATE", detail: "Edit + Polish" },
-                            { id: "05", title: "NOTIFY", first: "N", rest: "OTIFY", detail: "Get Your Input" },
-                            { id: "06", title: "TAKEOFF", first: "T", rest: "AKEOFF", detail: "Launch & Celebrate" }
-                        ]
-                    };
-                }
+                data.hero = mergeDefaults(data.hero, {
+                    title: "VISUAL MATTER", phase1: "BRANDS WE", phase1Highlight: "SERVE", phase2: "NOT ON", phase2Highlight: "THE MENU", cta: "VIEW OUR WORK"
+                });
 
-                if (!data.testimonials) {
-                    data.testimonials = {
-                        title: "VIDEO TESTIMONIALS",
-                        reviewsTitle: "CLIENT REVIEWS"
-                    };
-                }
+                data.brands = mergeDefaults(data.brands, {
+                    title: "Brands We Serve",
+                    items: [
+                        "Investor Lift", "The Passionate Few", "LGC I Power",
+                        "The Coffe Co", "Devotion To Dogs", "The Maverick Entrepreneur",
+                        "Exhort Else", "Mindcore", "Minico Shibin", "Unbroken Fitness Solution"
+                    ]
+                });
 
-                // Ensure Video object exists
-                if (!data.video) {
-                    data.video = {
-                        title: "Showreel",
-                        backgroundColor: "#000000",
-                        accentColor: "#FF5000",
-                        videoUrl: "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4"
-                    };
-                }
+                data.sprint = mergeDefaults(data.sprint, {
+                    title: "S.P.R.I.N.T", subtitle: "// our proven system", cta: "OUR DETAILLED PROCESS", steps: [
+                        { id: "01", title: "STRATEGY", first: "S", rest: "TRATEGY", detail: "Define the Vision" },
+                        { id: "02", title: "PLAN", first: "P", rest: "LAN", detail: "Map Out the Content" },
+                        { id: "03", title: "ROLE", first: "R", rest: "OLE", detail: "Lights, Camera, Action." },
+                        { id: "04", title: "INITIATE", first: "I", rest: "NITIATE", detail: "Edit + Polish" },
+                        { id: "05", title: "NOTIFY", first: "N", rest: "OTIFY", detail: "Get Your Input" },
+                        { id: "06", title: "TAKEOFF", first: "T", rest: "AKEOFF", detail: "Launch & Celebrate" }
+                    ]
+                });
 
-                // Default Data for Pages
-                // Default Data for Pages
-                if (!data.about) data.about = { title: "Who We Are", teamCta: "JOIN_THE_TEAM", videoUrl: "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4" };
-                else if (!data.about.videoUrl) data.about.videoUrl = "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4";
+                data.testimonials = mergeDefaults(data.testimonials, {
+                    title: "VIDEO TESTIMONIALS", reviewsTitle: "CLIENT REVIEWS", reels: [
+                        { id: "R_06", title: "DR. MATT", src: "/assets/testimonial-matt.mp4" },
+                        { id: "R_01", title: "OMAR ELATTAR", src: "/assets/testimonial-omar.mp4" },
+                        { id: "R_02", title: "MATTHEW WELSH", src: "/assets/testimonial-matthew.mp4" },
+                        { id: "R_03", title: "DR. CLARENCE LEE JR.", src: "/assets/testimonial-clarence.mp4" },
+                        { id: "R_07", title: "EUGENE NEAL", src: "/assets/eugene-neal.mp4" },
+                        { id: "R_08", title: "BRETT", src: "/assets/brett.mp4" }
+                    ]
+                });
 
-                if (!data.contact) data.contact = { titleLine1: "SCHEDULE A", titleLine2: "CALL", titleLine3: "WITH", titleLine4: "SANTIAGO", description: "Book a call with our team. This call is to learn more about your business and if Optic Element is a good fit to help you achieve your goals." };
-                if (!data.processPage) data.processPage = { title: "Our Process", subtitle: "Our strategy to get you leads with content" };
+                data.video = mergeDefaults(data.video, { title: "Showreel", videoUrl: "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4" });
 
-                if (!data.worksPage) data.worksPage = { cta: "SCHEDULE_CALL" };
+                data.projects = mergeDefaults(data.projects, {
+                    title: "PROJECTS", cta: "VIEW OUR WORK", videos: [
+                        { title: "PROPERTY 06", subtitle: "NUMERO 0001", src: "/assets/property-06.mp4" },
+                        { title: "THE ONE", subtitle: "NUMERO 0002", src: "/assets/the-one.mp4" },
+                        { title: "SEASON TRAILER", subtitle: "NUMERO 0003", src: "/assets/season-trailer.mp4" },
+                        { title: "PROPERTY 07", subtitle: "NUMERO 0004", src: "/assets/property-07.mp4" },
+                        { title: "MAFIA BOSS", subtitle: "NUMERO 0005", src: "/assets/ex-mafia.mp4" }
+                    ]
+                });
+
+                data.about = mergeDefaults(data.about, { title: "Who We Are", teamCta: "JOIN THE TEAM", videoUrl: "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4" });
+                data.contact = mergeDefaults(data.contact, { titleLine1: "SCHEDULE A", titleLine2: "CALL", titleLine3: "WITH", titleLine4: "SANTIAGO", description: "Book a call with our team. This call is to learn more about your business and if Optic Element is a good fit to help you achieve your goals." });
+                data.processPage = mergeDefaults(data.processPage, { title: "Our Process", subtitle: "Our strategy to get you leads with content" });
+
+                data.worksPage = mergeDefaults(data.worksPage, { cta: "SCHEDULE_CALL" });
                 // Initialize default services for Works Page if missing
                 if (!data.worksPage.services) {
                     data.worksPage.services = [
@@ -147,11 +164,24 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
                 setContent(data);
             }
+
+            // Fetch bookings count
+            try {
+                const client = await import('../../src/utils/booking-client');
+                const bData = await client.getAdminBookings();
+                const pending = bData.filter((b: any) => b.status === 'PENDING');
+                setPendingCount(pending.length);
+                setLatestBookings(pending.slice(0, 5));
+            } catch (err) {
+                console.error("Booking count error:", err);
+            }
+
             setIsLoading(false);
-        });
+        };
+
+        fetchAll();
     }, []);
 
-    // Auto-scroll to active section in preview
     useEffect(() => {
         const element = document.getElementById(`preview-${activeSection}`);
         const container = document.getElementById('preview-container');
@@ -163,6 +193,18 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     }, [activeSection, content]);
 
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                handleSave();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [content, isDirty]);
+
     const handleSave = async () => {
         if (!content) return;
         setIsSaving(true);
@@ -173,29 +215,35 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
         if (res.success) {
             setStatus('Syncing...');
-            // 2. Verify Persistence by Re-fetching (Bypassing potential local state drifts)
             const freshData = await getCMSContent();
             if (freshData) {
                 setContent(freshData);
-                // Status will be set after delay to be visible
+                setIsDirty(false);
+                addToast('Changes saved successfully!', 'success');
             }
         } else {
             setStatus('Error Saving');
+            addToast('Failed to save changes.', 'error');
         }
-
-        // Artificial delay for better UX perception
-        await new Promise(resolve => setTimeout(resolve, 1500));
 
         setIsSaving(false);
+        setTimeout(() => setStatus(''), 2000);
+    };
 
-        if (res.success) {
-            setStatus('Saved & Verified');
+    const handleReset = async () => {
+        const freshData = await getCMSContent();
+        if (freshData) {
+            setContent(freshData);
+            setIsDirty(false);
+            addToast('Edits reverted.', 'info');
+        } else {
+            addToast('Failed to reset.', 'error');
         }
-
-        setTimeout(() => setStatus(''), 3000);
+        setIsResetting(false);
     };
 
     const updateField = (section: string, field: string, value: any) => {
+        setIsDirty(true);
         setContent((prev: any) => ({
             ...prev,
             [section]: {
@@ -205,44 +253,90 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         }));
     };
 
-    if (isLoading) {
+    if (isLoading || !content) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center flex-col gap-4">
                 <Loader2 className="animate-spin text-gray-400" size={24} />
+                {!content && !isLoading && (
+                    <div className="text-center">
+                        <p className="text-sm font-bold text-red-600 uppercase tracking-widest">Initialization Failed</p>
+                        <p className="text-xs text-gray-500 mt-1">Unable to load website content. Please check your connection or restart the API.</p>
+                        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-black text-white text-[10px] font-bold uppercase rounded-sm">Retry Sync</button>
+                    </div>
+                )}
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col h-screen overflow-hidden" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
-
+        <div className="admin-theme min-h-screen bg-gray-50 text-gray-900 flex flex-col h-screen overflow-hidden">
+            <style>{`
+                @font-face {
+                    font-family: 'CustomArial';
+                    src: url('/assets/ArialCE.ttf') format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                .admin-theme *:not(#preview-wrapper):not(#preview-wrapper *) {
+                    font-family: 'CustomArial', sans-serif !important;
+                }
+            `}</style>
             {/* Top Navigation */}
             <header className="bg-white border-b border-gray-200 z-30 shrink-0">
 
                 <div className="w-full px-10 md:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <span className="font-bold text-lg tracking-tight">OPTIC ELEMENT</span>
-                        <div className="h-4 w-[1px] bg-gray-300 mx-2"></div>
-                        <span className="text-sm text-gray-500">Content Manager</span>
+                    <div className="flex items-center gap-2 md:gap-4 overflow-x-auto custom-scrollbar">
+                        <button 
+                            onClick={onBack}
+                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-black mr-2"
+                            title="Back to Website"
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                        <span className="font-bold text-lg tracking-tight mr-4 shrink-0">OPTIC ELEMENT</span>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                            <NavTab active={activePage === 'home'} onClick={() => { setActivePage('home'); setActiveSection('hero'); }} label="Home" />
+                            <NavTab active={activePage === 'about'} onClick={() => { setActivePage('about'); setActiveSection('header'); }} label="About" />
+                            <NavTab active={activePage === 'process'} onClick={() => { setActivePage('process'); setActiveSection('header'); }} label="Process" />
+                            <NavTab active={activePage === 'works'} onClick={() => { setActivePage('works'); setActiveSection('gallery'); }} label="Works" />
+                            <NavTab active={activePage === 'bookings'} badge={pendingCount} onClick={() => { setActivePage('bookings'); setActiveSection('requests'); }} label="Requests" />
+                            <NavTab active={activePage === 'lab'} onClick={() => { setActivePage('lab'); setActiveSection('content'); }} label="Booking Page" />
+                            <NavTab active={activePage === 'contact'} onClick={() => { setActivePage('contact'); setActiveSection('intro'); }} label="Contact" />
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        {status && (
-                            <div className={`text-xs flex items-center gap-2 ${status === 'Error' ? 'text-red-600' : 'text-green-600'}`}>
-                                {status === 'Saved' && <Check size={14} />}
-                                {status}
-                            </div>
-                        )}
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all disabled:opacity-50"
-                        >
-                            {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                            {isSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
-                        <div className="h-4 w-[1px] bg-gray-200"></div>
-                        <button onClick={() => { logout(); onBack(); }} className="text-xs font-medium text-gray-500 hover:text-black">Exit</button>
+                    <div className="flex items-center gap-4 shrink-0">
+                        <div className="flex items-center gap-4 relative">
+                            {isDirty && (
+                                <motion.div 
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="px-2 py-0.5 bg-orange-100 text-orange-600 text-[10px] font-bold rounded-full border border-orange-200"
+                                >
+                                    Unsaved Changes
+                                </motion.div>
+                            )}
+                            <button
+                                onClick={handleReset}
+                                disabled={isResetting || isSaving || !isDirty}
+                                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all disabled:opacity-30"
+                                title="Revert to last saved version"
+                            >
+                                {isResetting ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+                                {isResetting ? 'Resetting...' : 'Undo'}
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving || !isDirty}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${isDirty ? 'bg-black text-white shadow-black/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'}`}
+                            >
+                                {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                                {isSaving ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </div>
+                        <div className="h-4 w-[1px] bg-gray-200 mx-2"></div>
+                        <button onClick={() => { if (isDirty && !window.confirm('Unsaved changes will be lost. Exit?')) return; logout(); onBack(); }} className="text-xs font-medium text-gray-500 hover:text-black hover:underline px-2 py-1">Exit</button>
                     </div>
                 </div>
             </header>
@@ -250,21 +344,9 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <main className="flex-1 flex overflow-hidden">
 
                 {/* LEFT: Editor Sidebar */}
-                <div className="w-[320px] bg-gray-50 border-r border-gray-200 flex flex-col overflow-y-auto shrink-0 z-20">
+                <div className="w-[500px] bg-gray-50 border-r border-gray-200 flex flex-col overflow-y-auto shrink-0 z-20">
 
                     {/* Navigation Tabs */}
-                    {/* Navigation Tabs - Level 1: Pages */}
-                    <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
-                        <div className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Select Page</div>
-                        <div className="flex flex-col px-2 pb-2 gap-1">
-                            <NavTab active={activePage === 'home'} onClick={() => { setActivePage('home'); setActiveSection('hero'); }} label="Home" />
-                            <NavTab active={activePage === 'about'} onClick={() => { setActivePage('about'); setActiveSection('header'); }} label="About" />
-                            <NavTab active={activePage === 'process'} onClick={() => { setActivePage('process'); setActiveSection('header'); }} label="Process" />
-                            <NavTab active={activePage === 'works'} onClick={() => { setActivePage('works'); setActiveSection('gallery'); }} label="Works" />
-                            <NavTab active={activePage === 'bookings'} onClick={() => { setActivePage('bookings'); setActiveSection('bookings'); }} label="Bookings" />
-                            <NavTab active={activePage === 'contact'} onClick={() => { setActivePage('contact'); setActiveSection('intro'); }} label="Contact" />
-                        </div>
-                    </div>
 
                     {/* Navigation Tabs - Level 2: Home Sections (Only visible if Home is active) */}
                     {activePage === 'home' && (
@@ -273,8 +355,8 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <div className="grid grid-cols-2 gap-2">
                                 <SubNavTab active={activeSection === 'hero'} onClick={() => setActiveSection('hero')} label="Hero" />
                                 <SubNavTab active={activeSection === 'brands'} onClick={() => setActiveSection('brands')} label="Brands" />
-                                <SubNavTab active={activeSection === 'video'} onClick={() => setActiveSection('video')} label="Video" />
                                 <SubNavTab active={activeSection === 'sprint'} onClick={() => setActiveSection('sprint')} label="Sprint" />
+                                <SubNavTab active={activeSection === 'missingElements'} onClick={() => setActiveSection('missingElements')} label="Elements" />
                                 <SubNavTab active={activeSection === 'works'} onClick={() => setActiveSection('works')} label="Projects" />
                                 <SubNavTab active={activeSection === 'testimonials'} onClick={() => setActiveSection('testimonials')} label="Reviews" />
                             </div>
@@ -315,12 +397,100 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <div className="px-2 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Sections</div>
                             <div className="grid grid-cols-2 gap-2">
                                 <SubNavTab active={activeSection === 'intro'} onClick={() => setActiveSection('intro')} label="Intro" />
+                                <SubNavTab active={activeSection === 'calendar'} onClick={() => setActiveSection('calendar')} label="Calendar API" />
                             </div>
                         </div>
                     )}
 
+                    {activePage === 'bookings' && (
+                        <div className="p-6 space-y-6">
+                            <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4">
+                                <h3 className="text-xs font-bold text-yellow-800 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <Clock size={14} /> Attention Required
+                                </h3>
+                                <p className="text-xs text-yellow-700 leading-relaxed">
+                                    You have <strong>{pendingCount}</strong> pending booking requests waiting for confirmation or rejection.
+                                </p>
+                            </div>
+
+                            {latestBookings.length > 0 && (
+                                <div className="space-y-4">
+                                    <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Latest Requests</h3>
+                                    <div className="space-y-2">
+                                        {latestBookings.map(b => (
+                                            <div key={b.id} className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm hover:border-black transition-all cursor-pointer" onClick={() => setActivePage('bookings')}>
+                                                <div className="font-bold text-xs truncate">{b.name}</div>
+                                                <div className="text-[10px] text-gray-500 mt-1">{new Date(b.start).toLocaleDateString()} at {new Date(b.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Breadcrumbs */}
+                    <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] z-20">
+                        <span className="text-black">{activePage}</span>
+                        <ChevronRight size={10} className="text-gray-300" />
+                        <span className="text-gray-900">{activeSection}</span>
+                    </div>
+
                     {/* Edit Form */}
-                    <div className="p-6 space-y-8 pb-32">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+                        {/* Dynamic Background Wrapper to match preview */}
+                        <motion.div 
+                            key={`${activePage}-${activeSection}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="min-h-full p-6 space-y-8 pb-32 transition-colors duration-500"
+                            style={{ 
+                                backgroundColor: (() => {
+                                    if (activePage === 'home') {
+                                        if (activeSection === 'hero') return content.hero?.backgroundColor || '#121212';
+                                        if (activeSection === 'brands') return content.brands?.backgroundColor || '#0d0d0d';
+                                        if (activeSection === 'works') return content.projects?.backgroundColor || '#0d0d0d';
+                                        if (activeSection === 'sprint') return content.sprint?.backgroundColor || '#0d0d0d';
+                                        if (activeSection === 'testimonials') return content.testimonials?.backgroundColor || '#ffffff';
+                                        if (activeSection === 'missingElements') return content.missingElements?.backgroundColor || '#ffffff';
+                                        if (activeSection === 'about') return content.about?.backgroundColor || '#ffffff';
+                                        if (activeSection === 'contact') return content.contact?.backgroundColor || '#ffffff';
+                                        if (activeSection === 'lab') return '#ffffff';
+                                    }
+                                    if (activePage === 'about') return content.about?.backgroundColor || '#ffffff';
+                                    if (activePage === 'contact') return content.contact?.backgroundColor || '#ffffff';
+                                    if (activePage === 'works') return content.worksPage?.backgroundColor || '#ffffff';
+                                    if (activePage === 'process') return content.processPage?.backgroundColor || '#000000';
+                                    if (activePage === 'lab') return content.lab?.backgroundColor || '#ffffff';
+                                    return '#ffffff';
+                                })()
+                            }}
+                        >
+                            {/* Force Text Color based on BG Brightness (simplified: check if dark) */}
+                            <div style={{ 
+                                color: (() => {
+                                    const bg = (() => {
+                                        if (activePage === 'home') {
+                                            if (activeSection === 'hero') return content.hero?.backgroundColor || '#121212';
+                                            if (activeSection === 'brands') return content.brands?.backgroundColor || '#0d0d0d';
+                                            if (activeSection === 'works') return content.projects?.backgroundColor || '#0d0d0d';
+                                            if (activeSection === 'sprint') return content.sprint?.backgroundColor || '#0d0d0d';
+                                            if (activeSection === 'testimonials') return content.testimonials?.backgroundColor || '#ffffff';
+                                            if (activeSection === 'missingElements') return content.missingElements?.backgroundColor || '#ffffff';
+                                        }
+                                        if (activePage === 'about') return content.about?.backgroundColor || '#ffffff';
+                                        if (activePage === 'contact') return content.contact?.backgroundColor || '#ffffff';
+                                        if (activePage === 'works') return content.worksPage?.backgroundColor || '#ffffff';
+                                        if (activePage === 'process') return content.processPage?.backgroundColor || '#000000';
+                                        return '#ffffff';
+                                    })();
+                                    // Basic dark mode detection (hex)
+                                    const isDark = bg.toLowerCase().includes('#0d0d0d') || bg.toLowerCase().includes('#121212') || bg.toLowerCase().includes('#000000') || bg.toLowerCase().includes('#1a1a1a');
+                                    return isDark ? '#ffffff' : '#000000';
+                                })()
+                            }} className="space-y-8">
+
                         {/* --- HOME SECTIONS --- */}
                         {activePage === 'home' && activeSection === 'hero' && content?.hero && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
@@ -361,53 +531,252 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Brands Styling</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     <ColorInput label="Background" value={content.brands.backgroundColor} onChange={(v) => updateField('brands', 'backgroundColor', v)} />
-                                    <ColorInput label="Title Text" value={content.brands.titleColor} onChange={(v) => updateField('brands', 'titleColor', v)} />
-                                    <ColorInput label="Brand Names" value={content.brands.brandColor} onChange={(v) => updateField('brands', 'brandColor', v)} />
+                                    <ColorInput label="Section Title Text" value={content.brands.titleColor} onChange={(v) => updateField('brands', 'titleColor', v)} />
+                                    <ColorInput label="KPI Numbers" value={content.brands.kpiNumberColor} onChange={(v) => updateField('brands', 'kpiNumberColor', v)} />
+                                    <ColorInput label="KPI Labels" value={content.brands.kpiLabelColor} onChange={(v) => updateField('brands', 'kpiLabelColor', v)} />
                                 </div>
 
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Content</h3>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Brands Titles & Sections</h3>
                                 <InputGroup label="Section Title" value={content.brands.title} onChange={(v) => updateField('brands', 'title', v)} />
-                                <div className="group">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 transition-colors group-focus-within:text-black">Brand Names (One per line)</label>
-                                    <textarea
-                                        rows={8}
-                                        value={Array.isArray(content.brands.items) ? content.brands.items.join('\n') : ''}
-                                        onChange={(e) => updateField('brands', 'items', e.target.value.split('\n'))}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all placeholder:text-gray-300 resize-none font-medium custom-scrollbar"
-                                        placeholder="Google&#10;Nike&#10;Apple..."
+
+                                <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                                    <label className="text-[10px] font-bold uppercase text-gray-400 block mb-3">Brand Logos</label>
+                                    <ImageListManager 
+                                        images={content.brands.logos || [
+                                            "/assets/brands/brand_1.png", "/assets/brands/brand_2.png", 
+                                            "/assets/brands/brand_3.png", "/assets/brands/brand_4.png", 
+                                            "/assets/brands/brand_5.png", "/assets/brands/brand_6.png", 
+                                            "/assets/brands/brand_7.png"
+                                        ]} 
+                                        onChange={(newLogos) => updateField('brands', 'logos', newLogos)} 
                                     />
+                                </div>
+
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mt-8 mb-4">KPIs</h3>
+                                <div className="space-y-4">
+                                    {(content.brands.kpis || [
+                                        { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                        { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                        { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                    ]).map((kpi: any, idx: number) => (
+                                        <div key={idx} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                            <div className="text-[10px] font-bold uppercase text-gray-400 mb-3 flex items-center justify-between">
+                                                <span>KPI {idx + 1}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                                <InputGroup label="Number" value={String(kpi.number)} onChange={(v) => {
+                                                    const newKpis = [...(content.brands.kpis || [
+                                                        { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                                        { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                                        { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                                    ])];
+                                                    newKpis[idx].number = Number(v);
+                                                    updateField('brands', 'kpis', newKpis);
+                                                }} />
+                                                <InputGroup label="Prefix (e.g. $)" value={kpi.prefix} onChange={(v) => {
+                                                    const newKpis = [...(content.brands.kpis || [
+                                                        { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                                        { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                                        { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                                    ])];
+                                                    newKpis[idx].prefix = v;
+                                                    updateField('brands', 'kpis', newKpis);
+                                                }} />
+                                                <InputGroup label="Suffix (e.g. +)" value={kpi.suffix} onChange={(v) => {
+                                                    const newKpis = [...(content.brands.kpis || [
+                                                        { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                                        { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                                        { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                                    ])];
+                                                    newKpis[idx].suffix = v;
+                                                    updateField('brands', 'kpis', newKpis);
+                                                }} />
+                                                <InputGroup label="Label" value={kpi.label} onChange={(v) => {
+                                                    const newKpis = [...(content.brands.kpis || [
+                                                        { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
+                                                        { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
+                                                        { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
+                                                    ])];
+                                                    newKpis[idx].label = v;
+                                                    updateField('brands', 'kpis', newKpis);
+                                                }} />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
 
-                        {activePage === 'home' && activeSection === 'works' && content?.works && (
+                        {activePage === 'home' && activeSection === 'works' && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Works Styling</h3>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Projects Styling</h3>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <ColorInput label="Background" value={content.works.backgroundColor} onChange={(v) => updateField('works', 'backgroundColor', v)} />
-                                    <ColorInput label="Section Title" value={content.works.titleColor} onChange={(v) => updateField('works', 'titleColor', v)} />
-                                    <ColorInput label="Card Titles" value={content.works.cardTitleColor} onChange={(v) => updateField('works', 'cardTitleColor', v)} />
+                                    <ColorInput label="Background" value={content.projects?.backgroundColor} onChange={(v) => updateField('projects', 'backgroundColor', v)} />
+                                    <ColorInput label="Section Title" value={content.projects?.titleColor} onChange={(v) => updateField('projects', 'titleColor', v)} />
+                                    <ColorInput label="Text" value={content.projects?.textColor} onChange={(v) => updateField('projects', 'textColor', v)} />
+                                    <ColorInput label="Accent" value={content.projects?.accentColor} onChange={(v) => updateField('projects', 'accentColor', v)} />
+                                    <ColorInput label="Button Bg" value={content.projects?.ctaBg} onChange={(v) => updateField('projects', 'ctaBg', v)} />
+                                    <ColorInput label="Button Text" value={content.projects?.ctaText} onChange={(v) => updateField('projects', 'ctaText', v)} />
                                 </div>
 
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Content</h3>
-                                <InputGroup label="Section Title" value={content.works.title} onChange={(v) => updateField('works', 'title', v)} />
+                                <InputGroup label="Section Title" value={content.projects?.title} onChange={(v) => updateField('projects', 'title', v)} />
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Projects Videos</h3>
+                                <VideoListManager
+                                    videos={content.projects?.videos || []}
+                                    onChange={(v) => updateField('projects', 'videos', v)}
+                                />
+                                <InputGroup label="CTA Button Text" value={content.projects?.cta} onChange={(v) => updateField('projects', 'cta', v)} />
                             </div>
                         )}
 
                         {activePage === 'home' && activeSection === 'sprint' && content?.sprint && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300 pb-16">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Sprint Styling</h3>
+                                <div className="grid grid-cols-2 gap-4 mb-8">
+                                    <ColorInput label="Background" value={content.sprint.backgroundColor} onChange={(v) => updateField('sprint', 'backgroundColor', v)} />
+                                    <ColorInput label="Title Color" value={content.sprint.titleColor} onChange={(v) => updateField('sprint', 'titleColor', v)} />
+                                    <ColorInput label="Subtitle Color" value={content.sprint.subtitleColor} onChange={(v) => updateField('sprint', 'subtitleColor', v)} />
+                                    <ColorInput label="Text Color" value={content.sprint.textColor} onChange={(v) => updateField('sprint', 'textColor', v)} />
+                                    <ColorInput label="Accent Indicator" value={content.sprint.accentColor} onChange={(v) => updateField('sprint', 'accentColor', v)} />
+                                    <ColorInput label="Button Bg" value={content.sprint.ctaBg} onChange={(v) => updateField('sprint', 'ctaBg', v)} />
+                                    <ColorInput label="Button Text" value={content.sprint.ctaText} onChange={(v) => updateField('sprint', 'ctaText', v)} />
+                                </div>
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Sprint Configuration</h3>
                                 <InputGroup label="Main Title" value={content.sprint.title} onChange={(v) => updateField('sprint', 'title', v)} />
                                 <InputGroup label="Subtitle" value={content.sprint.subtitle} onChange={(v) => updateField('sprint', 'subtitle', v)} />
                                 <InputGroup label="CTA Button Text" value={content.sprint.cta} onChange={(v) => updateField('sprint', 'cta', v)} />
+
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mt-8 mb-4">Sprint Steps</h3>
+                                <div className="space-y-4">
+                                    {(content.sprint.steps || []).map((step: any, idx: number) => (
+                                        <div key={idx} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                            <div className="text-[10px] font-bold uppercase text-gray-400 mb-3 flex items-center justify-between">
+                                                <span>Step {idx + 1} - {step.id}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                                <InputGroup label="Title (Full)" value={step.title} onChange={(v) => {
+                                                    const newSteps = [...content.sprint.steps];
+                                                    newSteps[idx].title = v;
+                                                    updateField('sprint', 'steps', newSteps);
+                                                }} />
+                                                <InputGroup label="Letter Initial" value={step.first} onChange={(v) => {
+                                                    const newSteps = [...content.sprint.steps];
+                                                    newSteps[idx].first = v;
+                                                    updateField('sprint', 'steps', newSteps);
+                                                }} />
+                                                <InputGroup label="Remaining Letters" value={step.rest} onChange={(v) => {
+                                                    const newSteps = [...content.sprint.steps];
+                                                    newSteps[idx].rest = v;
+                                                    updateField('sprint', 'steps', newSteps);
+                                                }} />
+                                            </div>
+                                            <InputGroup label="Description" value={step.detail} onChange={(v) => {
+                                                const newSteps = [...content.sprint.steps];
+                                                newSteps[idx].detail = v;
+                                                updateField('sprint', 'steps', newSteps);
+                                            }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activePage === 'home' && activeSection === 'missingElements' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300 pb-16">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Elements Styling</h3>
+                                <div className="grid grid-cols-2 gap-4 mb-8">
+                                    <ColorInput label="Background" value={content.missingElements?.backgroundColor} onChange={(v) => updateField('missingElements', 'backgroundColor', v)} />
+                                    <ColorInput label="Card Lines" value={content.missingElements?.cardBg} onChange={(v) => updateField('missingElements', 'cardBg', v)} />
+                                    <ColorInput label="Accent" value={content.missingElements?.accentColor} onChange={(v) => updateField('missingElements', 'accentColor', v)} />
+                                    <ColorInput label="Text" value={content.missingElements?.textColor} onChange={(v) => updateField('missingElements', 'textColor', v)} />
+                                </div>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Elements Editor</h3>
+                                <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-4">
+                                    Modify the elements grid.
+                                </div>
+                                <div className="space-y-6">
+                                    {(content?.missingElements?.items || content?.missingElements || []).map((el: any, idx: number) => (
+                                        <div key={idx} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm relative group">
+                                            <div className="text-[10px] font-bold uppercase text-gray-400 mb-3 flex items-center justify-between">
+                                                <span>Element {idx + 1}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                                <InputGroup label="ID (e.g. 20)" value={el.id} onChange={(v) => {
+                                                    const newElements = [...(content.missingElements?.items || content.missingElements || [])];
+                                                    newElements[idx] = { ...newElements[idx], id: v };
+                                                    updateField('missingElements', 'items', newElements);
+                                                }} />
+                                                <InputGroup label="Symbol (e.g. oE)" value={el.symbol} onChange={(v) => {
+                                                    const newElements = [...(content.missingElements?.items || content.missingElements || [])];
+                                                    newElements[idx] = { ...newElements[idx], symbol: v };
+                                                    updateField('missingElements', 'items', newElements);
+                                                }} />
+                                                <InputGroup label="Name" value={el.name} onChange={(v) => {
+                                                    const newElements = [...(content.missingElements?.items || content.missingElements || [])];
+                                                    newElements[idx] = { ...newElements[idx], name: v };
+                                                    updateField('missingElements', 'items', newElements);
+                                                }} />
+                                                <InputGroup label="Role" value={el.role} onChange={(v) => {
+                                                    const newElements = [...(content.missingElements?.items || content.missingElements || [])];
+                                                    newElements[idx] = { ...newElements[idx], role: v };
+                                                    updateField('missingElements', 'items', newElements);
+                                                }} />
+                                            </div>
+                                            <InputGroup label="Description" value={el.desc} onChange={(v) => {
+                                                const newElements = [...(content.missingElements?.items || content.missingElements || [])];
+                                                newElements[idx] = { ...newElements[idx], desc: v };
+                                                updateField('missingElements', 'items', newElements);
+                                            }} />
+                                        </div>
+                                    ))}
+                                    <button
+                                        onClick={() => {
+                                            const currentEls = content?.missingElements?.items || content?.missingElements || [];
+                                            const newElements = [...currentEls, { id: "00", symbol: "Xx", name: "New Element", role: "Role", desc: "Description here" }];
+                                            updateField('missingElements', 'items', newElements);
+                                        }}
+                                        className="w-full py-3 bg-white border border-dashed border-gray-300 text-gray-500 text-xs font-bold rounded hover:bg-gray-50 hover:text-black hover:border-gray-400 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Plus size={14} /> Add Element
+                                    </button>
+                                </div>
                             </div>
                         )}
 
                         {activePage === 'home' && activeSection === 'testimonials' && content?.testimonials && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Testimonials Styling</h3>
+                                <div className="grid grid-cols-2 gap-4 mb-8">
+                                    <ColorInput label="Background" value={content.testimonials?.backgroundColor} onChange={(v) => updateField('testimonials', 'backgroundColor', v)} />
+                                    <ColorInput label="Text" value={content.testimonials?.titleColor} onChange={(v) => updateField('testimonials', 'titleColor', v)} />
+                                    <ColorInput label="Accent Blur" value={content.testimonials?.accentColor} onChange={(v) => updateField('testimonials', 'accentColor', v)} />
+                                </div>
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Testimonials Configuration</h3>
                                 <InputGroup label="Main Title" value={content.testimonials.title} onChange={(v) => updateField('testimonials', 'title', v)} />
                                 <InputGroup label="Reviews Subtitle" value={content.testimonials.reviewsTitle} onChange={(v) => updateField('testimonials', 'reviewsTitle', v)} />
+                                
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Video Testimonials (Max 5)</h3>
+                                <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-4">
+                                    Manage the vertical video slider for testimonials.
+                                </div>
+                                <VideoListManager
+                                    videos={content.testimonials.reels || []}
+                                    onChange={(v) => {
+                                        if (v.length > 5) {
+                                            addToast("Maximum 5 testimonial videos allowed.", "info");
+                                            return;
+                                        }
+                                        updateField('testimonials', 'reels', v);
+                                    }}
+                                />
+                                <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-4">
+                                    Manage the reviews displayed on the site directly.
+                                </div>
+                                <ReviewListManager
+                                    reviews={content.testimonials.reviews || content.reviews || []}
+                                    onChange={(v) => updateField('testimonials', 'reviews', v)}
+                                />
                             </div>
                         )}
 
@@ -420,7 +789,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div className="grid grid-cols-2 gap-4 mb-8">
                                             <ColorInput label="Background" value={content?.about?.backgroundColor || '#ffffff'} onChange={(v) => updateField('about', 'backgroundColor', v)} />
                                             <ColorInput label="Main Text" value={content?.about?.textColor || '#000000'} onChange={(v) => updateField('about', 'textColor', v)} />
-                                            <ColorInput label="Accent" value={content?.about?.accentColor || '#FF5000'} onChange={(v) => updateField('about', 'accentColor', v)} />
+                                            <ColorInput label="Accent" value={content?.about?.accentColor || '#EF5304'} onChange={(v) => updateField('about', 'accentColor', v)} />
                                         </div>
 
                                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Header Configuration</h3>
@@ -430,10 +799,27 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 {activeSection === 'team' && (
                                     <>
                                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Team Grid</h3>
-                                        <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500">
-                                            Team members are currently managed via code. You can update the "Join The Team" button text below.
+                                        <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-6">
+                                            Manage your team members and the main quote here.
                                         </div>
-                                        <InputGroup label="Team CTA Button" value={content?.about?.teamCta} onChange={(v) => updateField('about', 'teamCta', v)} />
+                                        
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Styling</h3>
+                                        <div className="grid grid-cols-2 gap-4 mb-8">
+                                            <ColorInput label="Background" value={content?.about?.teamBgColor || '#000000'} onChange={(v) => updateField('about', 'teamBgColor', v)} />
+                                            <ColorInput label="Text Color" value={content?.about?.teamTextColor || '#ffffff'} onChange={(v) => updateField('about', 'teamTextColor', v)} />
+                                        </div>
+
+                                        <div className="space-y-4 mb-8">
+                                            <InputGroup label="Section Title" value={content?.about?.teamTitle} onChange={(v) => updateField('about', 'teamTitle', v)} />
+                                            <InputGroup label="Main Quote" value={content?.about?.teamQuote} onChange={(v) => updateField('about', 'teamQuote', v)} />
+                                            <InputGroup label="Team CTA Button" value={content?.about?.teamCta} onChange={(v) => updateField('about', 'teamCta', v)} />
+                                        </div>
+                                        
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Team Members Roster</h3>
+                                        <TeamListManager
+                                            members={content?.about?.teamMembers || []}
+                                            onChange={(v) => updateField('about', 'teamMembers', v)}
+                                        />
                                     </>
                                 )}
                                 {activeSection === 'video' && (
@@ -459,7 +845,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div className="grid grid-cols-2 gap-4 mb-8">
                                             <ColorInput label="Background" value={content?.processPage?.backgroundColor || '#000000'} onChange={(v) => updateField('processPage', 'backgroundColor', v)} />
                                             <ColorInput label="Main Text" value={content?.processPage?.textColor || '#ffffff'} onChange={(v) => updateField('processPage', 'textColor', v)} />
-                                            <ColorInput label="Accent" value={content?.processPage?.accentColor || '#FF5000'} onChange={(v) => updateField('processPage', 'accentColor', v)} />
+                                            <ColorInput label="Accent" value={content?.processPage?.accentColor || '#EF5304'} onChange={(v) => updateField('processPage', 'accentColor', v)} />
                                         </div>
 
                                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Header Configuration</h3>
@@ -468,14 +854,21 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     </>
                                 )}
                                 {activeSection === 'timeline' && (
-                                    <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500">
-                                        Process timeline steps are managed in code to ensure correct animation sequences.
+                                    <div className="p-4 bg-gray-50 border border-gray-100 rounded flex gap-4 text-sm text-gray-600 border-l-4 border-l-orange-500">
+                                        <div className="mt-0.5"><AlertCircle size={16} /></div>
+                                        <div>
+                                            <p className="font-bold mb-1">Timeline is NOT customizable</p>
+                                            <p>The timeline steps and their complex scroll animations are managed directly in the code to ensure optimal performance and visual stability.</p>
+                                        </div>
                                     </div>
                                 )}
                                 {activeSection === 'cta' && (
-                                    <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500">
-                                        The footer CTA redirects to the contact page.
-                                    </div>
+                                    <>
+                                        <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-6">
+                                            The footer CTA redirects to the contact page. Customize the button wording below.
+                                        </div>
+                                        <InputGroup label="CTA Button Text" value={content?.processPage?.ctaText} onChange={(v) => updateField('processPage', 'ctaText', v)} />
+                                    </>
                                 )}
                             </div>
                         )}
@@ -489,7 +882,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div className="grid grid-cols-2 gap-4 mb-8">
                                             <ColorInput label="Background" value={content?.worksPage?.backgroundColor || '#ffffff'} onChange={(v) => updateField('worksPage', 'backgroundColor', v)} />
                                             <ColorInput label="Main Text" value={content?.worksPage?.textColor || '#000000'} onChange={(v) => updateField('worksPage', 'textColor', v)} />
-                                            <ColorInput label="Accent" value={content?.worksPage?.accentColor || '#FF5000'} onChange={(v) => updateField('worksPage', 'accentColor', v)} />
+                                            <ColorInput label="Accent" value={content?.worksPage?.accentColor || '#EF5304'} onChange={(v) => updateField('worksPage', 'accentColor', v)} />
                                         </div>
                                         {/* SERVICES MANAGEMENT */}
                                         <div className="space-y-8 mt-12 pt-8 border-t border-gray-200">
@@ -640,6 +1033,14 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 )}
                                 {activeSection === 'cta' && (
                                     <>
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Footer Styling</h3>
+                                        <div className="grid grid-cols-2 gap-4 mb-8">
+                                            <ColorInput label="Footer Background" value={content?.worksPage?.footerBgColor || 'transparent'} onChange={(v) => updateField('worksPage', 'footerBgColor', v)} />
+                                            <ColorInput label="Button Background" value={content?.worksPage?.ctaBgColor || '#000000'} onChange={(v) => updateField('worksPage', 'ctaBgColor', v)} />
+                                            <ColorInput label="Button Text" value={content?.worksPage?.ctaTextColor || '#ffffff'} onChange={(v) => updateField('worksPage', 'ctaTextColor', v)} />
+                                            <ColorInput label="Button Hover" value={content?.worksPage?.ctaHoverColor || '#EF5304'} onChange={(v) => updateField('worksPage', 'ctaHoverColor', v)} />
+                                        </div>
+                                        
                                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Footer Configuration</h3>
                                         <InputGroup label="Footer CTA" value={content?.worksPage?.cta} onChange={(v) => updateField('worksPage', 'cta', v)} />
                                     </>
@@ -656,7 +1057,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <div className="grid grid-cols-2 gap-4 mb-8">
                                             <ColorInput label="Background" value={content?.contact?.backgroundColor || '#ffffff'} onChange={(v) => updateField('contact', 'backgroundColor', v)} />
                                             <ColorInput label="Main Text" value={content?.contact?.textColor || '#000000'} onChange={(v) => updateField('contact', 'textColor', v)} />
-                                            <ColorInput label="Accent" value={content?.contact?.accentColor || '#FF5000'} onChange={(v) => updateField('contact', 'accentColor', v)} />
+                                            <ColorInput label="Accent" value={content?.contact?.accentColor || '#EF5304'} onChange={(v) => updateField('contact', 'accentColor', v)} />
                                         </div>
 
                                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Intro Content</h3>
@@ -667,20 +1068,48 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                         <InputGroup label="Description" value={content?.contact?.description} onChange={(v) => updateField('contact', 'description', v)} />
                                     </>
                                 )}
-                                {activeSection === 'form' && (
-                                    <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500">
-                                        The booking widget is embedded via an iframe.
-                                    </div>
+                                {activeSection === 'calendar' && (
+                                    <>
+                                        <div className="p-4 bg-gray-50 border border-gray-100 rounded text-sm text-gray-500 mb-6">
+                                            The booking widget is embedded via an iframe. Drop your scheduling URL below (GoHighLevel, Calendly, Typeform, etc).
+                                        </div>
+                                        <InputGroup label="Calendar Booking URL" value={content?.contact?.calendarUrl} onChange={(v) => updateField('contact', 'calendarUrl', v)} />
+                                    </>
                                 )}
                             </div>
                         )}
 
                         {activePage === 'lab' && content?.lab && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">The Lab Page Configuration</h3>
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Bookings Page Configuration</h3>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <ColorInput label="Background" value={content.lab.backgroundColor || '#ffffff'} onChange={(v) => updateField('lab', 'backgroundColor', v)} />
+                                    <ColorInput label="Main Text" value={content.lab.textColor || '#000000'} onChange={(v) => updateField('lab', 'textColor', v)} />
+                                    <ColorInput label="Accent" value={content.lab.accentColor || '#EF5304'} onChange={(v) => updateField('lab', 'accentColor', v)} />
+                                </div>
                                 <InputGroup label="Page Title" value={content.lab.title} onChange={(v) => updateField('lab', 'title', v)} />
-                                <InputGroup label="Booking Title" value={content.lab.bookingTitle} onChange={(v) => updateField('lab', 'bookingTitle', v)} />
-                                <InputGroup label="Booking Subtitle" value={content.lab.bookingSubtitle} onChange={(v) => updateField('lab', 'bookingSubtitle', v)} />
+                                <InputGroup label="Booking Form Title" value={content.lab.bookingTitle} onChange={(v) => updateField('lab', 'bookingTitle', v)} />
+                                <InputGroup label="Booking Form Subtitle" value={content.lab.bookingSubtitle} onChange={(v) => updateField('lab', 'bookingSubtitle', v)} />
+                                
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Media Configuration</h3>
+                                <InputGroup label="Main Showcase Video URL (MP4)" value={content.lab.mainVideo} onChange={(v) => updateField('lab', 'mainVideo', v)} />
+                                
+                                <div className="mt-6">
+                                    <label className="text-[10px] font-bold uppercase text-gray-400 block mb-2">Gallery Images</label>
+                                    <ImageListManager 
+                                        images={content.lab.gallery || [
+                                            "/assets/lab/lab_1.jpg", "/assets/lab/lab_2.jpg", "/assets/lab/lab_3.jpg",
+                                            "/assets/lab/lab_4.jpg", "/assets/lab/lab_5.jpg", "/assets/lab/lab_6.jpg",
+                                            "/assets/lab/lab_7.jpg", "/assets/lab/lab_8.jpg", "/assets/lab/lab_9.jpg",
+                                            "/assets/lab/lab_10.jpg", "/assets/lab/lab_11.jpg", "/assets/lab/lab_12.jpg",
+                                            "/assets/lab/lab_13.jpg", "/assets/lab/lab_14.jpg", "/assets/lab/lab_15.jpg",
+                                            "/assets/lab/lab_16.jpg", "/assets/lab/lab_17.jpg", "/assets/lab/lab_18.jpg",
+                                            "/assets/lab/lab_19.jpg", "/assets/lab/lab_20.jpg", "/assets/lab/lab_21.jpg",
+                                            "/assets/lab/lab_22.jpg"
+                                        ]} 
+                                        onChange={(newImages) => updateField('lab', 'gallery', newImages)} 
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -694,11 +1123,15 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 </div>
                             </div>
                         )}
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
 
                 {/* RIGHT: Live Preview or Tools */}
-                <div className="flex-1 bg-[#F3F4F6] flex flex-col relative overflow-hidden items-center justify-center p-8">
+                <div className="flex-1 bg-[#F3F4F6] flex flex-col relative overflow-hidden items-center justify-center p-0 md:p-6 transition-all duration-500">
+                    
+
 
                     {activePage === 'bookings' ? (
                         <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-y-auto custom-scrollbar">
@@ -706,42 +1139,48 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
                     ) : (
                         /* Preview Container */
-                        <div className="bg-white shadow-2xl relative overflow-hidden w-full h-full rounded-xl border border-gray-200">
-                            <div key={previewKey} className="w-full h-full overflow-y-auto custom-scrollbar scroll-smooth" id="preview-container" style={{ fontFamily: "'Tactic Sans', system-ui, -apple-system, sans-serif" }}>
+                        <div id="preview-wrapper" className="bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] overflow-hidden relative border border-gray-200 flex flex-col w-full h-full md:rounded-xl">
+                            <div key={previewKey} className="w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar scroll-smooth" id="preview-container" style={{ fontFamily: "'Tactic Sans', system-ui, -apple-system, sans-serif" }}>
                                 {activePage === 'home' && (
                                     <>
                                         {activeSection === 'hero' && (
-                                            <div id="preview-hero" className="w-full h-full">
+                                            <div id="preview-hero" className="w-full min-h-full flex flex-col justify-center">
                                                 <Hero data={content?.hero} theme={content?.theme} onContactClick={() => { }} onIntroComplete={() => { }} />
                                             </div>
                                         )}
 
                                         {activeSection === 'brands' && (
-                                            <div id="preview-brands" className="w-full h-full bg-black flex items-center justify-center">
+                                            <div id="preview-brands" className="w-full min-h-full bg-black flex flex-col justify-center">
                                                 <Brands title={content?.brands?.title} data={content} />
                                             </div>
                                         )}
 
                                         {activeSection === 'video' && (
-                                            <div id="preview-video" className="w-full h-full bg-black flex items-center justify-center">
+                                            <div id="preview-video" className="w-full min-h-full bg-black flex flex-col justify-center">
                                                 <VideoSection data={content?.video} />
                                             </div>
                                         )}
 
                                         {activeSection === 'sprint' && (
-                                            <div id="preview-sprint" className="w-full h-full bg-white flex items-center justify-center">
+                                            <div id="preview-sprint" className="w-full min-h-full bg-white flex flex-col justify-center">
                                                 <ProcessSprint data={content?.sprint} />
                                             </div>
                                         )}
 
+                                        {activeSection === 'missingElements' && (
+                                            <div id="preview-missingElements" className="w-full min-h-full bg-white flex flex-col justify-center">
+                                                <MissingElements data={content?.missingElements} />
+                                            </div>
+                                        )}
+
                                         {activeSection === 'works' && (
-                                            <div id="preview-works" className="w-full h-full bg-white">
-                                                <Projects title={content?.works?.title} data={content} />
+                                            <div id="preview-works" className="w-full min-h-full bg-white flex flex-col justify-center">
+                                                <Projects title={content?.projects?.title} data={content} />
                                             </div>
                                         )}
 
                                         {activeSection === 'testimonials' && (
-                                            <div id="preview-testimonials" className="w-full h-full bg-white">
+                                            <div id="preview-testimonials" className="w-full min-h-full bg-white flex flex-col justify-center">
                                                 <Testimonials data={content?.testimonials} />
                                             </div>
                                         )}
@@ -772,17 +1211,10 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     </div>
                                 )}
 
-                                {activePage === 'bookings' && (
-                                    <div id="preview-bookings" className="opacity-100 w-full h-full overflow-y-auto bg-gray-50">
-                                        <BookingsManager />
-                                    </div>
-                                )}
-
                                 {activePage === 'lab' && (
                                     <div id="preview-lab" className="opacity-100 w-full h-full">
                                         <div className="bg-white relative w-full h-full">
                                             <TheLab onContactClick={() => { }} data={content?.lab} />
-                                            <div className="pointer-events-none opacity-50"><Footer onContactClick={() => { }} /></div>
                                         </div>
                                     </div>
                                 )}
@@ -801,6 +1233,28 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
 
             </main >
+
+            {/* Toast System */}
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-3 pointer-events-none">
+                <AnimatePresence>
+                    {toasts.map(toast => (
+                        <motion.div
+                            key={toast.id}
+                            initial={{ opacity: 0, y: 40, scale: 0.8 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className={`px-6 py-3 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.3)] flex items-center gap-3 backdrop-blur-md border pointer-events-auto ${
+                                toast.type === 'success' ? 'bg-black text-white border-white/10' :
+                                toast.type === 'error' ? 'bg-red-600 text-white border-red-500' :
+                                'bg-white text-black border-gray-200'
+                            }`}
+                        >
+                            {toast.type === 'success' ? <Check size={16} className="text-green-400" /> : <AlertCircle size={16} />}
+                            <span className="text-[11px] font-bold uppercase tracking-widest leading-none pt-0.5">{toast.message}</span>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
         </div >
     );
 };
@@ -843,15 +1297,20 @@ const InputGroup = ({ label, value, onChange }: { label: string, value: string, 
 
 
 
-const NavTab = ({ active, onClick, label }: { active: boolean, onClick: () => void, label: string }) => (
+const NavTab = ({ active, onClick, label, badge }: { active: boolean, onClick: () => void, label: string, badge?: number }) => (
     <button
         onClick={onClick}
-        className={`w-full text-left px-4 py-2 rounded-md text-sm font-medium transition-colors ${active
+        className={`px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors ${active
             ? 'bg-black text-white'
             : 'text-gray-600 hover:bg-gray-100 hover:text-black'
             }`}
     >
         {label}
+        {badge !== undefined && badge > 0 && (
+            <span className="w-5 h-5 flex items-center justify-center bg-red-500 text-white rounded-full text-[10px] font-bold animate-pulse">
+                {badge > 9 ? '9+' : badge}
+            </span>
+        )}
     </button>
 );
 
@@ -1021,10 +1480,7 @@ const VideoListManager = ({ videos, onChange }: { videos: any[], onChange: (v: a
                             <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Title</label>
                             <input className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none" value={video.title} onChange={e => updateVideo(idx, 'title', e.target.value)} />
                         </div>
-                        <div>
-                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Description</label>
-                            <input className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none" value={video.description} onChange={e => updateVideo(idx, 'description', e.target.value)} />
-                        </div>
+
                         <div>
                             <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Video Source (MP4 URL)</label>
                             <input className="w-full text-xs p-2 border border-gray-200 rounded font-mono text-gray-600 focus:border-black focus:ring-1 focus:ring-black outline-none" value={video.src} onChange={e => updateVideo(idx, 'src', e.target.value)} />
@@ -1034,6 +1490,238 @@ const VideoListManager = ({ videos, onChange }: { videos: any[], onChange: (v: a
             ))}
             <button onClick={addVideo} className="w-full py-3 bg-black text-white text-xs font-bold rounded shadow-lg hover:bg-gray-900 hover:scale-[1.01] transition-all flex items-center justify-center gap-2">
                 <Plus size={16} /> Add Video
+            </button>
+        </div>
+    );
+};
+
+// ===================================
+// REVIEW LIST MANAGER
+// ===================================
+
+const ReviewListManager = ({ reviews, onChange }: { reviews: any[], onChange: (v: any[]) => void }) => {
+    // Hardcoded base reviews as default if empty
+    const defaultReviews = [
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_1",
+            author: "Kalvin Payne",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjWP6ryeeN9rSTEVP8qA3wkFTs3cgwo6abjzNNte4Bg8BqJvzQdL=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "oE is always producing incredible content that is both engaging and conveys the exact brand on screen. Love seeing oE art!",
+            date: "3 months ago"
+        },
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_2",
+            author: "Francine Dinh",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjVyyU4fohKO-vijZcPQHM4wdWl98l1BmxFDnwuMAWTq9ow5RA57=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "Working with Optic Element has been one of the best decisions I’ve made for my business! Being someone new to video, they were very patient with me and helped me create content that brought in new eyes and clients...",
+            date: "1 year ago"
+        },
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_3",
+            author: "SD Complete",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjVzuCgF_SPj6UflJUt6jK5fwhveglA_qGSisFThP9zpDRm4zuk=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "I couldn’t be more happy with this epic team! My entire staff came into the studio to do videos for our website. Optic Elements CRUSHED It!!!! They really care about your finished product! Attention to details...",
+            date: "1 year ago"
+        },
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_4",
+            author: "Spencer Vann",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjVc7WUAgnOQBaqK-Fk_VkZ9eyppcvhNVVRy3NvdkSNwZaka1Z9i=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "I had the privilege to work with Santiago and the team at Optic Element for about a year as they created hundreds of pieces of content for my business. They did a phenomenal job, both from final results...",
+            date: "1 year ago"
+        },
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_5",
+            author: "Dharimar Vazquez",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjWAFYaWwrPG-Jq1vJUQanX0SoWaVBAg7DEpWDjSM0B_hmVoKQ8=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "Absolutely LOVE the oE Culture and Team!",
+            date: "1 year ago"
+        },
+        {
+            id: "cfcd208495d565ef66e7dff9f98764da_6",
+            author: "Jesus Salazar",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjXeam_PHtzxzI5Ou2SHRPI0UAvpQ9Uc2omlVfM8IHGKVIXw0z4=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "They helped me grow my real estate business entirely! Santiago, Cesar, Ryan, Dez and the rest of the team helped me grow my community on social media and really engage with my target audience.",
+            date: "1 year ago"
+        }
+    ];
+
+    const currentReviews = reviews?.length > 0 ? reviews : defaultReviews;
+
+    const addReview = () => {
+        onChange([...currentReviews, {
+            id: Date.now().toString(),
+            author: "New Client",
+            avatar: "https://lh3.googleusercontent.com/a-/ALV-UjWP6ryeeN9rSTEVP8qA3wkFTs3cgwo6abjzNNte4Bg8BqJvzQdL=w64-h64-c-rp-mo-br100",
+            rating: 5,
+            text: "Amazing experience! The videos are top tier.",
+            date: "1 day ago"
+        }]);
+    };
+
+    const removeReview = (index: number) => {
+        if (!window.confirm('Are you sure you want to delete this review?')) return;
+        const newReviews = [...currentReviews];
+        newReviews.splice(index, 1);
+        onChange(newReviews);
+    };
+
+    const updateReview = (index: number, field: string, value: string | number) => {
+        const newReviews = [...currentReviews];
+        newReviews[index] = { ...newReviews[index], [field]: value };
+        onChange(newReviews);
+    };
+
+    const moveReview = (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === currentReviews.length - 1) return;
+
+        const newReviews = [...currentReviews];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        [newReviews[index], newReviews[targetIndex]] = [newReviews[targetIndex], newReviews[index]];
+        onChange(newReviews);
+    };
+
+    return (
+        <div className="space-y-4">
+            {currentReviews.map((review, idx) => (
+                <div key={review.id || idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg relative group transition-all hover:bg-white hover:shadow-md hover:border-gray-300">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex gap-2">
+                            <div className="flex flex-col justify-center gap-1 mr-2 text-gray-400">
+                                <button onClick={() => moveReview(idx, 'up')} disabled={idx === 0} className="hover:text-black disabled:opacity-20"><ArrowUp size={14} /></button>
+                                <button onClick={() => moveReview(idx, 'down')} disabled={idx === currentReviews.length - 1} className="hover:text-black disabled:opacity-20"><ArrowDown size={14} /></button>
+                            </div>
+                            <span className="font-mono text-xs text-gray-400 font-bold pt-1">#{idx + 1}</span>
+                            <h5 className="font-bold text-sm text-black pt-0.5">{review.author || 'Unnamed'}</h5>
+                        </div>
+                        <button
+                            onClick={() => removeReview(idx)}
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded transition-all"
+                            title="Delete Review"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 pl-8">
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Author Name</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none" value={review.author} onChange={e => updateReview(idx, 'author', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Avatar URL (Google Maps profile pic)</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded font-mono text-gray-600 focus:border-black focus:ring-1 focus:ring-black outline-none" value={review.avatar} onChange={e => updateReview(idx, 'avatar', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Review Text</label>
+                            <textarea rows={3} className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none resize-none" value={review.text} onChange={e => updateReview(idx, 'text', e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <button onClick={addReview} className="w-full py-3 bg-white border border-dashed border-gray-300 text-gray-500 text-xs font-bold rounded hover:bg-gray-50 hover:text-black hover:border-gray-400 transition-all flex items-center justify-center gap-2">
+                <Plus size={16} /> Add Review
+            </button>
+        </div>
+    );
+};
+
+// ===================================
+// TEAM LIST MANAGER
+// ===================================
+
+const TeamListManager = ({ members, onChange }: { members: any[], onChange: (v: any[]) => void }) => {
+    // Make sure we have a reference to the default TEAM_MEMBERS in case they want a starting point or if it's empty
+    const defaultMembers = [
+        { name: "Santiago", role: "CEO", img: "/santiago-headshot-2025.png" },
+        { name: "Deedee", role: "Relationship Success Manager", img: "/deedee%202025%20headshot.png" },
+        { name: "Dez", role: "Client Success manager", img: "/dez%202025%20headshot.png" },
+        { name: "Rob", role: "CMO", img: "/rob-headshot-2025.png" },
+        { name: "Nick", role: "Creative lead", img: "/nick-2025-v2.png" },
+        { name: "Ryan", role: "Videographer/Editor", img: "/ryan%202025%20headshot.png" }
+    ];
+
+    const currentMembers = members?.length > 0 ? members : defaultMembers;
+
+    const addMember = () => {
+        onChange([...currentMembers, {
+            id: Date.now().toString(),
+            name: "New Member",
+            role: "Role",
+            img: "/santiago-headshot-2025.png"
+        }]);
+    };
+
+    const removeMember = (index: number) => {
+        if (!window.confirm('Are you sure you want to delete this team member?')) return;
+        const newMembers = [...currentMembers];
+        newMembers.splice(index, 1);
+        onChange(newMembers);
+    };
+
+    const updateMember = (index: number, field: string, value: string) => {
+        const newMembers = [...currentMembers];
+        newMembers[index] = { ...newMembers[index], [field]: value };
+        onChange(newMembers);
+    };
+
+    const moveMember = (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === currentMembers.length - 1) return;
+
+        const newMembers = [...currentMembers];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        [newMembers[index], newMembers[targetIndex]] = [newMembers[targetIndex], newMembers[index]];
+        onChange(newMembers);
+    };
+
+    return (
+        <div className="space-y-4">
+            {currentMembers.map((member, idx) => (
+                <div key={member.name + idx} className="p-4 bg-gray-50 border border-gray-200 rounded-lg relative group transition-all hover:bg-white hover:shadow-md hover:border-gray-300">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex gap-2">
+                            <div className="flex flex-col justify-center gap-1 mr-2 text-gray-400">
+                                <button onClick={() => moveMember(idx, 'up')} disabled={idx === 0} className="hover:text-black disabled:opacity-20"><ArrowUp size={14} /></button>
+                                <button onClick={() => moveMember(idx, 'down')} disabled={idx === currentMembers.length - 1} className="hover:text-black disabled:opacity-20"><ArrowDown size={14} /></button>
+                            </div>
+                            <span className="font-mono text-xs text-gray-400 font-bold pt-1">#{idx + 1}</span>
+                            <h5 className="font-bold text-sm text-black pt-0.5">{member.name || 'Unnamed'}</h5>
+                        </div>
+                        <button
+                            onClick={() => removeMember(idx)}
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded transition-all"
+                            title="Delete Member"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 pl-8">
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Name</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none" value={member.name} onChange={e => updateMember(idx, 'name', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Role</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded focus:border-black focus:ring-1 focus:ring-black outline-none" value={member.role} onChange={e => updateMember(idx, 'role', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Headshot Image URL</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded font-mono text-gray-600 focus:border-black focus:ring-1 focus:ring-black outline-none" value={member.img} onChange={e => updateMember(idx, 'img', e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+            ))}
+            <button onClick={addMember} className="w-full py-3 bg-white border border-dashed border-gray-300 text-gray-500 text-xs font-bold rounded hover:bg-gray-50 hover:text-black hover:border-gray-400 transition-all flex items-center justify-center gap-2">
+                <Plus size={16} /> Add Team Member
             </button>
         </div>
     );

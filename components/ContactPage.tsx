@@ -13,7 +13,7 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
    const showAll = !activeSection;
    const bgColor = data?.backgroundColor || '#ffffff';
    const txtColor = data?.textColor || '#000000';
-   const accentColor = data?.accentColor || '#FF5000';
+   const accentColor = data?.accentColor || '#EF5304';
 
    return (
       <div
@@ -97,7 +97,7 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                      className="w-full h-full min-h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
                   >
                      <iframe
-                        src="https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd"
+                        src={data?.calendarUrl || "https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd"}
                         style={{ width: '100%', height: '100%', minHeight: '800px', border: 'none', overflow: 'hidden' }}
                         scrolling="no"
                         id="cgeV18JSg30NhG1v1URd_1772211767012"

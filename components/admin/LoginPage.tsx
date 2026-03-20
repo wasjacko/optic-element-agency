@@ -8,7 +8,7 @@ export const LoginPage: React.FC = () => {
     const { requestOtp, verifyOtp, isLocked, lockoutTimeLeft } = useAuth();
 
     const [step, setStep] = useState<'EMAIL' | 'CODE'>('EMAIL');
-    const [email, setEmail] = useState('webwacilait@gmail.com');
+    const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
 
     const [error, setError] = useState(false);
@@ -64,7 +64,18 @@ export const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-white flex items-center justify-center p-6 text-gray-900" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+        <div className="admin-theme min-h-screen w-full bg-white flex items-center justify-center p-6 text-gray-900">
+            <style>{`
+                @font-face {
+                    font-family: 'CustomArial';
+                    src: url('/assets/ArialCE.ttf') format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                .admin-theme * {
+                    font-family: 'CustomArial', sans-serif !important;
+                }
+            `}</style>
 
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -73,17 +84,21 @@ export const LoginPage: React.FC = () => {
             >
                 {/* Logo / Header */}
                 <div className="text-center mb-10">
-                    <div className="w-12 h-12 bg-gray-900 rounded-xl mx-auto flex items-center justify-center text-white font-bold text-lg mb-6 shadow-xl shadow-gray-200">
-                        VM
-                    </div>
+                    <svg viewBox="0 0 100 100" className="w-14 h-14 mx-auto mb-6 drop-shadow-sm" fill="none">
+                        <path d="M0 0H30V10H10V30H0V0Z" fill="#111827" />
+                        <path d="M70 0H100V30H90V10H70V0Z" fill="#111827" />
+                        <path d="M100 70V100H70V90H90V70H100Z" fill="#111827" />
+                        <path d="M30 100H0V70H10V90H30V100Z" fill="#111827" />
+                        <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#EF5304" />
+                    </svg>
                     <h1 className="text-2xl font-semibold tracking-tight text-gray-900 mb-2">
-                        {step === 'EMAIL' ? 'Welcome back' : 'Check your inbox'}
+                        {step === 'EMAIL' ? 'Configurator Access' : 'Check your inbox'}
                     </h1>
                     <p className="text-sm text-gray-500">
                         {isLocked
                             ? <span className="text-red-600 font-medium">System locked. Try again in {lockoutTimeLeft}s.</span>
                             : step === 'EMAIL'
-                                ? 'Enter your email to access the admin panel.'
+                                ? 'Enter your email to access the site configurator.'
                                 : `We've sent a 6-digit code to ${email}.`
                         }
                     </p>

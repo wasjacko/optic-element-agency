@@ -9,7 +9,7 @@ interface BookingFormProps {
 
 const API_URL = import.meta.env.VITE_AUTH_API_URL || "http://localhost:3001/api";
 
-export const BookingForm: React.FC<BookingFormProps> = ({ accentColor = '#FF5000', textColor = '#000000' }) => {
+export const BookingForm: React.FC<BookingFormProps> = ({ accentColor = '#EF5304', textColor = '#000000' }) => {
     const [step, setStep] = useState<'date' | 'time' | 'details' | 'success'>('date');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);

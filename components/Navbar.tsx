@@ -183,7 +183,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                 <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
 
                 {/* Orange Plus */}
-                <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+                <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#EF5304" />
               </svg>
 
             </a>
@@ -228,7 +228,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               onClick={onContactClick}
               onMouseEnter={() => setIsContactHovered(true)}
               onMouseLeave={() => setIsContactHovered(false)}
-              className="hidden md:block group relative px-8 py-3 bg-[#FF5000] hover:bg-[#FF5000]/90 transition-all duration-500 overflow-hidden"
+              className="hidden md:block group relative px-8 py-3 bg-[#EF5304] hover:bg-[#EF5304]/90 transition-all duration-500 overflow-hidden"
             >
               {/* Brackets/Corners */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white transition-colors" />
@@ -270,7 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                       <path d="M70 0H100V30H90V10H70V0Z" fill="white" />
                       <path d="M100 70V100H70V90H90V70H100Z" fill="white" />
                       <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
-                      <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+                      <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#EF5304" />
                     </svg>
                   </a>
                 </div>
@@ -288,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
                 <a
                   key={item.label}
                   href={item.href}
-                  className="text-[14px] font-black text-white hover:text-[#FF5000] cursor-pointer transition-colors uppercase tracking-[0.3em] flex items-center group"
+                  className="text-[14px] font-black text-white hover:text-[#EF5304] cursor-pointer transition-colors uppercase tracking-[0.3em] flex items-center group"
                   onClick={(e) => {
                     handleLinkClick(e, item);
                     setIsOpen(false);
@@ -312,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
                 <button
                   onClick={() => { onContactClick(); setIsOpen(false); }}
-                  className="px-12 py-5 bg-[#FF5000] text-black font-black uppercase tracking-[0.3em] text-[14px] shadow-2xl relative"
+                  className="px-12 py-5 bg-[#EF5304] text-black font-black uppercase tracking-[0.3em] text-[14px] shadow-2xl relative"
                 >
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 z-20" />

@@ -25,3 +25,13 @@ dist-ssr
 # Large Assets (>100MB)
 public/assets/fatherhood.mov
 public/assets/cube_video_1080p.mp4
+
+# Environment & Private
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Backend Specific
+backend/node_modules
+backend/dist

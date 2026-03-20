@@ -50,7 +50,7 @@ const LazySection = ({ children }: { children: React.ReactNode }) => {
 const updateTheme = (theme: any) => {
   if (!theme) return;
   const root = document.documentElement;
-  root.style.setProperty('--color-primary', theme.primary || '#FF5000');
+  root.style.setProperty('--color-primary', theme.primary || '#EF5304');
   root.style.setProperty('--color-bg', theme.background || '#050505');
   root.style.setProperty('--color-text', theme.text || '#FFFFFF');
   root.style.setProperty('--color-accent', theme.accent || '#000000');
@@ -67,7 +67,9 @@ const AdminRoute = ({ onBack }: { onBack: () => void }) => {
 function App() {
   const [activePage, setActivePage] = useState<Page>(() => {
     const hash = window.location.hash.replace('#', '');
-    return (['home', 'about', 'work', 'process', 'contact', 'lab', 'admin'].includes(hash) ? hash : 'home') as Page;
+    const path = window.location.pathname.replace('/', '');
+    const requestedPage = hash || path;
+    return (['home', 'about', 'work', 'process', 'contact', 'lab', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
   });
   const [introCompleted, setIntroCompleted] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
@@ -110,13 +112,13 @@ function App() {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
     exit: { opacity: 0 },
-    transition: { duration: 0.6, ease: "easeOut" }
+    transition: { duration: 0.6, ease: "easeOut" as any }
   };
 
   return (
     <AuthProvider>
       <div className="min-h-screen text-white bg-[#050505]" style={{ backgroundColor: 'var(--color-bg)' }}>
-        <CustomCursor />
+        {activePage !== 'admin' && <CustomCursor />}
         {activePage !== 'admin' && (
           <Navbar
             activePage={activePage}
@@ -146,7 +148,7 @@ function App() {
                 <LazySection><Brands title={cmsContent.brands?.title} data={cmsContent} /></LazySection>
                 <LazySection><ProcessSprint data={cmsContent.sprint} /></LazySection>
                 <LazySection><MissingElements data={cmsContent.missingElements} /></LazySection>
-                <LazySection><Projects data={cmsContent.projects} onWorksClick={handleWorksClick} /></LazySection>
+                <LazySection><Projects data={cmsContent} title={cmsContent.projects?.title} onWorksClick={handleWorksClick} /></LazySection>
                 <LazySection><Testimonials data={cmsContent.testimonials} /></LazySection>
                 <LazySection><Footer onContactClick={handleContactClick} /></LazySection>
               </div>
@@ -167,7 +169,7 @@ function App() {
 
           {activePage === 'process' && (
             <motion.div key="process" {...pageTransition}>
-              <ProcessPage onBack={handleHomeClick} />
+              <ProcessPage data={cmsContent.processPage} onContactClick={handleContactClick} />
             </motion.div>
           )}
 
@@ -184,7 +186,7 @@ function App() {
           )}
 
           {activePage === 'admin' && (
-            <motion.div key="admin" {...pageTransition}>
+            <motion.div key="admin" {...pageTransition} className="admin-side">
               <AdminRoute onBack={handleHomeClick} />
             </motion.div>
           )}

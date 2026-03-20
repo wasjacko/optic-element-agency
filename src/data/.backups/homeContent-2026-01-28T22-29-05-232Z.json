@@ -1,9 +1,9 @@
 {
     "theme": {
-        "primary": "#ff7300",
+        "primary": "#EF5304",
         "background": "#0d0d0d",
         "text": "#ffffff",
-        "secondaryRef": "#ff5900",
+        "secondaryRef": "#EF5304",
         "accent": "#1a1a1a"
     },
     "hero": {

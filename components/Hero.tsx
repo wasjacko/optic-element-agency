@@ -150,7 +150,7 @@ const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: s
 });
 
 const ChevronGeometry = () => {
-    const thickness = 0.04; // Thinner
+    const thickness = 0.06; // Slightly thicker for sharper edges on mobile
     const length = 0.45;
     const h = length / 2;
     return (
@@ -281,17 +281,19 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         playsInline: true
     });
 
+    const { viewport, gl } = useThree();
+
     useEffect(() => {
-        sharedTexture.minFilter = THREE.LinearFilter;
+        sharedTexture.minFilter = THREE.LinearMipmapLinearFilter;
         sharedTexture.magFilter = THREE.LinearFilter;
-        sharedTexture.generateMipmaps = false;
+        sharedTexture.anisotropy = gl.capabilities.getMaxAnisotropy();
+        sharedTexture.generateMipmaps = true;
         sharedTexture.needsUpdate = true;
-    }, [sharedTexture]);
+    }, [sharedTexture, gl]);
 
     const isAssembled = useRef(false); // Start as false to see the expansion effect
 
     // START DIRECTLY AT PHASE 3 IF INTRO ALREADY PLAYED
-    const { viewport } = useThree();
 
     const timer = useRef(0);
     const introPhase = useRef(0);
@@ -787,11 +789,11 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
         <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
             {isInView && (
                 <Canvas
-                    dpr={isMobile ? [0.8, 1] : [0.9, 1.1]}
+                    dpr={isMobile ? [1.5, 3] : [1, 3]}
                     performance={{ min: 0.65 }}
                     gl={{
                         alpha: true,
-                        antialias: false,
+                        antialias: true,
                         powerPreference: "high-performance",
                         stencil: false,
                         depth: true
@@ -906,19 +908,26 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                                 transitionDelay: loadProgress >= 100 ? '1500ms' : '0ms'
                             }}
                         >
-                            <div className="flex flex-col gap-1 items-center">
-                                <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md">
-                                    {content?.phase1 || homeContent.hero.phase1}
-                                </h2>
-                                <h2 className="text-2xl sm:text-3xl font-black leading-[1.1] tracking-tighter drop-shadow-md" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
-                                    {content?.phase1Highlight || homeContent.hero.phase1Highlight}
-                                </h2>
-                                <h2 className="text-2xl sm:text-3xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-md pt-8">
-                                    {content?.phase2 || homeContent.hero.phase2}
-                                </h2>
-                                <h2 className="text-2xl sm:text-3xl font-black leading-[1.1] tracking-tighter drop-shadow-md" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
-                                    {content?.phase2Highlight || homeContent.hero.phase2Highlight}
-                                </h2>
+                            <div className="flex flex-col gap-8 w-full items-center">
+                                {/* Block 1 */}
+                                <div className="flex flex-col items-center w-full gap-0">
+                                    <h2 className="text-lg sm:text-xl font-black tracking-widest text-white/95 uppercase text-center w-full">
+                                        {content?.phase1 || homeContent.hero.phase1}
+                                    </h2>
+                                    <h2 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter drop-shadow-xl uppercase text-center w-full" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
+                                        {content?.phase1Highlight || homeContent.hero.phase1Highlight}
+                                    </h2>
+                                </div>
+                                
+                                {/* Block 2 */}
+                                <div className="flex flex-col items-center w-full gap-0">
+                                    <h2 className="text-lg sm:text-xl font-black tracking-widest text-white/95 uppercase text-center w-full">
+                                        {content?.phase2 || homeContent.hero.phase2}
+                                    </h2>
+                                    <h2 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter drop-shadow-xl uppercase text-center w-full" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
+                                        {content?.phase2Highlight || homeContent.hero.phase2Highlight}
+                                    </h2>
+                                </div>
                             </div>
 
                             <button

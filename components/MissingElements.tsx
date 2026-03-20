@@ -44,33 +44,36 @@ const ParallaxCard = ({ el, index, scrollYProgress, isMobile }: { el: any, index
         isMobile ? [0, 0] : (index % 2 === 0 ? [0, 100] : [0, -100])
     );
 
+    const customData = el.sectionData || {};
     return (
         <motion.div
             style={{ y }}
-            className={`flex flex-col items-center group ${index % 2 === 1 ? 'md:mt-16' : ''} w-full relative`}
+            className={`flex flex-col items-center group w-full relative`}
         >
             {/* CUBE (Desktop & Mobile) - Fixed Position on Hover */}
             <div className="relative w-20 h-20 md:w-20 md:h-20 mb-2 md:mb-4 cursor-pointer flex-shrink-0 mx-auto">
-                {/* Cube Face (Front) */}
-                <div className="absolute inset-0 border-2 border-black bg-white flex flex-col justify-center items-center p-1 z-20 transition-colors duration-300 group-hover:bg-black group-hover:border-black">
+                <div
+                    className="absolute inset-0 border-2 flex flex-col justify-center items-center p-1 z-20 transition-colors duration-300"
+                    style={{ borderColor: customData?.accentColor || '#000000', backgroundColor: customData?.cardBg || '#ffffff' }}
+                >
                     {/* BRACKETS (Corner Accents) */}
-                    <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-black transition-colors group-hover:border-[#FF5000]" />
-                    <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-black transition-colors group-hover:border-[#FF5000]" />
-                    <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-black transition-colors group-hover:border-[#FF5000]" />
-                    <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-black transition-colors group-hover:border-[#FF5000]" />
+                    <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 transition-colors" style={{ borderColor: customData?.accentColor || '#000000' }} />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 transition-colors" style={{ borderColor: customData?.accentColor || '#000000' }} />
+                    <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 transition-colors" style={{ borderColor: customData?.accentColor || '#000000' }} />
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 transition-colors" style={{ borderColor: customData?.accentColor || '#000000' }} />
 
                     {/* Content inside the cube */}
-                    <span className="font-mono text-[9px] md:text-[10px] font-bold text-[#FF5000] uppercase tracking-widest text-center">
+                    <span className="font-mono text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-center" style={{ color: customData?.accentColor || '#EF5304' }}>
                         {el.name}
                     </span>
-                    <span className="font-black text-[10px] text-black/20 group-hover:text-white/20 absolute bottom-1 right-1">
+                    <span className="font-black text-[10px] opacity-20 absolute bottom-1 right-1" style={{ color: customData?.textColor || '#000000' }}>
                         {el.symbol}
                     </span>
                 </div>
 
                 {/* Shadow/Depth (Tactical Striped Background) */}
                 <div
-                    className="absolute top-1.5 left-1.5 w-full h-full border-2 border-black/10 -z-10 group-hover:border-[#FF5000] transition-colors duration-300"
+                    className="absolute top-1.5 left-1.5 w-full h-full border-2 border-black/10 -z-10 group-hover:border-[#EF5304] transition-colors duration-300"
                     style={{
                         backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)',
                     }}
@@ -78,7 +81,7 @@ const ParallaxCard = ({ el, index, scrollYProgress, isMobile }: { el: any, index
                     <div
                         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{
-                            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, #FF5000 2px, #FF5000 4px)',
+                            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, #EF5304 2px, #EF5304 4px)',
                         }}
                     />
                 </div>
@@ -86,10 +89,10 @@ const ParallaxCard = ({ el, index, scrollYProgress, isMobile }: { el: any, index
 
             {/* TEXT (Centered on all devices) */}
             <div className="text-center mt-2 flex-1 relative z-10 py-2 md:py-0">
-                <p className="text-lg md:text-sm font-black md:font-bold tracking-tighter md:tracking-normal uppercase mb-2 text-black transition-colors flex items-center justify-center leading-tight">
+                <p className="text-lg md:text-sm font-black md:font-bold tracking-tighter md:tracking-normal uppercase mb-2 transition-colors flex items-center justify-center leading-tight" style={{ color: customData?.textColor || '#000000' }}>
                     {el.role}
                 </p>
-                <p className="text-xs text-gray-500 md:text-gray-400 font-mono leading-relaxed max-w-[280px] md:max-w-[180px] mx-auto transition-colors">
+                <p className="text-xs font-mono leading-relaxed max-w-[280px] md:max-w-[180px] mx-auto transition-colors opacity-70" style={{ color: customData?.textColor || '#000000' }}>
                     {el.desc}
                 </p>
             </div>
@@ -98,7 +101,7 @@ const ParallaxCard = ({ el, index, scrollYProgress, isMobile }: { el: any, index
     );
 };
 
-export const MissingElements: React.FC<{ data?: any[] }> = ({ data }) => {
+export const MissingElements: React.FC<{ data?: any }> = ({ data }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = React.useState(false);
     React.useEffect(() => {
@@ -113,18 +116,18 @@ export const MissingElements: React.FC<{ data?: any[] }> = ({ data }) => {
         offset: ["start end", "end start"]
     });
 
-    const displayElements = data || ELEMENTS;
+    const displayElements = Array.isArray(data) ? data : (data?.items || ELEMENTS);
 
     return (
-        <section ref={containerRef} className="bg-white text-black py-32 md:py-40 border-t border-gray-100 overflow-hidden flex items-center min-h-[60vh]">
+        <section ref={containerRef} className="py-32 md:py-40 border-t border-white/5 overflow-hidden flex items-center min-h-[60vh]" style={{ backgroundColor: data?.backgroundColor || '#ffffff' }}>
             <div className="max-w-7xl mx-auto px-10 md:px-6 w-full">
 
                 {/* Grid with Parallax */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-16 items-center">
-                    {displayElements.map((el, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-16 items-start">
+                    {displayElements.map((el: any, index: number) => (
                         <ParallaxCard
-                            key={el.id}
-                            el={el}
+                            key={el.id || index}
+                            el={{ ...el, sectionData: data }}
                             index={index}
                             scrollYProgress={scrollYProgress}
                             isMobile={isMobile}

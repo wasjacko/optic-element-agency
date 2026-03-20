@@ -1,18 +1,23 @@
 
 import { Request, Response } from 'express';
 import { sendLoginCode } from '../services/email';
+import jwt from 'jsonwebtoken';
 
 // In-Memory Store for OTPs (Map<email, {code, expiresAt}>)
 // In production, use Redis or Database
 const otpStore = new Map<string, { code: string, expiresAt: number }>();
 
-const ALLOWED_ADMIN_EMAIL = "webwacilait@gmail.com";
+const ALLOWED_ADMIN_EMAILS = [
+    "santiago_c_t@live.com",
+    "webwacilait@gmail.com",
+    "wasshait@gmail.com"
+];
 
 export const requestLoginCode = async (req: Request, res: Response): Promise<any> => {
     try {
         const { email } = req.body;
 
-        if (!email || email !== ALLOWED_ADMIN_EMAIL) {
+        if (!email || !ALLOWED_ADMIN_EMAILS.includes(email)) {
             // Security: Always return success even if email is invalid to prevent enumeration
             // But for this specific "single admin" case, we can be strict or loose.
             // Let's just return success with a fake delay.
@@ -66,11 +71,14 @@ export const verifyLoginCode = async (req: Request, res: Response): Promise<any>
         // Success! Clear the code so it can't be reused
         otpStore.delete(email);
 
-        // Return a session token (Mock token for now, or real JWT if we want)
-        // Since the frontend uses a simple string 'valid' in session storage, we can adhere to that
-        // OR return a real signed token. Let's return a simple success signal, 
-        // the frontend "Secure Context" trusts the backend response.
-        return res.json({ success: true, token: "admin_session_valid" });
+        // Return a real JWT token
+        const token = jwt.sign(
+            { email, role: 'admin' },
+            process.env.JWT_SECRET || 'oe-agency-super-secure-key-2026',
+            { expiresIn: '8h' }
+        );
+
+        return res.json({ success: true, token });
 
     } catch (error) {
         console.error("Verify Login Error:", error);

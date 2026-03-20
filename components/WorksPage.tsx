@@ -276,7 +276,7 @@ const MobileVideoCard = ({ video, currentService }: { video: any, currentService
 
          <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none z-10">
             <h3 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">{video.title}</h3>
-            <p className="text-white/60 font-mono text-[10px] uppercase tracking-widest pl-4 border-l border-[#FF5000]">{video.description}</p>
+            <p className="text-white/60 font-mono text-[10px] uppercase tracking-widest pl-4 border-l border-[#EF5304]">{video.description}</p>
          </div>
       </div>
    );
@@ -319,7 +319,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
    const showAll = !activeSection;
    const bgColor = data?.backgroundColor || '#ffffff';
    const txtColor = data?.textColor || '#000000';
-   const accentColor = data?.accentColor || '#FF5000';
+   const accentColor = data?.accentColor || '#EF5304';
 
    return (
       <div className={`min-h-screen ${!showAll ? 'pt-24' : 'pt-28'}`} style={{ backgroundColor: bgColor, color: txtColor }}>
@@ -380,7 +380,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                              />
                                              <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/90 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                                 <h3 className="text-2xl font-black text-white uppercase mb-2">{video.title}</h3>
-                                                <p className="text-xs font-mono text-[#FF5000]">{video.description}</p>
+                                                <p className="text-xs font-mono text-[#EF5304]">{video.description}</p>
                                              </div>
                                           </div>
                                        ))}
@@ -410,15 +410,15 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                                    <AnimatePresence mode="wait">
                                                       <motion.div key={activeVideo} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.3 }}>
                                                          <h2 className="text-7xl font-black text-white uppercase tracking-tighter mb-4 leading-none">{currentVideo.title}</h2>
-                                                         <p className="text-white/60 font-mono text-base border-l-2 border-[#FF5000] pl-6 uppercase tracking-wider">{currentVideo.description}</p>
+                                                         <p className="text-white/60 font-mono text-base border-l-2 border-[#EF5304] pl-6 uppercase tracking-wider">{currentVideo.description}</p>
                                                       </motion.div>
                                                    </AnimatePresence>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-3 max-h-[50vh] overflow-y-auto pr-4 no-scrollbar">
                                                    {currentService.videos.map((vid: any, vIdx: number) => (
                                                       <button key={vid.id} onClick={() => setActiveVideo(vIdx)} className={`flex items-center gap-4 transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100 scale-105' : 'opacity-30 hover:opacity-100'}`}>
-                                                         <span className={`text-[10px] font-mono tracking-widest uppercase ${activeVideo === vIdx ? 'text-[#FF5000]' : 'text-white'}`}>{vid.title}</span>
-                                                         <div className={`w-1.5 h-1.5 ${activeVideo === vIdx ? 'bg-[#FF5000]' : 'bg-white'}`} />
+                                                         <span className={`text-[10px] font-mono tracking-widest uppercase ${activeVideo === vIdx ? 'text-[#EF5304]' : 'text-white'}`}>{vid.title}</span>
+                                                         <div className={`w-1.5 h-1.5 ${activeVideo === vIdx ? 'bg-[#EF5304]' : 'bg-white'}`} />
                                                       </button>
                                                    ))}
                                                 </div>
@@ -449,11 +449,16 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
          </div>
 
          {(showAll || activeSection === 'cta') && (
-            <div className="max-w-7xl mx-auto px-10 md:px-6 flex flex-col items-center pt-12 pb-32 border-t border-black/5">
-               <motion.button whileHover={{ scale: 1.02 }} onClick={onContactClick} className="group relative flex items-center gap-6 py-6 px-16 bg-black text-white overflow-hidden">
+            <div className="w-full flex justify-center py-20 mt-12 border-t border-black/5" style={{ backgroundColor: data?.footerBgColor || 'transparent' }}>
+               <motion.button 
+                  whileHover={{ scale: 1.05 }} 
+                  onClick={onContactClick} 
+                  className="group relative flex items-center gap-6 py-6 px-16 overflow-hidden rounded-sm"
+                  style={{ backgroundColor: data?.ctaBgColor || '#000000', color: data?.ctaTextColor || '#ffffff' }}
+               >
                   <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.6em]">{data?.cta || "SCHEDULE_CALL"}</span>
                   <ArrowUpRight size={18} className="relative z-10" />
-                  <div className="absolute inset-0 bg-[#FF5000] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                  <div className="absolute inset-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500" style={{ backgroundColor: data?.ctaHoverColor || '#EF5304' }} />
                </motion.button>
             </div>
          )}

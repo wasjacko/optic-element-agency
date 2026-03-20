@@ -47,7 +47,7 @@ export const DataMetrics = () => {
                         <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight uppercase text-white mb-6">
                             Our<br />Values.
                         </h3>
-                        <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#FF5000] leading-relaxed max-w-xs opacity-80">
+                        <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#EF5304] leading-relaxed max-w-xs opacity-80">
                             [ Six fundamental principles guiding every pixel and strategy we deploy. ]
                         </p>
                     </div>
@@ -81,7 +81,7 @@ const ValueItem = ({ item, index }: { item: typeof VALUES[0], index: number }) =
             style={{ opacity, x }}
             className="group py-12 border-b border-white/5 flex flex-col md:flex-row gap-6 md:items-baseline transition-colors hover:border-white/20"
         >
-            <span className="font-mono text-xs text-[#FF5000] tabular-nums opacity-60">
+            <span className="font-mono text-xs text-[#EF5304] tabular-nums opacity-60">
                 {item.id}
             </span>
 

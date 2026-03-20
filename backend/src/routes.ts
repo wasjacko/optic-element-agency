@@ -3,6 +3,7 @@ import { rateLimit } from 'express-rate-limit';
 import { createBooking, getAvailability, confirmBooking, cancelBooking, getAdminBookings, updateBookingStatusAdmin } from './controllers/bookingController';
 import { requestLoginCode, verifyLoginCode } from './controllers/authController';
 import { getContent, updateContent } from './controllers/cmsController';
+import { authenticateAdmin } from './middleware/authMiddleware';
 
 const router = Router();
 
@@ -24,16 +25,16 @@ router.get('/bookings/confirm', confirmBooking);
 router.get('/bookings/cancel', cancelBooking);
 
 // Admin Endpoints
-router.get('/admin/bookings', getAdminBookings);
-router.post('/admin/bookings/:id/status', updateBookingStatusAdmin);
+router.get('/admin/bookings', authenticateAdmin, getAdminBookings);
+router.post('/admin/bookings/:id/status', authenticateAdmin, updateBookingStatusAdmin);
 
 // Auth Endpoints
 router.post('/auth/send-code', requestLoginCode);
 router.post('/auth/verify-code', verifyLoginCode);
 
 // CMS Content Manager
-router.get('/cms/content', getContent); // Get JSON
-router.post('/cms/content', updateContent); // Save JSON
+router.get('/cms/content', getContent); // Get JSON (Public for website display)
+router.post('/cms/content', authenticateAdmin, updateContent); // Save JSON (Protected)
 
 // Admin Content Update (Removed)
 // import { updateContent } from './controllers/adminController';
