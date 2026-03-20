@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { createBooking, getAvailability, confirmBooking, cancelBooking, getAdminBookings, updateBookingStatusAdmin } from './controllers/bookingController';
-import { requestLoginCode, verifyLoginCode } from './controllers/authController';
-import { getContent, updateContent } from './controllers/cmsController';
-import { authenticateAdmin } from './middleware/authMiddleware';
+import { createBooking, getAvailability, confirmBooking, cancelBooking, getAdminBookings, updateBookingStatusAdmin } from './controllers/bookingController.js';
+import { requestLoginCode, verifyLoginCode } from './controllers/authController.js';
+import { getContent, updateContent } from './controllers/cmsController.js';
+import { authenticateAdmin } from './middleware/authMiddleware.js';
 
 const router = Router();
 
