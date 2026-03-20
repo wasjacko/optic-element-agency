@@ -103,7 +103,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX, onClick }: { projec
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // play/pause logic (wider center for smoother playback start)
-  const isCentered = useInView(cardRef, { margin: "-30% 0px -30% 0px" });
+  const isCentered = useInView(cardRef, { margin: "-20% 0px -20% 0px" });
 
   useEffect(() => {
     const video = videoRef.current;
@@ -117,7 +117,9 @@ const ParabolicCard = React.memo(({ project, index, scrollX, onClick }: { projec
     } else {
       video.pause();
       // Keep it at startTime when not centered so the "thumbnail" is always ready
-      video.currentTime = startTime;
+      if (video.currentTime !== startTime) {
+        video.currentTime = startTime;
+      }
     }
   }, [isCentered, startTime]);
 
@@ -127,8 +129,8 @@ const ParabolicCard = React.memo(({ project, index, scrollX, onClick }: { projec
   // Performance optimization: Hide content if too far
   const opacity = useTransform(dist, (d: number) => {
     const ad = Math.abs(d);
-    if (ad > 1200) return 0;
-    if (ad > 800) return (1200 - ad) / 400;
+    if (ad > 1500) return 0;
+    if (ad > 1000) return (1500 - ad) / 500;
     return 1;
   });
 
@@ -173,12 +175,14 @@ const ParabolicCard = React.memo(({ project, index, scrollX, onClick }: { projec
           <video
             ref={videoRef}
             src={project.src}
-            poster={project.poster}
+            poster={project.poster || project.src.replace(/\.(mp4|mov|webm)$/, '.jpg')}
             muted
             playsInline
-            preload="none"
+            preload="metadata"
             onLoadedData={(e) => {
-              e.currentTarget.currentTime = startTime;
+              if (e.currentTarget.currentTime === 0) {
+                e.currentTarget.currentTime = startTime;
+              }
             }}
             onTimeUpdate={(e) => {
               if (e.currentTarget.currentTime >= loopEndTime) {
@@ -223,11 +227,11 @@ const MobileProjectCard = ({ project, onClick }: { project: any, onClick: () => 
           <video
             ref={videoRef}
             src={project.src}
-            poster={project.poster}
+            poster={project.poster || project.src.replace(/\.(mp4|mov|webm)$/, '.jpg')}
             loop
             muted
             playsInline
-            preload="none"
+            preload="metadata"
             className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
           />
         </div>

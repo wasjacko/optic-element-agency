@@ -171,7 +171,7 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
     )
 });
 
-const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026.mp4";
+const INNER_CUBE_VIDEO = "/assets/main-reel.mp4";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
     const localTexture = useMemo(() => texture.clone(), [texture]);
@@ -698,19 +698,19 @@ const VideoModal = ({ videoSrc, isOpen, onClose }: { videoSrc: string, isOpen: b
 };
 
 // --- Main Hero Component ---
-const CUBE_VIDEO_URL = "/assets/oe-showreel-2026.mp4";
+const SHOWREEL_FULL = "/assets/oe-showreel-2026.mp4";
 
 export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete }) => {
     const content = data || homeContent.hero;
     const currentTheme = theme || homeContent.theme; // Fallback to import if no prop
 
     const videos = useMemo(() => [
-        CUBE_VIDEO_URL,
-        CUBE_VIDEO_URL,
-        CUBE_VIDEO_URL,
-        CUBE_VIDEO_URL,
-        CUBE_VIDEO_URL,
-        CUBE_VIDEO_URL
+        SHOWREEL_FULL,
+        SHOWREEL_FULL,
+        SHOWREEL_FULL,
+        SHOWREEL_FULL,
+        SHOWREEL_FULL,
+        SHOWREEL_FULL
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
     const isInView = useInView(sectionRef, { margin: "100px" });
@@ -1090,7 +1090,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
             </div>
             
             <VideoModal 
-                videoSrc={CUBE_VIDEO_URL} 
+                videoSrc={SHOWREEL_FULL} 
                 isOpen={isHeroVideoOpen} 
                 onClose={() => setIsHeroVideoOpen(false)} 
             />
