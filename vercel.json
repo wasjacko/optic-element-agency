@@ -1,9 +1,10 @@
 {
+  "name": "optic-element-agency",
   "version": 2,
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api"
     }
   ],
   "installCommand": "npm install",
