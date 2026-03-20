@@ -174,30 +174,6 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
 const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026.mp4";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
-    useEffect(() => {
-        const video = texture.image;
-        if (video instanceof HTMLVideoElement) {
-            const handleResize = () => {
-                if (video.videoWidth && video.videoHeight) {
-                    const videoAspect = video.videoWidth / video.videoHeight;
-                    const targetAspect = 1.0;
-                    if (videoAspect > targetAspect) {
-                        texture.repeat.set(targetAspect / videoAspect, 1);
-                        texture.offset.set((1 - (targetAspect / videoAspect)) / 2, 0);
-                    } else {
-                        texture.repeat.set(1, videoAspect / targetAspect);
-                        texture.offset.set(0, (1 - (videoAspect / targetAspect)) / 2);
-                    }
-                    texture.matrixAutoUpdate = false;
-                    texture.updateMatrix();
-                }
-            };
-            if (video.readyState >= 1) handleResize();
-            video.addEventListener('loadedmetadata', handleResize);
-            return () => video.removeEventListener('loadedmetadata', handleResize);
-        }
-    }, [texture]);
-
     return (
         <mesh ref={ref} scale={[0.99, 0.99, 0.99]}>
             <boxGeometry args={[3.0, 3.0, 3.0]} />
