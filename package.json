@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build && prisma generate --schema=backend/prisma/schema.prisma",
     "preview": "vite preview",
-    "postinstall": "prisma generate --schema=backend/prisma/schema.prisma"
+    "postinstall": "prisma generate --schema=backend/prisma/schema.prisma || true"
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
