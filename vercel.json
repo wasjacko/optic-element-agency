@@ -3,14 +3,9 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "api/index.ts"
+      "destination": "/api/index.ts"
     }
   ],
-  "functions": {
-    "api/index.ts": {
-      "runtime": "vercel-node@latest"
-    }
-  },
   "installCommand": "npm install",
-  "buildCommand": "vite build && prisma generate --schema=backend/prisma/schema.prisma"
+  "buildCommand": "prisma generate --schema=backend/prisma/schema.prisma && vite build"
 }
