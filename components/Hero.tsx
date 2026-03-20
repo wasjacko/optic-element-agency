@@ -831,8 +831,8 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
         <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
             {isInView && (
                 <Canvas
-                    dpr={isMobile ? [1.5, 3] : [1, 3]}
-                    performance={{ min: 0.65 }}
+                    dpr={isMobile ? [1, 2] : [1, 2]}
+                    performance={{ min: 0.5 }}
                     gl={{
                         alpha: true,
                         antialias: true,
