@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // Start Server
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
