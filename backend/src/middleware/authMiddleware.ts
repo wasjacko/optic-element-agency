@@ -16,7 +16,8 @@ export const authenticateAdmin = (req: AuthRequest, res: Response, next: NextFun
         
 
         
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'oe-agency-super-secure-key-2026') as any;
+        if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET missing");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
         
         if (decoded.role !== 'admin') {
             return res.status(403).json({ error: "Access Forbidden: Not an admin" });
