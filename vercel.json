@@ -11,5 +11,5 @@
     }
   ],
   "installCommand": "npm install",
-  "buildCommand": "npx prisma generate --schema=backend/prisma/schema.prisma && vite build"
+  "buildCommand": "npx prisma generate --schema=backend/prisma/schema.prisma || true && vite build"
 }
