@@ -1,3 +1,6 @@
+import { createRequire } from 'module';
+const requireModule = createRequire(import.meta.url);
+
 let _prisma: any = null;
 
 async function initPrisma() {
@@ -26,7 +29,7 @@ const prisma = new Proxy({} as any, {
             // If prisma hasn't been initialized yet, try sync approach
             try {
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
-                const { PrismaClient } = require('@prisma/client') as any;
+                const { PrismaClient } = requireModule('@prisma/client') as any;
                 _prisma = new PrismaClient();
             } catch (e: any) {
                 console.error('Prisma lazy init failed:', e.message);

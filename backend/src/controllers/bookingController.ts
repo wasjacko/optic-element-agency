@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import prisma from '../db';
-import { bookingSchema, generateActionToken, verifyActionToken } from '../utils';
-import { sendAdminRequestEmail, sendClientPendingEmail, sendClientConfirmationEmail, sendClientCancellationEmail } from '../services/email';
+import prisma from '../db.js';
+import { bookingSchema, generateActionToken, verifyActionToken } from '../utils.js';
+import { sendAdminRequestEmail, sendClientPendingEmail, sendClientConfirmationEmail, sendClientCancellationEmail } from '../services/email.js';
 import { subMinutes } from 'date-fns';
 
 export const createBooking = async (req: Request, res: Response): Promise<void> => {

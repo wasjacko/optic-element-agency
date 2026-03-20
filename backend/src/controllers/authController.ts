@@ -1,6 +1,6 @@
 
 import { Request, Response } from 'express';
-import { sendLoginCode } from '../services/email';
+import { sendLoginCode } from '../services/email.js';
 import jwt from 'jsonwebtoken';
 
 // In-Memory Store for OTPs (Map<email, {code, expiresAt}>)

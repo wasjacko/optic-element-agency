@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import router from './routes';
+import router from './routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
