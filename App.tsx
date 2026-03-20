@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, useRef } from 'react';
-import { AnimatePresence, motion, useInView } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // --- Shared Components (Synchronous) ---
 import { CustomCursor } from './components/CustomCursor';
@@ -45,12 +45,6 @@ const LazySection = ({ children }: { children: React.ReactNode }) => {
       {children}
     </Suspense>
   );
-};
-
-const LazyMount = ({ children }: { children: React.ReactNode }) => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { margin: "500px", once: true });
-  return <div ref={ref}>{inView ? children : null}</div>;
 };
 
 const updateTheme = (theme: any) => {
@@ -151,12 +145,12 @@ function App() {
                 />
               </div>
               <div className={`transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0'}`}>
-                <LazyMount><LazySection><Brands title={cmsContent.brands?.title} data={cmsContent} /></LazySection></LazyMount>
-                <LazyMount><LazySection><ProcessSprint data={cmsContent.sprint} /></LazySection></LazyMount>
-                <LazyMount><LazySection><MissingElements data={cmsContent.missingElements} /></LazySection></LazyMount>
-                <LazyMount><LazySection><Projects data={cmsContent} title={cmsContent.projects?.title} onWorksClick={handleWorksClick} /></LazySection></LazyMount>
-                <LazyMount><LazySection><Testimonials data={cmsContent.testimonials} /></LazySection></LazyMount>
-                <LazyMount><LazySection><Footer onContactClick={handleContactClick} /></LazySection></LazyMount>
+                <LazySection><Brands title={cmsContent.brands?.title} data={cmsContent} /></LazySection>
+                <LazySection><ProcessSprint data={cmsContent.sprint} /></LazySection>
+                <LazySection><MissingElements data={cmsContent.missingElements} /></LazySection>
+                <LazySection><Projects data={cmsContent} title={cmsContent.projects?.title} onWorksClick={handleWorksClick} /></LazySection>
+                <LazySection><Testimonials data={cmsContent.testimonials} /></LazySection>
+                <LazySection><Footer onContactClick={handleContactClick} /></LazySection>
               </div>
             </motion.div>
           )}
