@@ -134,6 +134,10 @@
     },
     "about": {
         "title": "WHO ARE WE",
+        "backgroundColor": "#000000",
+        "textColor": "#ffffff",
+        "teamBgColor": "#000000",
+        "teamTextColor": "#ffffff",
         "teamCta": "JOIN_THE_TEAM",
         "videoUrl": "/assets/about-video.mp4"
     },
