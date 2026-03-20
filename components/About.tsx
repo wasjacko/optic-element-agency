@@ -354,7 +354,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
         <section className="pt-12 pb-32 border-t border-black/5 text-inherit" style={{ backgroundColor: 'transparent', borderColor: txtColor === '#ffffff' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }}>
           <div className="max-w-7xl mx-auto px-10 md:px-6">
             <div className="flex flex-col items-center justify-center py-4 mb-12">
-              <h2 className="text-2xl md:text-4xl font-black uppercase text-center leading-tight tracking-tighter cursor-default" style={{ color: txtColor }}>
+              <h2 className="text-2xl md:text-4xl font-black uppercase text-center leading-tight tracking-tighter cursor-default text-black">
                 Core Values
               </h2>
             </div>
@@ -365,8 +365,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                   return (
                     <div
                       key={i}
-                      className="relative px-8 py-16 flex flex-col items-center text-center w-full border border-gray-100"
-                      style={{ backgroundColor: bgColor }}
+                      className="relative px-8 py-16 flex flex-col items-center text-center w-full bg-white border border-gray-100"
                     >
                       {/* Prominent Mobile Brackets */}
                       <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#EF5304] z-10" />
@@ -374,7 +373,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                       <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-[#EF5304] z-10" />
                       <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#EF5304] z-10" />
 
-                      <h4 className="text-2xl font-black uppercase tracking-tighter mb-6 leading-none" style={{ color: txtColor }}>
+                      <h4 className="text-2xl font-black uppercase tracking-tighter text-black mb-6 leading-none">
                         {diff.title}
                       </h4>
                       <p className="text-[12px] leading-relaxed text-gray-500 font-ocr uppercase tracking-[0.05em] max-w-[240px]">
@@ -399,7 +398,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
                     {/* Periodic Table Styled Background Decor */}
                     <div className="absolute top-8 right-8 text-right opacity-[0.03] group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-                      <div className="text-5xl font-black group-hover:text-white transition-colors duration-500" style={{ color: txtColor }}>{diff.symbol}</div>
+                      <div className="text-5xl font-black text-black group-hover:text-white transition-colors duration-500">{diff.symbol}</div>
                     </div>
 
                     {/* Corner Squares */}
@@ -426,7 +425,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                       <div>
                         {/* Title */}
                         <div className="min-h-[4rem] flex items-end mb-6">
-                          <h4 className="text-xl md:text-2xl font-black uppercase tracking-tighter group-hover:text-white leading-none w-full transition-colors duration-500" style={{ color: txtColor }}>
+                          <h4 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-black group-hover:text-white leading-none w-full transition-colors duration-500">
                             {diff.title}
                           </h4>
                         </div>

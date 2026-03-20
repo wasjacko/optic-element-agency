@@ -110,11 +110,11 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                 <video
                     ref={videoRef}
                     src={reel.url || reel.src}
-                    poster={reel.poster || (reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
+                    poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                     loop
                     muted
                     playsInline
-                    preload="metadata"
+                    preload="none"
                     className="w-full h-full object-cover"
                 />
 
@@ -269,11 +269,10 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
             <video
                 ref={videoRef}
                 src={reel.url || reel.src}
-                poster={reel.poster || (reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
+                poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                 loop
                 muted
                 playsInline
-                preload="metadata"
                 className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
