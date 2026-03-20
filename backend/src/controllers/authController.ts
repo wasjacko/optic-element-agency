@@ -7,11 +7,7 @@ import jwt from 'jsonwebtoken';
 // In production, use Redis or Database
 const otpStore = new Map<string, { code: string, expiresAt: number }>();
 
-const ALLOWED_ADMIN_EMAILS = [
-    "santiago_c_t@live.com",
-    "webwacilait@gmail.com",
-    "wasshait@gmail.com"
-];
+const ALLOWED_ADMIN_EMAILS = (process.env.ALLOWED_EMAILS || "").split(",");
 
 export const requestLoginCode = async (req: Request, res: Response): Promise<any> => {
     try {
