@@ -32,3 +32,21 @@ model Booking {
   @@index([start, end])
   @@index([status])
 }
+
+model AdminOtp {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  code          String
+  expiresAt     DateTime
+  lastRequestAt DateTime @default(now())
+  attempts      Int      @default(0)
+  
+  @@index([email])
+}
+
+model CmsContent {
+  id        String   @id @default("global")
+  content   Json
+  updatedAt DateTime @updatedAt
+}
+
