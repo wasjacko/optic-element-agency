@@ -446,50 +446,10 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             transition={{ duration: 0.5 }}
                             className="min-h-full p-6 space-y-8 pb-32 transition-colors duration-500"
                             style={{ 
-                                backgroundColor: (() => {
-                                    if (activePage === 'home') {
-                                        if (activeSection === 'hero') return content.hero?.backgroundColor || '#121212';
-                                        if (activeSection === 'brands') return content.brands?.backgroundColor || '#0d0d0d';
-                                        if (activeSection === 'works') return content.projects?.backgroundColor || '#0d0d0d';
-                                        if (activeSection === 'sprint') return content.sprint?.backgroundColor || '#0d0d0d';
-                                        if (activeSection === 'testimonials') return content.testimonials?.backgroundColor || '#ffffff';
-                                        if (activeSection === 'missingElements') return content.missingElements?.backgroundColor || '#ffffff';
-                                        if (activeSection === 'about') return content.about?.backgroundColor || '#ffffff';
-                                        if (activeSection === 'contact') return content.contact?.backgroundColor || '#ffffff';
-                                        if (activeSection === 'lab') return '#ffffff';
-                                    }
-                                    if (activePage === 'about') return content.about?.backgroundColor || '#ffffff';
-                                    if (activePage === 'contact') return content.contact?.backgroundColor || '#ffffff';
-                                    if (activePage === 'works') return content.worksPage?.backgroundColor || '#ffffff';
-                                    if (activePage === 'process') return content.processPage?.backgroundColor || '#000000';
-                                    if (activePage === 'lab') return content.lab?.backgroundColor || '#ffffff';
-                                    return '#ffffff';
-                                })()
+                                backgroundColor: '#f9fafb' 
                             }}
                         >
-                            {/* Force Text Color based on BG Brightness (simplified: check if dark) */}
-                            <div style={{ 
-                                color: (() => {
-                                    const bg = (() => {
-                                        if (activePage === 'home') {
-                                            if (activeSection === 'hero') return content.hero?.backgroundColor || '#121212';
-                                            if (activeSection === 'brands') return content.brands?.backgroundColor || '#0d0d0d';
-                                            if (activeSection === 'works') return content.projects?.backgroundColor || '#0d0d0d';
-                                            if (activeSection === 'sprint') return content.sprint?.backgroundColor || '#0d0d0d';
-                                            if (activeSection === 'testimonials') return content.testimonials?.backgroundColor || '#ffffff';
-                                            if (activeSection === 'missingElements') return content.missingElements?.backgroundColor || '#ffffff';
-                                        }
-                                        if (activePage === 'about') return content.about?.backgroundColor || '#ffffff';
-                                        if (activePage === 'contact') return content.contact?.backgroundColor || '#ffffff';
-                                        if (activePage === 'works') return content.worksPage?.backgroundColor || '#ffffff';
-                                        if (activePage === 'process') return content.processPage?.backgroundColor || '#000000';
-                                        return '#ffffff';
-                                    })();
-                                    // Basic dark mode detection (hex)
-                                    const isDark = bg.toLowerCase().includes('#0d0d0d') || bg.toLowerCase().includes('#121212') || bg.toLowerCase().includes('#000000') || bg.toLowerCase().includes('#1a1a1a');
-                                    return isDark ? '#ffffff' : '#000000';
-                                })()
-                            }} className="space-y-8">
+                            <div style={{ color: '#000000' }} className="space-y-8">
 
                         {/* --- HOME SECTIONS --- */}
                         {activePage === 'home' && activeSection === 'hero' && content?.hero && (
