@@ -37,19 +37,19 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
   await transporter.sendMail({
     from,
     to,
-    subject: `Nouvelle demande de réservation: ${booking.name}`,
+    subject: `New Booking Request: ${booking.name}`,
     html: `
-      <h2>Nouvelle demande</h2>
+      <h2>New Booking Request</h2>
       <p><strong>Client:</strong> ${booking.name} (${booking.email})</p>
-      <p><strong>Tel:</strong> ${booking.phone}</p>
-      <p><strong>Date:</strong> ${new Date(booking.start).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })} à ${new Date(booking.end).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</p>
+      <p><strong>Phone:</strong> ${booking.phone}</p>
+      <p><strong>Time:</strong> ${new Date(booking.start).toLocaleString('en-US')} to ${new Date(booking.end).toLocaleString('en-US')}</p>
       <p><strong>Notes:</strong> ${booking.notes || '-'}</p>
       
       <div style="margin-top: 20px;">
-        <a href="${confirmUrl}" style="background-color: green; color: white; padding: 10px 20px; text-decoration: none; margin-right: 10px;">Confirmer</a>
-        <a href="${cancelUrl}" style="background-color: red; color: white; padding: 10px 20px; text-decoration: none;">Refuser</a>
+        <a href="${confirmUrl}" style="background-color: #EF5304; color: white; padding: 10px 20px; text-decoration: none; margin-right: 10px; border-radius: 4px;">Confirm</a>
+        <a href="${cancelUrl}" style="background-color: transparent; border: 1px solid #333; color: #333; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Reject</a>
       </div>
-      <p><small>Ces liens expirent dans 7 jours.</small></p>
+      <p><small>These links expire in 7 days.</small></p>
     `
   });
 }
@@ -60,14 +60,14 @@ export async function sendClientPendingEmail(booking: any) {
   await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
-    subject: 'Votre demande de réservation est reçue',
+    subject: 'Booking Request Received - Optic Element',
     html: `
-      <h1>Demande reçue</h1>
-      <p>Bonjour ${booking.name},</p>
-      <p>Nous avons bien reçu votre demande pour le créneau suivant :</p>
-      <p><strong>Début :</strong> ${new Date(booking.start).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</p>
-      <p><strong>Fin :</strong> ${new Date(booking.end).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</p>
-      <p>Nous reviendrons vers vous rapidement pour confirmation.</p>
+      <h1>Request Received</h1>
+      <p>Hello ${booking.name},</p>
+      <p>We have received your booking request for the following slot:</p>
+      <p><strong>Start:</strong> ${new Date(booking.start).toLocaleString('en-US')}</p>
+      <p><strong>End:</strong> ${new Date(booking.end).toLocaleString('en-US')}</p>
+      <p>Our team will review your request and get back to you shortly for confirmation.</p>
     `
   });
 }
@@ -78,13 +78,13 @@ export async function sendClientConfirmationEmail(booking: any) {
   await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
-    subject: 'Réservation CONFIRMÉE',
+    subject: 'Booking CONFIRMED - Optic Element',
     html: `
       <h1>Confirmation</h1>
-      <p>Bonjour ${booking.name},</p>
-      <p>Votre réservation est confirmée.</p>
-      <p><strong>Date:</strong> ${new Date(booking.start).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</p>
-      <p>A très vite au studio.</p>
+      <p>Hello ${booking.name},</p>
+      <p>Your booking is confirmed.</p>
+      <p><strong>Date:</strong> ${new Date(booking.start).toLocaleString('en-US')}</p>
+      <p>See you soon at the studio.</p>
     `
   });
 }
@@ -95,11 +95,11 @@ export async function sendClientCancellationEmail(booking: any) {
   await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
-    subject: 'Mise à jour de votre réservation',
+    subject: 'Booking Status Update - Optic Element',
     html: `
-      <p>Bonjour ${booking.name},</p>
-      <p>Votre demande de réservation a été annulée ou refusée.</p>
-      <p>Merci de nous contacter pour plus d'informations.</p>
+      <p>Hello ${booking.name},</p>
+      <p>Your booking request has been cancelled or rejected.</p>
+      <p>Please contact us if you need more information.</p>
     `
   });
 }
@@ -113,15 +113,17 @@ export async function sendLoginCode(email: string, code: string) {
   await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: email,
-    subject: 'Votre code de connexion Configurateur',
+    subject: 'Your Dashboard Login Code',
     html: `
-      <div style="font-family: monospace; padding: 20px; background: #000; color: #fff;">
-        <h1 style="color: #EF5304;">SECURITY ALERT</h1>
-        <p>Une nouvelle demande d'accès au configurateur a été initiée depuis votre lien administrateur.</p>
-        <p>Utilisez ce code d'authentification pour confirmer :</p>
-        <h2 style="font-size: 32px; letter-spacing: 10px; border: 1px solid #333; display: inline-block; padding: 10px 20px;">${code}</h2>
-        <p style="color: #666; font-size: 12px; margin-top: 20px;">Ce code expire dans 5 minutes.</p>
-        <p style="color: #666; font-size: 12px;">Si ce n'est pas vous, ignorez cet e-mail.</p>
+      <div style="font-family: sans-serif; padding: 40px; background: #fff; color: #000; border: 1px solid #eee;">
+        <h1 style="color: #000; font-size: 20px; letter-spacing: -0.5px; border-bottom: 2px solid #EF5304; padding-bottom: 15px; display: inline-block;">ADMIN DASHBOARD ACCESS</h1>
+        <p style="margin-top: 30px; font-size: 14px; color: #666;">A new login request was triggered for the Optic Element dashboard.</p>
+        <p style="font-size: 14px; color: #666;">Use the following authentication code to confirm:</p>
+        <div style="margin: 30px 0;">
+          <h2 style="font-size: 42px; letter-spacing: 12px; font-weight: 800; color: #000;">${code}</h2>
+        </div>
+        <p style="color: #999; font-size: 11px; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">This code expires in 5 minutes.</p>
+        <p style="color: #999; font-size: 11px;">If you did not request this code, please ignore this email.</p>
       </div>
     `
   });
