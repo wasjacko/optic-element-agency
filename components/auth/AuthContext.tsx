@@ -2,9 +2,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { requestAuthCode, verifyAuthCode } from '../../src/utils/auth-client';
 
-// Default password hash (corresponding to "admin123")
-const DEFAULT_HASH = "240be518fabd2724ddb6f04eeb1da5967406eb431c63fca5db4a22461ac6e8b6";
-
 interface AuthContextType {
     isAuthenticated: boolean;
     requestOtp: (email: string) => Promise<{ success: boolean; message?: string }>;
@@ -43,24 +40,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => clearInterval(timer);
     }, [lockoutUntil]);
 
+    // Check Session on Start
     useEffect(() => {
-        // OWASP: Use sessionStorage instead of localStorage for sensitive sessions
-        // so it clears when the tab is closed.
-        const session = sessionStorage.getItem('oe_admin_session');
-        const lastActivity = sessionStorage.getItem('oe_admin_last_activity');
-
-        // Check Session Validity and Timeout
-        if (session && lastActivity) {
-            const timeSinceActivity = Date.now() - parseInt(lastActivity, 10);
-            if (timeSinceActivity < SESSION_TIMEOUT) {
-                setIsAuthenticated(true);
-            } else {
-                // Session expired
-                logout();
+        const checkSession = () => {
+            try {
+                const session = sessionStorage.getItem('oe_admin_session');
+                const lastActivity = sessionStorage.getItem('oe_admin_last_activity');
+                
+                if (session && lastActivity) {
+                    const isTimeout = (Date.now() - parseInt(lastActivity)) > SESSION_TIMEOUT;
+                    if (!isTimeout) {
+                        setIsAuthenticated(true);
+                    } else {
+                        sessionStorage.removeItem('oe_admin_session');
+                        sessionStorage.removeItem('oe_admin_last_activity');
+                    }
+                }
+            } catch (e) {
+                console.error("Auth session check error:", e);
+            } finally {
+                setIsLoading(false);
             }
-        }
-
-        setIsLoading(false);
+        };
+        checkSession();
     }, []);
 
     // Update Activity Timestamp on clicks to keep session alive
@@ -75,39 +77,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [isAuthenticated]);
 
     const requestOtp = async (email: string) => {
-        // 1. Check Rate Limiting
         if (Date.now() < lockoutUntil) return { success: false, message: "System Locked" };
-
         const res = await requestAuthCode(email);
         return res;
     };
 
     const verifyOtp = async (email: string, code: string) => {
-        // 1. Check Rate Limiting
         if (Date.now() < lockoutUntil) return false;
 
-        // 2. Verify Code
         const res = await verifyAuthCode(email, code);
 
         if (res.success) {
-            // 3. Reset Attempts on Success
             setAttempts(0);
             setLockoutUntil(0);
-
-            // 4. Create Session
             sessionStorage.setItem('oe_admin_session', res.token || 'valid');
             sessionStorage.setItem('oe_admin_last_activity', Date.now().toString());
             setIsAuthenticated(true);
             return true;
         } else {
-            // 5. Increment Rate Limit
             const newAttempts = attempts + 1;
             setAttempts(newAttempts);
-
             if (newAttempts >= MAX_ATTEMPTS) {
                 setLockoutUntil(Date.now() + LOCKOUT_DURATION);
             }
-
             return false;
         }
     };

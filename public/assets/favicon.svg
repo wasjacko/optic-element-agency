@@ -5,6 +5,6 @@
     <path d="M70 0H100V30H90V10H70V0Z" fill="white" />
     <path d="M100 70V100H70V90H90V70H100Z" fill="white" />
     <path d="M30 100H0V70H10V90H30V100Z" fill="white" />
-    <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#FF5000" />
+    <path d="M44 32H56V44H68V56H56V68H44V56H32V44H44V32Z" fill="#EF5304" />
   </g>
 </svg>

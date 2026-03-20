@@ -115,7 +115,7 @@ export const VideoSection: React.FC<{ data?: any }> = ({ data }) => {
                     onClick={togglePlay}
                     className={`w-20 h-20 rounded-full flex items-center justify-center bg-white/5 hover:text-white transition-all transform hover:scale-105 border border-white/5 ${!isPlaying ? 'opacity-100 shadow-[0_0_40px_rgba(255,80,0,0.3)]' : ''}`}
                     style={{
-                      color: !isPlaying ? (data?.accentColor || '#FF5000') : 'rgba(255,255,255,0.4)',
+                      color: !isPlaying ? (data?.accentColor || '#EF5304') : 'rgba(255,255,255,0.4)',
                       backgroundColor: !isPlaying ? (data?.accentColor ? `${data.accentColor}1A` : 'rgba(255,80,0,0.1)') : undefined,
                       borderColor: !isPlaying ? (data?.accentColor ? `${data.accentColor}66` : 'rgba(255,80,0,0.4)') : undefined
                     }}

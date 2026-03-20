@@ -1,13 +1,24 @@
-
-import { Resend } from 'resend';
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import nodemailer from 'nodemailer';
 
 // Helpers
 const getBaseUrl = () => process.env.API_URL || 'http://localhost:3000';
 
+// Configure Nodemailer transporter
+// Use SMTP credentials from .env
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+const isEmailConfigured = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+
 export async function sendAdminRequestEmail(booking: any, token: string) {
-  if (!resend) {
+  if (!isEmailConfigured) {
     console.log('[Mock Email] Admin Request:', booking);
     return;
   }
@@ -15,7 +26,7 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
   const confirmUrl = `${getBaseUrl()}/api/bookings/confirm?token=${token}`;
   const cancelUrl = `${getBaseUrl()}/api/bookings/cancel?token=${token}`;
 
-  const from = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+  const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
   const to = process.env.ADMIN_EMAIL;
 
   if (!to) {
@@ -23,7 +34,7 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
     return;
   }
 
-  await resend.emails.send({
+  await transporter.sendMail({
     from,
     to,
     subject: `Nouvelle demande de réservation: ${booking.name}`,
@@ -44,10 +55,10 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
 }
 
 export async function sendClientPendingEmail(booking: any) {
-  if (!resend) return;
+  if (!isEmailConfigured) return;
 
-  await resend.emails.send({
-    from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
     subject: 'Votre demande de réservation est reçue',
     html: `
@@ -62,10 +73,10 @@ export async function sendClientPendingEmail(booking: any) {
 }
 
 export async function sendClientConfirmationEmail(booking: any) {
-  if (!resend) return;
+  if (!isEmailConfigured) return;
 
-  await resend.emails.send({
-    from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
     subject: 'Réservation CONFIRMÉE',
     html: `
@@ -79,10 +90,10 @@ export async function sendClientConfirmationEmail(booking: any) {
 }
 
 export async function sendClientCancellationEmail(booking: any) {
-  if (!resend) return;
+  if (!isEmailConfigured) return;
 
-  await resend.emails.send({
-    from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: booking.email,
     subject: 'Mise à jour de votre réservation',
     html: `
@@ -94,20 +105,20 @@ export async function sendClientCancellationEmail(booking: any) {
 }
 
 export async function sendLoginCode(email: string, code: string) {
-  if (!resend) {
-    console.log(`[Mock Email] Login Code for ${email}: ${code}`);
+  if (!isEmailConfigured) {
+    console.log(`[Mock Email] Login Code for admin: ${code}`);
     return;
   }
 
-  await resend.emails.send({
-    from: process.env.FROM_EMAIL || 'security@resend.dev',
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
     to: email,
-    subject: 'Votre code de connexion Admin',
+    subject: 'Votre code de connexion Configurateur',
     html: `
       <div style="font-family: monospace; padding: 20px; background: #000; color: #fff;">
-        <h1 style="color: #FF5000;">SECURITY ALERT</h1>
-        <p>Une tentative de connexion a été détectée.</p>
-        <p>Votre code d'accès unique :</p>
+        <h1 style="color: #EF5304;">SECURITY ALERT</h1>
+        <p>Une nouvelle demande d'accès au configurateur a été initiée depuis votre lien administrateur.</p>
+        <p>Utilisez ce code d'authentification pour confirmer :</p>
         <h2 style="font-size: 32px; letter-spacing: 10px; border: 1px solid #333; display: inline-block; padding: 10px 20px;">${code}</h2>
         <p style="color: #666; font-size: 12px; margin-top: 20px;">Ce code expire dans 5 minutes.</p>
         <p style="color: #666; font-size: 12px;">Si ce n'est pas vous, ignorez cet e-mail.</p>

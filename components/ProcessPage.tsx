@@ -17,7 +17,7 @@ const STEPS = [
     label: "We define the North Star.",
     description: "We align on goals, positioning, and direction, then map the path forward before execution begins.",
     icon: BrainCircuit,
-    color: "#FF5000",
+    color: "#EF5304",
     tag: "Define the Vision"
   },
   {
@@ -35,7 +35,7 @@ const STEPS = [
     label: "PRODUCTION",
     description: "Our team films your content, captures b-roll, and follows a detailed plan to keep things smooth.",
     icon: Aperture,
-    color: "#FF5000",
+    color: "#EF5304",
     tag: "Lights, Camera, Action"
   },
   {
@@ -53,7 +53,7 @@ const STEPS = [
     label: "From shoot to structure.",
     description: "We edit and refine every asset to match your brand, strategy, and objectives, reviewed for clarity and performance.",
     icon: ScanEye,
-    color: "#FF5000",
+    color: "#EF5304",
     tag: "STAY ALIGNED"
   },
   {
@@ -95,7 +95,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
   const showAll = !activeSection;
   const bgColor = data?.backgroundColor || '#000000';
   const txtColor = data?.textColor || '#ffffff';
-  const accentColor = data?.accentColor || '#FF5000';
+  const accentColor = data?.accentColor || '#EF5304';
 
   return (
     <section
@@ -183,7 +183,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span>Book a call with us</span>
+            <span>{data?.ctaText || "Book a call with us"}</span>
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </motion.button>
         </div>
@@ -192,7 +192,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
   );
 };
 
-const TimelineStep = ({ step, index, accentColor = '#FF5000', txtColor = '#ffffff', bgColor = '#000000', isMobile }: { step: typeof STEPS[0], index: number, accentColor?: string, txtColor?: string, bgColor?: string, isMobile: boolean }) => {
+const TimelineStep = ({ step, index, accentColor = '#EF5304', txtColor = '#ffffff', bgColor = '#000000', isMobile }: { step: typeof STEPS[0], index: number, accentColor?: string, txtColor?: string, bgColor?: string, isMobile: boolean }) => {
   const isEven = index % 2 === 0;
   const ref = useRef(null);
 

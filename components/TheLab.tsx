@@ -11,23 +11,7 @@ const getOptimizedWixUrl = (url: string, isMobile: boolean) => {
     return url.replace(/w_\d+,h_\d+,q_\d+/, `w_${width},h_${width},q_${quality}`);
 };
 
-const LAB_IMAGES = [
-    "/assets/lab/lab_7.jpg",
-    "/assets/lab/lab_9.jpg",
-    "/assets/lab/lab_10.jpg",
-    "/assets/lab/lab_2.jpg",
-    "/assets/lab/lab_8.jpg",
-    "/assets/lab/lab_11.jpg",
-    "/assets/lab/lab_12.jpg",
-    "/assets/lab/lab_13.jpg",
-    "/assets/lab/lab_14.jpg",
-    "/assets/lab/lab_15.jpg",
-    "/assets/lab/lab_16.jpg",
-    "/assets/lab/lab_17.jpg",
-    "/assets/lab/lab_18.jpg"
-];
 
-const ALL_GALLERY_IMAGES = [...LAB_IMAGES];
 
 const isVideo = (url: string) => url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.mov');
 
@@ -43,6 +27,19 @@ const TIME_SLOTS = [
 
 export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick, data }) => {
     // Gallery State
+    const LAB_IMAGES = data?.gallery && data.gallery.length > 0 ? data.gallery : [
+        "/assets/lab/lab_1.jpg", "/assets/lab/lab_2.jpg", "/assets/lab/lab_3.jpg",
+        "/assets/lab/lab_4.jpg", "/assets/lab/lab_5.jpg", "/assets/lab/lab_6.jpg",
+        "/assets/lab/lab_7.jpg", "/assets/lab/lab_8.jpg", "/assets/lab/lab_9.jpg",
+        "/assets/lab/lab_10.jpg", "/assets/lab/lab_11.jpg", "/assets/lab/lab_12.jpg",
+        "/assets/lab/lab_13.jpg", "/assets/lab/lab_14.jpg", "/assets/lab/lab_15.jpg",
+        "/assets/lab/lab_16.jpg", "/assets/lab/lab_17.jpg", "/assets/lab/lab_18.jpg",
+        "/assets/lab/lab_19.jpg", "/assets/lab/lab_20.jpg", "/assets/lab/lab_21.jpg",
+        "/assets/lab/lab_22.jpg"
+    ];
+    const ALL_GALLERY_IMAGES = [...LAB_IMAGES];
+    const mainVideoSrc = data?.mainVideo || "/videos/studioflythrough.mp4";
+
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -206,51 +203,63 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
     return (
         <div className="relative min-h-screen font-sans bg-white overflow-x-hidden pt-24 md:pt-32 selection:bg-black selection:text-white">
 
-            {/* SECTION 1: HEADER & ALIGNED LOGO */}
-            <section className="relative bg-white w-full mb-4 md:mb-6">
-                {/* Logo alignment matches Navbar perfectly on Desktop */}
-                <div className="hidden md:flex absolute inset-0 items-center justify-center px-10 md:px-32 pointer-events-none z-20">
-                    <div className="relative w-full max-w-[1800px] flex items-center justify-start h-full">
-                        <div className="ml-0 md:ml-4 pointer-events-auto flex items-center">
-                            <img
-                                src="/assets/lab-logo-black.png"
-                                alt="Logo"
-                                className="h-20 w-auto object-contain"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10 flex flex-col items-center">
-                    {/* Mobile Logo: visible only on mobile, smaller, and placed above the title to avoid overlap */}
-                    <div className="md:hidden mb-6">
+            {/* SECTION 1: HEADER */}
+            <header className="relative w-full pt-10 pb-6 md:pt-16 md:pb-12 bg-white">
+                <div className="max-w-[1800px] mx-auto px-10 md:px-32 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0">
+                    <div className="flex items-center shrink-0">
                         <img
                             src="https://www.dropbox.com/scl/fi/l13guxf7gy7mllw5sf7mq/pl-black.png?rlkey=4alsl4nxr2rfcf3k4flarhlll&st=6c7rab4l&raw=1"
                             alt="Logo"
-                            className="h-10 w-auto object-contain"
+                            className="h-12 md:h-16 w-auto object-contain"
                         />
                     </div>
-                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-black uppercase text-center leading-none">
-                        {data?.title || "THE LAB"}
-                    </h1>
+                    
+                    <div className="flex-1 text-center md:mr-16">
+                        <h1 className="text-4xl sm:text-5xl md:text-[5.5rem] font-bold tracking-tighter text-black uppercase leading-none">
+                            {data?.title || "THE LAB"}
+                        </h1>
+                    </div>
+                    
+                    {/* Placeholder div for desktop balance if needed or can keep it empty */}
+                    <div className="hidden md:block w-16" /> 
                 </div>
-            </section>
+            </header>
 
             {/* SECTION 2: SHOWCASE GALLERY (Full Width Video + Grid Below) */}
             <section className="w-full relative mb-12 px-6 md:px-32">
                 <div className="max-w-[1800px] mx-auto">
                     {/* Main FPV Video */}
-                    <div className="relative w-full aspect-video md:h-[80vh] overflow-hidden group shadow-2xl">
+                    <div className="relative w-full aspect-video md:h-[80vh] overflow-hidden group shadow-2xl bg-black rounded-sm">
                         <video
-                            src="/videos/studioflythrough.mp4"
+                            key={mainVideoSrc}
+                            src={mainVideoSrc}
                             autoPlay
                             muted
                             loop
                             playsInline
-                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.01]"
+                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.02]"
                         />
-                        <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <span className="text-white font-medium tracking-[0.2em] text-xs uppercase underline-offset-8 underline decoration-[#FF5000]">Studio FPV Flythrough</span>
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-700" />
+                        
+                        {/* Overlay Content */}
+                        <div className="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-black/80 via-transparent to-transparent">
+                            <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+                                <div>
+                                    <span className="text-white/60 font-mono text-[10px] tracking-[0.3em] uppercase block mb-1">Live Studio Access</span>
+                                    <span className="text-white font-bold tracking-[0.1em] text-sm md:text-xl uppercase flex items-center gap-4">
+                                        Studio FPV Flythrough <div className="w-2 h-2 rounded-full bg-[#EF5304] animate-pulse" />
+                                    </span>
+                                </div>
+                                
+                                <button
+                                    onClick={() => {
+                                        document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="bg-white text-black px-8 py-4 font-bold uppercase tracking-widest text-[11px] shadow-2xl flex items-center gap-4 transition-all hover:bg-[#EF5304] hover:text-white group-hover:translate-y-0 translate-y-2 opacity-0 group-hover:opacity-100 duration-300"
+                                >
+                                    BOOK THE LAB <ArrowRight size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -288,17 +297,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                     </div>
                 </div>
 
-                {/* Floating CTA */}
-                <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
-                    <button
-                        onClick={() => {
-                            document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                        className="bg-white text-black px-10 py-4 font-bold uppercase tracking-widest text-[10px] shadow-2xl flex items-center gap-4 rounded-none border border-black/10"
-                    >
-                        // BOOK THE LAB <div className="w-1 h-1 bg-[#FF5000] animate-pulse" /><ArrowRight size={14} />
-                    </button>
-                </div>
+
             </section>
 
 
@@ -315,7 +314,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                             <div className="p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-xl font-bold text-black flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-[#FF5000]/10 flex items-center justify-center text-[#FF5000]">
+                                        <div className="w-8 h-8 bg-[#EF5304]/10 flex items-center justify-center text-[#EF5304]">
                                             <CalendarIcon size={16} strokeWidth={2.5} />
                                         </div>
                                         Select Date
@@ -365,8 +364,8 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                                         ? 'text-gray-300 bg-gray-50 cursor-not-allowed decoration-gray-300'
                                                         : isSelected
                                                             ? 'bg-black text-white ring-2 ring-black z-10 shadow-md'
-                                                            : 'bg-white text-gray-600 hover:bg-[#FF5000] hover:text-white'}
-                                                    ${isToday && !isSelected && !isUnavailable ? 'text-[#FF5000] font-bold' : ''}
+                                                            : 'bg-white text-gray-600 hover:bg-[#EF5304] hover:text-white'}
+                                                    ${isToday && !isSelected && !isUnavailable ? 'text-[#EF5304] font-bold' : ''}
                                                 `}
                                             >
                                                 {day}
@@ -391,7 +390,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
                                             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block">Duration</label>
-                                            <span className="text-xs font-bold text-[#FF5000] uppercase tracking-widest">$200 / Hour</span>
+                                            <span className="text-xs font-bold text-[#EF5304] uppercase tracking-widest">$200 / Hour</span>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {DURATION_OPTIONS.map((opt) => (
@@ -567,7 +566,7 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                             <div className="text-black font-bold text-2xl leading-tight">
                                                 ${getPrice()}
                                             </div>
-                                            <div className="text-[#FF5000] text-sm font-medium">
+                                            <div className="text-[#EF5304] text-sm font-medium">
                                                 {selectedDuration} @ $200/hr
                                             </div>
                                         </div>
@@ -638,10 +637,10 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
                                 <span className="text-xs font-bold tracking-widest uppercase hidden md:block group-hover:pr-2 transition-all">Close</span>
                                 <X size={20} />
                             </button>
-                            <button onClick={prevImage} className="absolute left-0 md:-left-16 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-[#FF5000] hover:bg-white/10 rounded-full transition-all">
+                            <button onClick={prevImage} className="absolute left-0 md:-left-16 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-[#EF5304] hover:bg-white/10 rounded-full transition-all">
                                 <ChevronLeft size={40} />
                             </button>
-                            <button onClick={nextImage} className="absolute right-0 md:-right-16 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-[#FF5000] hover:bg-white/10 rounded-full transition-all">
+                            <button onClick={nextImage} className="absolute right-0 md:-right-16 top-1/2 -translate-y-1/2 p-4 text-white/50 hover:text-[#EF5304] hover:bg-white/10 rounded-full transition-all">
                                 <ChevronRight size={40} />
                             </button>
                             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-white/50 font-mono text-sm tracking-widest">

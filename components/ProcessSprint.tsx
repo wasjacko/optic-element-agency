@@ -20,14 +20,14 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
 
 
   return (
-    <section id="process" className="bg-black pt-12 pb-0 md:pt-32 md:pb-8 relative overflow-hidden flex flex-col items-center justify-center">
+    <section id="process" className="pt-12 pb-0 md:pt-32 md:pb-8 relative overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data?.backgroundColor || '#000000' }}>
 
       {/* 1. HEADER */}
       <div className="flex flex-col items-center mb-12 md:mb-24 relative z-10 text-center">
-        <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap relative inline-block mb-4">
+        <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl uppercase leading-none whitespace-nowrap relative inline-block mb-4" style={{ color: data?.titleColor || '#ffffff' }}>
           {title}
         </h2>
-        <span className="font-mono text-[10px] tracking-[0.3em] text-[#FF5000] mt-2 block uppercase">
+        <span className="font-mono text-[10px] tracking-[0.3em] mt-2 block uppercase" style={{ color: data?.subtitleColor || '#EF5304' }}>
           {subtitle}
         </span>
       </div>
@@ -47,16 +47,16 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
               className="relative flex flex-row items-center border-b border-white/10 py-5 group"
             >
               {/* Giant Initial Letter */}
-              <div className="text-[50px] font-black text-[#FF5000] leading-none w-16 flex-shrink-0 group-hover:scale-110 transition-transform duration-500 select-none">
+              <div className="text-[50px] font-black leading-none w-16 flex-shrink-0 group-hover:scale-110 transition-transform duration-500 select-none" style={{ color: data?.accentColor || '#EF5304' }}>
                 {step.first}
               </div>
 
               {/* Text Block */}
               <div className="flex flex-col ml-2 flex-1">
-                <h3 className="text-lg font-black tracking-[0.1em] uppercase mb-0.5 leading-none text-white/90 group-hover:text-white transition-colors duration-300">
-                  <span className="text-white/20 select-none hidden">{step.first}</span>{step.rest}
+                <h3 className="text-lg font-black tracking-[0.1em] uppercase mb-0.5 leading-none transition-colors duration-300" style={{ color: data?.textColor || '#ffffff' }}>
+                  <span className="select-none hidden opacity-20">{step.first}</span>{step.rest}
                 </h3>
-                <p className="text-[9px] text-[#FF5000]/70 font-ocr tracking-[0.15em] uppercase leading-tight">
+                <p className="text-[9px] font-ocr tracking-[0.15em] uppercase leading-tight opacity-70" style={{ color: data?.accentColor || '#EF5304' }}>
                   {step.detail}
                 </p>
               </div>
@@ -82,17 +82,20 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
               {/* Node Container */}
               <div className="relative flex-shrink-0 bg-black px-2">
                 {/* Visual Square Node */}
-                <div className="w-6 h-6 border border-white bg-black relative z-20 flex items-center justify-center transition-all duration-300 transform group-hover:-translate-y-2 group-hover:border-[#FF5000] group-hover:shadow-[0_0_15px_rgba(255,80,0,0.5)]">
-                  <div className="w-2 h-2 bg-white group-hover:bg-[#FF5000] transition-colors duration-300" />
+                <div
+                  className="w-6 h-6 border flex items-center justify-center transition-all duration-300 transform group-hover:-translate-y-2"
+                  style={{ borderColor: data?.textColor || '#ffffff', backgroundColor: data?.backgroundColor || '#000000' }}
+                >
+                  <div className="w-2 h-2 transition-colors duration-300" style={{ backgroundColor: data?.accentColor || '#EF5304' }} />
                 </div>
               </div>
 
               {/* Text Content */}
               <div className="flex flex-col items-center text-center w-full">
                 {/* Title */}
-                <div className="font-ocr text-[11px] font-bold uppercase tracking-[0.15em] text-white mb-1 transition-colors duration-150 transform group-hover:-translate-y-1">
-                  <span className="text-[#FF5000]">{step.first}</span>
-                  <span className="transition-colors duration-150 group-hover:text-white">{step.rest}</span>
+                <div className="font-ocr text-[11px] font-bold uppercase tracking-[0.15em] mb-1 transition-colors duration-150 transform group-hover:-translate-y-1" style={{ color: data?.textColor || '#ffffff' }}>
+                  <span style={{ color: data?.accentColor || '#EF5304' }}>{step.first}</span>
+                  <span className="transition-colors duration-150">{step.rest}</span>
                 </div>
 
                 {/* Detail Description */}
@@ -111,7 +114,8 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
       <div className="mt-10 md:mt-16 mb-4 md:mb-8 relative z-10">
         <button
           onClick={onProcessClick}
-          className="bg-white text-black px-8 py-4 flex items-center gap-4 group hover:bg-[#FF5000] hover:text-white transition-all duration-500"
+          className="px-8 py-4 flex items-center gap-4 group hover:opacity-80 transition-all duration-500"
+          style={{ backgroundColor: data?.ctaBg || '#ffffff', color: data?.ctaText || '#000000' }}
         >
           <span className="text-[10px] font-mono tracking-[0.2em] font-bold uppercase transition-all">
             {cta}

@@ -1,9 +1,9 @@
 {
     "theme": {
-        "primary": "#ff7300",
+        "primary": "#EF5304",
         "background": "#0d0d0d",
         "text": "#ffffff",
-        "secondaryRef": "#ff5900",
+        "secondaryRef": "#EF5304",
         "accent": "#1a1a1a"
     },
     "hero": {
@@ -27,7 +27,43 @@
     },
     "testimonials": {
         "title": "VIDEO TESTIMONIALS",
-        "subtitle": "CLIENT REVIEWS"
+        "subtitle": "CLIENT REVIEWS",
+        "backgroundColor": "#ffffff",
+        "titleColor": "#000000",
+        "accentColor": "#EF5304",
+        "reels": [
+            { "id": "R_06", "client": "DR. MATT", "src": "/assets/testimonial-matt.mp4" },
+            { "id": "R_01", "client": "OMAR ELATTAR", "src": "/assets/testimonial-omar.mp4" },
+            { "id": "R_02", "client": "MATTHEW WELSH", "src": "/assets/testimonial-matthew.mp4" },
+            { "id": "R_03", "client": "DR. CLARENCE LEE JR.", "src": "/assets/testimonial-clarence.mp4" },
+            { "id": "R_07", "client": "EUGENE NEAL", "src": "/assets/eugene-neal.mp4" }
+        ],
+        "reviews": [
+            {
+                "id": "rev_1",
+                "author": "Kalvin Payne",
+                "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjWP6ryeeN9rSTEVP8qA3wkFTs3cgwo6abjzNNte4Bg8BqJvzQdL=w64-h64-c-rp-mo-br100",
+                "rating": 5,
+                "text": "oE is always producing incredible content that is both engaging and conveys the exact brand on screen. Love seeing oE art!",
+                "date": "3 months ago"
+            },
+            {
+                "id": "rev_2",
+                "author": "Francine Dinh",
+                "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjVyyU4fohKO-vijZcPQHM4wdWl98l1BmxFDnwuMAWTq9ow5RA57=w64-h64-c-rp-mo-br100",
+                "rating": 5,
+                "text": "Working with Optic Element has been one of the best decisions I’ve made for my business! Being someone new to video, they were very patient with me and helped me create content that brought in new eyes and clients...",
+                "date": "1 year ago"
+            },
+            {
+                "id": "rev_3",
+                "author": "SD Complete",
+                "avatar": "https://lh3.googleusercontent.com/a-/ALV-UjVzuCgF_SPj6UflJUt6jK5fwhveglA_qGSisFThP9zpDRm4zuk=w64-h64-c-rp-mo-br100",
+                "rating": 5,
+                "text": "I couldn’t be more happy with this epic team! My entire staff came into the studio to do videos for our website. Optic Elements CRUSHED It!!!! They really care about your finished product! Attention to details...",
+                "date": "1 year ago"
+            }
+        ]
     },
     "brands": {
         "title": "Brands We Serve",
@@ -44,7 +80,7 @@
             "Unbroken Fitness Solution"
         ],
         "backgroundColor": "#0d0d0d",
-        "titleColor": "#ff7300",
+        "titleColor": "#EF5304",
         "brandColor": "#ffffff"
     },
     "sprint": {
@@ -107,7 +143,7 @@
         "titleLine3": "WITH",
         "titleLine4": "SANTIAGO",
         "description": "Book a call with our team. This call is to learn more about your business and if Optic Element can help you achieve your goals.",
-        "accentColor": "#ff4d00",
+        "accentColor": "#EF5304",
         "backgroundColor": "#ffffff"
     },
     "processPage": {
@@ -346,7 +382,18 @@
     "lab": {
         "title": "THE LAB",
         "bookingTitle": "Project Details",
-        "bookingSubtitle": "Tell us about your shoot requirements."
+        "bookingSubtitle": "Tell us about your shoot requirements.",
+        "mainVideo": "/videos/studioflythrough.mp4",
+        "gallery": [
+            "/assets/lab/lab_1.jpg", "/assets/lab/lab_2.jpg", "/assets/lab/lab_3.jpg",
+            "/assets/lab/lab_4.jpg", "/assets/lab/lab_5.jpg", "/assets/lab/lab_6.jpg",
+            "/assets/lab/lab_7.jpg", "/assets/lab/lab_8.jpg", "/assets/lab/lab_9.jpg",
+            "/assets/lab/lab_10.jpg", "/assets/lab/lab_11.jpg", "/assets/lab/lab_12.jpg",
+            "/assets/lab/lab_13.jpg", "/assets/lab/lab_14.jpg", "/assets/lab/lab_15.jpg",
+            "/assets/lab/lab_16.jpg", "/assets/lab/lab_17.jpg", "/assets/lab/lab_18.jpg",
+            "/assets/lab/lab_19.jpg", "/assets/lab/lab_20.jpg", "/assets/lab/lab_21.jpg",
+            "/assets/lab/lab_22.jpg"
+        ]
     },
     "missingElements": [
         {

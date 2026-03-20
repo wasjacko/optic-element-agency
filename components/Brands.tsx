@@ -49,7 +49,7 @@ const LogoReveal: React.FC<{ src: string; delay?: number }> = ({ src, delay = 0 
 };
 
 export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }) => {
-    const images = data?.brands?.images?.length ? data.brands.images : LOGO_IMAGES;
+    const images = data?.brands?.logos?.length ? data.brands.logos : LOGO_IMAGES;
     const sectionTitle = title || data?.title || "Brands We Serve";
     const bgColor = data?.brands?.backgroundColor || 'var(--color-bg)';
 
@@ -108,18 +108,18 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                         }}
                     >
                         {/* Group 1 */}
-                        <div className="flex gap-20 items-center px-10">
+                        <div className="flex gap-16 md:gap-20 items-center px-4 md:px-10">
                             {images.map((src: string, i: number) => (
                                 <div key={`g1-${i}`} className="flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-50 hover:opacity-100 shrink-0">
-                                    <img src={src} alt="Brand" className="max-w-[100px] h-auto object-contain max-h-[50px]" />
+                                    <img src={src} alt="Brand" className="max-w-[160px] md:max-w-[100px] h-auto object-contain max-h-[80px] md:max-h-[50px]" />
                                 </div>
                             ))}
                         </div>
                         {/* Group 2 (Identical for seamless reset) */}
-                        <div className="flex gap-20 items-center px-10">
+                        <div className="flex gap-16 md:gap-20 items-center px-4 md:px-10">
                             {images.map((src: string, i: number) => (
                                 <div key={`g2-${i}`} className="flex items-center justify-center p-4 grayscale hover:grayscale-0 transition-all duration-300 opacity-50 hover:opacity-100 shrink-0">
-                                    <img src={src} alt="Brand" className="max-w-[100px] h-auto object-contain max-h-[50px]" />
+                                    <img src={src} alt="Brand" className="max-w-[160px] md:max-w-[100px] h-auto object-contain max-h-[80px] md:max-h-[50px]" />
                                 </div>
                             ))}
                         </div>
@@ -130,11 +130,11 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                 <div className="mt-12 md:mt-24 border-t border-white/5 pt-20 pb-16 md:pt-12 md:pb-0">
                     <div className="flex flex-col items-center">
                         <div className="grid grid-cols-3 gap-4 md:gap-24 w-full md:w-full max-w-4xl mx-auto px-4">
-                            {[
+                            {(data?.brands?.kpis || [
                                 { number: 1050, prefix: "", suffix: "+", label: "PROJECTS", desc: "Delivered Globally" },
                                 { number: 4, prefix: "$", suffix: "M+", label: "CLIENT CASH COLLECTED", desc: "Creative Excellence" },
                                 { number: 3, prefix: "", suffix: "x", label: "CONVERSION RATE", desc: "Driven by Video" }
-                            ].map((kpi, i) => (
+                            ]).map((kpi: any, i: number) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 10 }}
@@ -143,10 +143,10 @@ export const Brands: React.FC<{ data?: any, title?: string }> = ({ data, title }
                                     viewport={{ once: true }}
                                     className="group flex flex-col items-center text-center"
                                 >
-                                    <div className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 md:mb-1 font-ocr text-white/90 group-hover:text-white transition-colors tracking-tighter tabular-nums whitespace-nowrap">
+                                    <div className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 md:mb-1 font-ocr transition-colors tracking-tighter tabular-nums whitespace-nowrap" style={{ color: data?.brands?.kpiNumberColor || 'rgba(255, 255, 255, 0.9)' }}>
                                         <AnimatedCounter end={kpi.number} prefix={kpi.prefix} suffix={kpi.suffix} />
                                     </div>
-                                    <div className="text-[9px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.2em] text-white/40 uppercase font-ocr px-1 break-words">
+                                    <div className="text-[9px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.2em] uppercase font-ocr px-1 break-words" style={{ color: data?.brands?.kpiLabelColor || 'rgba(255, 255, 255, 0.4)' }}>
                                         {kpi.label}
                                     </div>
                                 </motion.div>

@@ -6,6 +6,22 @@
 @tailwind utilities;
 
 @font-face {
+  font-family: 'ArialCustom';
+  src: url('/assets/arial.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ArialCustom';
+  src: url('/assets/ArialCE.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Tactic Sans';
   src: url('/TacticSans-Thn.otf') format('opentype');
   font-weight: 100;
@@ -179,6 +195,12 @@
   /* Simplified background grid or removed fixed element to prevent repaint lag */
   body::before {
     display: none;
+  }
+
+  /* Admin Side Typography Override */
+  .admin-side,
+  .admin-side *:not(#preview-wrapper):not(#preview-wrapper *) {
+    font-family: 'ArialCustom', Arial, sans-serif !important;
   }
 }
 

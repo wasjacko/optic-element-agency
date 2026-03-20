@@ -28,7 +28,7 @@ export const PerspectiveGrid: React.FC = () => {
             <h2 className="text-black font-mono text-xs md:text-sm tracking-[0.5em] uppercase font-black relative z-10">
               S . P . R . I . N . T .
             </h2>
-            <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#FF5000]" />
+            <div className="absolute -bottom-4 left-0 w-full h-[3px] bg-[#EF5304]" />
           </motion.div>
           <motion.span
             initial={{ opacity: 0 }}
@@ -77,7 +77,7 @@ export const PerspectiveGrid: React.FC = () => {
                 style={{ flexBasis: "0%" }}
               >
                 <div className="whitespace-nowrap font-mono text-[11px] md:text-xs tracking-[0.4em] font-bold text-black">
-                  <span className="text-[#FF5000]">{step.first}</span>
+                  <span className="text-[#EF5304]">{step.first}</span>
                   <span className="text-black">{step.rest}</span>
                 </div>
               </motion.div>

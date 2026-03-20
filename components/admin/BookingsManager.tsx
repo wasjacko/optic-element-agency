@@ -20,11 +20,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const BookingsManager: React.FC = () => {
-    const [view, setView] = useState<'calendar' | 'list'>('calendar');
+    const [view, setView] = useState<'calendar' | 'list'>('list');
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Modal State
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -101,6 +102,11 @@ export const BookingsManager: React.FC = () => {
         } else {
             alert("Failed to create booking: " + res.message);
         }
+    };
+
+    const copyToClipboard = (text: string, label: string) => {
+        navigator.clipboard.writeText(text);
+        alert(`${label} copied!`);
     };
 
     // --- Helpers ---
@@ -190,6 +196,12 @@ export const BookingsManager: React.FC = () => {
         );
     };
 
+    const filteredBookings = bookings.filter(b => 
+        b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.phone.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const ListView = () => (
         <div className="bg-white rounded-lg border shadow-sm overflow-hidden animate-in fade-in duration-300">
             <div className="p-4 border-b flex items-center justify-between bg-gray-50/50">
@@ -197,9 +209,14 @@ export const BookingsManager: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                     <input
                         type="text"
-                        placeholder="Search bookings..."
-                        className="pl-9 pr-4 py-2 border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/5"
+                        placeholder="Search by name, email or phone..."
+                        className="pl-9 pr-4 py-2 border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/5 w-64 md:w-80 transition-all font-sans"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                     />
+                </div>
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    Showing {filteredBookings.length} of {bookings.length}
                 </div>
             </div>
             <table className="w-full text-sm text-left">
@@ -212,17 +229,27 @@ export const BookingsManager: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody className="divide-y">
-                    {bookings.length === 0 ? (
+                    {filteredBookings.length === 0 ? (
                         <tr>
-                            <td colSpan={4} className="px-10 md:px-6 py-12 text-center text-gray-400 italic">No bookings found.</td>
+                            <td colSpan={4} className="px-6 py-20 text-center">
+                                <div className="flex flex-col items-center gap-3 text-gray-300">
+                                    <Search size={48} strokeWidth={1} />
+                                    <p className="text-sm font-medium text-gray-400 font-sans italic">No results matching your criteria</p>
+                                    <button onClick={() => setSearchQuery('')} className="text-[10px] font-bold uppercase tracking-widest text-black underline">Clear Search</button>
+                                </div>
+                            </td>
                         </tr>
-                    ) : bookings.map(booking => (
+                    ) : filteredBookings.map(booking => (
                         <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4">
                                 <div className="font-bold text-gray-900">{booking.name}</div>
                                 <div className="text-xs text-gray-400 flex flex-col gap-0.5 mt-0.5">
-                                    <span>{booking.email}</span>
-                                    <span>{booking.phone}</span>
+                                    <button onClick={() => copyToClipboard(booking.email, 'Email')} className="text-left hover:text-black hover:underline transition-all flex items-center gap-1 group/copy">
+                                        <Mail size={10} className="shrink-0" /> {booking.email}
+                                    </button>
+                                    <button onClick={() => copyToClipboard(booking.phone, 'Phone')} className="text-left hover:text-black hover:underline transition-all flex items-center gap-1 group/copy">
+                                        <Phone size={10} className="shrink-0" /> {booking.phone}
+                                    </button>
                                 </div>
                             </td>
                             <td className="px-6 py-4 text-gray-600">

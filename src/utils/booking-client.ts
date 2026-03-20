@@ -34,7 +34,12 @@ export async function createBooking(data: any): Promise<{ success: boolean; mess
 
 export async function getAdminBookings(): Promise<Booking[]> {
     try {
-        const res = await fetch(`${API_URL}/admin/bookings`);
+        const token = sessionStorage.getItem('oe_admin_session');
+        const res = await fetch(`${API_URL}/admin/bookings`, {
+            headers: {
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            }
+        });
         if (!res.ok) throw new Error("Failed to fetch bookings");
         return await res.json();
     } catch (e) {
@@ -45,9 +50,13 @@ export async function getAdminBookings(): Promise<Booking[]> {
 
 export async function updateBookingStatus(id: string, status: 'CONFIRMED' | 'CANCELLED'): Promise<{ success: boolean; message?: string }> {
     try {
+        const token = sessionStorage.getItem('oe_admin_session');
         const res = await fetch(`${API_URL}/admin/bookings/${id}/status`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
             body: JSON.stringify({ status })
         });
 

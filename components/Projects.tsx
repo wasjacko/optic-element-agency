@@ -191,12 +191,17 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const cmsProjects = data?.worksPage?.services?.reduce((acc: any[], service: any) => {
     const serviceVideos = service.videos?.map((v: any, i: number) => ({
       ...v,
-      subtitle: v.subtitle || `NUMERO ${String(acc.length + i + 1).padStart(4, '0')}`
+      subtitle: v.subtitle || v.description || `NUMERO ${String(acc.length + i + 1).padStart(4, '0')}`
     })) || [];
     return [...acc, ...serviceVideos];
   }, []) || [];
 
-  const sourceProjects = cmsProjects.length > 0 ? cmsProjects : PROJECTS;
+  const adminProjects = data?.projects?.videos?.map((v: any, i: number) => ({
+    ...v,
+    subtitle: v.subtitle || v.description || `NUMERO ${String(i + 1).padStart(4, '0')}`
+  })) || [];
+
+  const sourceProjects = adminProjects.length > 0 ? adminProjects : (cmsProjects.length > 0 ? cmsProjects : PROJECTS);
   const displayProjects = Array(2).fill(sourceProjects).flat();
   const sectionTitle = title || "PROJECTS";
 
@@ -230,10 +235,10 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const progressBarWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="works" className="relative bg-black text-white w-full">
+    <section id="works" className="relative w-full" style={{ backgroundColor: data?.projects?.backgroundColor || '#000000', color: data?.projects?.textColor || '#ffffff' }}>
       {isMobile ? (
         <div className="flex flex-col items-center py-10 pb-20 w-full overflow-hidden">
-          <h2 className="font-ocr font-black tracking-[0.15em] text-2xl mb-8 text-white uppercase text-center">{sectionTitle}</h2>
+          <h2 className="font-ocr font-black tracking-[0.15em] text-2xl mb-8 uppercase text-center" style={{ color: data?.projects?.titleColor || '#ffffff' }}>{sectionTitle}</h2>
           <div className="w-full flex overflow-x-auto snap-x snap-mandatory gap-6 px-10 md:px-6 pb-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
             <style>{`
                   ::-webkit-scrollbar { display: none; }
@@ -245,13 +250,14 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
           <div className="mt-8">
             <button
               onClick={onWorksClick}
-              className="group relative px-6 py-3 bg-white text-black font-bold text-[11px] tracking-[0.3em] uppercase transition-all"
+              className="group relative px-6 py-3 font-bold text-[11px] tracking-[0.3em] uppercase transition-all"
+              style={{ backgroundColor: data?.projects?.ctaBg || '#ffffff', color: data?.projects?.ctaText || '#000000' }}
             >
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 group-hover:border-white/40 transition-colors" />
               <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 group-hover:border-white/40 transition-colors" />
-              <span className="relative z-10">SEE MORE PROJECTS</span>
+              <span className="relative z-10">{data?.projects?.cta || "SEE MORE PROJECTS"}</span>
             </button>
           </div>
         </div>
@@ -260,9 +266,9 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
           <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center items-center">
 
             <div className="absolute top-32 z-30 flex flex-col items-center gap-4">
-              <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl text-white uppercase leading-none whitespace-nowrap">{sectionTitle}</h2>
+              <h2 className="font-ocr font-black tracking-[0.15em] text-2xl md:text-3xl uppercase leading-none whitespace-nowrap" style={{ color: data?.projects?.titleColor || '#ffffff' }}>{sectionTitle}</h2>
               <div className="w-24 h-[1px] bg-white/20 relative overflow-hidden rounded-full">
-                <motion.div style={{ width: progressBarWidth }} className="absolute left-0 top-0 bottom-0 bg-[#FF5000]" />
+                <motion.div style={{ width: progressBarWidth, backgroundColor: data?.projects?.accentColor || '#EF5304' }} className="absolute left-0 top-0 bottom-0" />
               </div>
             </div>
 
@@ -283,7 +289,8 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
             <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50">
               <button
                 onClick={onWorksClick}
-                className="group relative px-6 py-3 bg-white text-black font-bold text-[9px] md:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-[#FF5000] hover:text-white"
+                className="group relative px-6 py-3 font-bold text-[9px] md:text-[11px] tracking-[0.3em] uppercase transition-all hover:opacity-80"
+                style={{ backgroundColor: data?.projects?.ctaBg || '#ffffff', color: data?.projects?.ctaText || '#000000' }}
               >
                 {/* Brackets */}
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 group-hover:border-white/40 transition-colors" />
@@ -291,7 +298,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                 <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-black/30 group-hover:border-white/40 transition-colors" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-black/30 group-hover:border-white/40 transition-colors" />
 
-                <span className="relative z-10">SEE MORE PROJECTS</span>
+                <span className="relative z-10">{data?.projects?.cta || "SEE MORE PROJECTS"}</span>
               </button>
             </div>
 

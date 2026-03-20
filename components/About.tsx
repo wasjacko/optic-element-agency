@@ -174,7 +174,7 @@ const ScrollGlitchText: React.FC<{ text: string, className?: string }> = ({ text
   );
 };
 
-const MemberCard = ({ member, index }: { member: typeof TEAM_MEMBERS[0], index: number }) => {
+const MemberCard = ({ member, index, textColor = '#ffffff' }: { member: typeof TEAM_MEMBERS[0], index: number, textColor?: string }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -207,8 +207,8 @@ const MemberCard = ({ member, index }: { member: typeof TEAM_MEMBERS[0], index: 
       </div>
 
       <div className="mt-4 text-center">
-        <h3 className="text-white text-[13px] md:text-base font-bold tracking-widest uppercase mb-1">{member.name}</h3>
-        <p className="text-white/50 text-[9px] md:text-xs font-ocr tracking-wider uppercase leading-tight">{member.role}</p>
+        <h3 className="text-[13px] md:text-base font-bold tracking-widest uppercase mb-1" style={{ color: textColor }}>{member.name}</h3>
+        <p className="text-[9px] md:text-xs font-ocr tracking-wider uppercase leading-tight" style={{ color: textColor, opacity: 0.5 }}>{member.role}</p>
       </div>
     </motion.div>
   );
@@ -224,7 +224,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
   const showAll = !activeSection;
   const bgColor = data?.backgroundColor || '#ffffff';
   const txtColor = data?.textColor || '#000000';
-  const accentColor = data?.accentColor || '#FF5000';
+  const accentColor = data?.accentColor || '#EF5304';
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -295,29 +295,29 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
 
       {/* SECTION 3: MEET THE TEAM (DARK INDUSTRIAL) */}
       {(showAll || activeSection === 'team') && (
-        <section className="bg-black text-white pt-16 md:pt-24 pb-24 md:pb-48 relative overflow-hidden border-t border-white/10">
-          <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] blur-[80px] rounded-full pointer-events-none opacity-20 mix-blend-screen" style={{ backgroundColor: accentColor || '#FF5000' }} />
-          <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none opacity-15 mix-blend-screen" style={{ backgroundColor: accentColor || '#FF5000' }} />
+        <section className="pt-16 md:pt-24 pb-24 md:pb-48 relative overflow-hidden border-t border-white/10" style={{ backgroundColor: data?.teamBgColor || bgColor || '#000000', color: data?.teamTextColor || txtColor || '#ffffff' }}>
+          <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] blur-[80px] rounded-full pointer-events-none opacity-20 mix-blend-screen" style={{ backgroundColor: accentColor || '#EF5304' }} />
+          <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] blur-[100px] rounded-full pointer-events-none opacity-15 mix-blend-screen" style={{ backgroundColor: accentColor || '#EF5304' }} />
           <div className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: `radial-gradient(${accentColor} 1px, transparent 1px)`, backgroundSize: '8px 8px' }} />
 
           <div className="max-w-7xl mx-auto px-10 md:px-6 relative z-10">
 
 
             <div className="flex flex-col items-center mb-16 md:mb-24">
-              <h2 className="text-white font-black text-2xl md:text-4xl tracking-tighter uppercase text-center mb-10 md:mb-16">
-                THE TEAM
+              <h2 className="font-black text-2xl md:text-4xl tracking-tighter uppercase text-center mb-10 md:mb-16" style={{ color: data?.teamTextColor || txtColor || '#ffffff' }}>
+                {data?.teamTitle || "THE TEAM"}
               </h2>
 
               <div className="flex justify-center max-w-4xl px-10 md:px-6 leading-relaxed items-center">
-                <div className="text-xs md:text-base font-ocr text-gray-500 text-center">
-                  <ScrollGlitchText text='"If you want to go fast, go alone. If you want to go far, go together."' />
+                <div className="text-xs md:text-base font-ocr text-center" style={{ color: data?.teamTextColor ? `${data.teamTextColor}80` : '#888888' }}>
+                  <ScrollGlitchText text={data?.teamQuote || '"If you want to go fast, go alone. If you want to go far, go together."'} />
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-              {TEAM_MEMBERS.map((member, i) => (
-                <MemberCard key={member.name + i} member={member} index={i} />
+              {(data?.teamMembers?.length > 0 ? data.teamMembers : TEAM_MEMBERS).map((member: any, i: number) => (
+                <MemberCard key={member.name + i} member={member} index={i} textColor={data?.teamTextColor || txtColor || '#ffffff'} />
               ))}
             </div>
 
@@ -326,18 +326,22 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                 href="https://eszfe33i3kp.typeform.com/to/TwFZB6rL"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative px-6 py-4 md:py-3 bg-transparent text-white border border-white/20 font-bold text-[10px] sm:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-white hover:text-black w-full sm:w-auto text-center mx-4 sm:mx-0 overflow-hidden"
+                className="group relative px-6 py-4 md:py-3 bg-transparent font-bold text-[10px] sm:text-[11px] tracking-[0.3em] uppercase transition-all hover:bg-white hover:text-black w-full sm:w-auto text-center mx-4 sm:mx-0 overflow-hidden border"
+                style={{
+                  color: data?.teamTextColor || txtColor || '#ffffff',
+                  borderColor: data?.teamTextColor ? `${data.teamTextColor}33` : 'rgba(255,255,255,0.2)'
+                }}
               >
                 {/* Brackets */}
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/40 group-hover:border-black/30 transition-colors" />
-                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/40 group-hover:border-black/30 transition-colors" />
-                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/40 group-hover:border-black/30 transition-colors" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/40 group-hover:border-black/30 transition-colors" />
+                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors" style={{ borderColor: data?.teamTextColor ? `${data.teamTextColor}66` : 'rgba(255,255,255,0.4)' }} />
+                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r transition-colors" style={{ borderColor: data?.teamTextColor ? `${data.teamTextColor}66` : 'rgba(255,255,255,0.4)' }} />
+                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l transition-colors" style={{ borderColor: data?.teamTextColor ? `${data.teamTextColor}66` : 'rgba(255,255,255,0.4)' }} />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors" style={{ borderColor: data?.teamTextColor ? `${data.teamTextColor}66` : 'rgba(255,255,255,0.4)' }} />
 
                 {/* Glitch Overlay on Hover */}
-                <span className="absolute inset-0 bg-[#FF5000] mix-blend-multiply opacity-0 group-hover:animate-pulse-fast z-0" />
+                <span className="absolute inset-0 bg-[#EF5304] mix-blend-multiply opacity-0 group-hover:animate-pulse-fast z-0" />
 
-                <span className="relative z-10">JOIN THE TEAM</span>
+                <span className="relative z-10">{data?.teamCta || "JOIN THE TEAM"}</span>
               </a>
             </div>
 
@@ -364,10 +368,10 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                       className="relative px-8 py-16 flex flex-col items-center text-center w-full bg-white border border-gray-100"
                     >
                       {/* Prominent Mobile Brackets */}
-                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#FF5000] z-10" />
-                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-[#FF5000] z-10" />
-                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-[#FF5000] z-10" />
-                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#FF5000] z-10" />
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-[#EF5304] z-10" />
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-[#EF5304] z-10" />
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-[#EF5304] z-10" />
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-[#EF5304] z-10" />
 
                       <h4 className="text-2xl font-black uppercase tracking-tighter text-black mb-6 leading-none">
                         {diff.title}
@@ -387,7 +391,7 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                 return (
                   <div
                     key={i}
-                    className={`group relative p-8 md:p-10 flex flex-col h-full w-full bg-transparent border border-gray-200 hover:border-[#FF5000]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden aspect-square ${desktopGridClasses}`}
+                    className={`group relative p-8 md:p-10 flex flex-col h-full w-full bg-transparent border border-gray-200 hover:border-[#EF5304]/40 transition-colors duration-500 ease-out will-change-transform backface-hidden aspect-square ${desktopGridClasses}`}
                   >
                     {/* Hover Gradient Background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-black via-black/95 to-[#1a0600] opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out pointer-events-none" />
@@ -398,15 +402,15 @@ export const About: React.FC<AboutProps & { data?: any, activeSection?: string }
                     </div>
 
                     {/* Corner Squares */}
-                    <div className="absolute -top-1 -left-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#FF5000] z-10" />
-                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#FF5000] z-10" />
-                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#FF5000] z-10" />
-                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#FF5000] z-10" />
+                    <div className="absolute -top-1 -left-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#EF5304] z-10" />
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#EF5304] z-10" />
+                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#EF5304] z-10" />
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-black transition-colors duration-500 group-hover:bg-[#EF5304] z-10" />
 
                     {/* Header */}
                     <div className="relative z-10 flex justify-between items-start mb-6 border-b border-gray-100 group-hover:border-white/20 pb-4 transition-colors duration-500">
                       <div className="flex flex-col">
-                        <span className="font-ocr text-[10px] tracking-widest text-[#FF5000] mb-1">{diff.atomicNumber}</span>
+                        <span className="font-ocr text-[10px] tracking-widest text-[#EF5304] mb-1">{diff.atomicNumber}</span>
                         <span className="font-ocr text-[10px] tracking-widest text-gray-400 group-hover:text-white/50 transition-colors duration-500">
                           {diff.symbol}
                         </span>
