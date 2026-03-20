@@ -581,6 +581,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                 mat.uniforms.uInfluence.value = THREE.MathUtils.lerp(mat.uniforms.uInfluence.value, targetInfluence, dt * 2.0);
             }
         });
+
+        if (sharedTexture) sharedTexture.needsUpdate = true;
     });
 
 
