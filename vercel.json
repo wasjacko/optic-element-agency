@@ -5,12 +5,11 @@
       "source": "/api/(.*)",
       "destination": "/api"
     },
-    { "handle": "filesystem" },
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "installCommand": "npm install",
-  "buildCommand": "prisma generate --schema=backend/prisma/schema.prisma && vite build"
+  "buildCommand": "npx prisma generate --schema=backend/prisma/schema.prisma && vite build"
 }
