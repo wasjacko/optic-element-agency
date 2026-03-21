@@ -6,7 +6,7 @@ import { Lock, Mail, ArrowRight, Loader2, Key, CheckCircle2, Timer } from 'lucid
 
 const OTP_COOLDOWN = 30; // seconds
 
-export const LoginPage: React.FC = () => {
+export const LoginPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { requestOtp, verifyOtp, isLocked, lockoutTimeLeft } = useAuth();
 
     const [step, setStep] = useState<'EMAIL' | 'CODE'>('EMAIL');
@@ -260,7 +260,13 @@ export const LoginPage: React.FC = () => {
 
                 </form>
 
-                <div className="mt-12 text-center border-t border-gray-100 pt-8">
+                <div className="mt-12 text-center border-t border-gray-100 pt-8 flex flex-col items-center gap-4">
+                    <button 
+                        onClick={onBack}
+                        className="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest"
+                    >
+                        ← Back to Website
+                    </button>
                     <p className="text-xs text-gray-300 flex items-center justify-center gap-2">
                         <Lock size={12} />
                         Secure Admin Environment

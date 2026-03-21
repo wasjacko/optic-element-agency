@@ -61,7 +61,7 @@ type Page = 'home' | 'about' | 'work' | 'process' | 'contact' | 'lab' | 'admin';
 const AdminRoute = ({ onBack }: { onBack: () => void }) => {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-black font-mono text-white tracking-[0.3em]">SECURE_AUTH_INIT</div>;
-  return isAuthenticated ? <Dashboard onBack={onBack} /> : <LoginPage />;
+  return isAuthenticated ? <Dashboard onBack={onBack} /> : <LoginPage onBack={onBack} />;
 };
 
 function App() {
@@ -97,7 +97,12 @@ function App() {
 
   const navigateTo = (page: Page) => {
     setActivePage(page);
-    window.location.hash = page === 'home' ? '' : page;
+    if (page === 'home') {
+      window.history.pushState({}, '', '/');
+      window.location.hash = '';
+    } else {
+      window.location.hash = page;
+    }
     window.scrollTo(0, 0);
   };
 
