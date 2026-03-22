@@ -3,27 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Booking {
   id        String        @id @default(uuid())
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  
   start     DateTime
   end       DateTime
-  
   status    BookingStatus @default(PENDING)
-  
-  // Customer Info
   name      String
   email     String
   phone     String
@@ -40,7 +31,7 @@ model AdminOtp {
   expiresAt     DateTime
   lastRequestAt DateTime @default(now())
   attempts      Int      @default(0)
-  
+
   @@index([email])
 }
 
@@ -50,3 +41,8 @@ model CmsContent {
   updatedAt DateTime @updatedAt
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
