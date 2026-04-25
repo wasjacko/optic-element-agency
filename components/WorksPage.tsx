@@ -193,82 +193,30 @@ const SERVICES = [
          }
       ]
    },
-   {
-      id: 'photo',
-      label: 'Photography',
-      type: 'image',
-      description: 'High-end visual assets captured with editorial precision, defining your brand’s visual language across all digital touchpoints.',
-      images: [
-         '/assets/photography/photo_1.jpg',
-         '/assets/photography/photo_2.jpg',
-         '/assets/photography/photo_3.jpg',
-         '/assets/photography/photo_4.jpg',
-         '/assets/photography/photo_5.jpg',
-         '/assets/photography/photo_6.jpg',
-         '/assets/photography/photo_7.jpg',
-         '/assets/photography/photo_8.jpg',
-         '/assets/photography/photo_9.jpg',
-         '/assets/photography/photo_10.jpg',
-         '/assets/photography/photo_11.jpg',
-         '/assets/photography/photo_12.jpg',
-         '/assets/photography/photo_13.jpg',
-         '/assets/photography/photo_14.jpg',
-         '/assets/photography/photo_15.jpg',
-         '/assets/photography/photo_16.jpg',
-         '/assets/photography/photo_17.jpg',
-         '/assets/photography/photo_18.jpg',
-         '/assets/photography/photo_19.jpg',
-         '/assets/photography/photo_20.jpg',
-         '/assets/photography/photo_21.jpg',
-         '/assets/photography/photo_22.jpg',
-         '/assets/photography/photo_23.jpg',
-         '/assets/photography/photo_24.jpg',
-         '/assets/photography/photo_25.jpg',
-         '/assets/photography/photo_26.jpg'
-      ]
-   },
 ];
 
 interface WorksPageProps {
    onContactClick: () => void;
 }
 
-const MobileVideoCard = ({ video, currentService }: { video: any, currentService: any }) => {
-   const videoRef = useRef<HTMLVideoElement>(null);
-   const [isPlaying, setIsPlaying] = useState(false);
-
-   const togglePlay = () => {
-      if (videoRef.current) {
-         if (isPlaying) {
-            videoRef.current.pause();
-         } else {
-            videoRef.current.play().catch(() => { });
-         }
-         setIsPlaying(!isPlaying);
-      }
-   };
-
+const MobileVideoCard = ({ video, currentService, onVideoClick }: { video: any, currentService: any, onVideoClick: (url: string) => void }) => {
    return (
       <div
          className={`cursor-pointer group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}
-         onClick={togglePlay}
+         onClick={() => onVideoClick(video.src)}
       >
          <video
-            ref={videoRef}
             src={video.src ? `${video.src}#t=0.001` : ''}
             poster={video.src ? video.src.replace(/\.(mp4|mov)$/i, '.jpg') : undefined}
             className="w-full h-full object-cover"
             playsInline
             loop
+            muted
             preload="metadata"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
          />
 
          {/* Custom Big Play Button overlay */}
-         <div
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 pointer-events-none ${isPlaying ? 'opacity-0' : 'opacity-100 bg-black/10'}`}
-         >
+         <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/10 shadow-lg z-20">
                <Play size={24} className="text-white ml-[3px]" fill="currentColor" />
             </div>
@@ -287,6 +235,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
    const [activeVideo, setActiveVideo] = useState(0);
    const [visibleVideos, setVisibleVideos] = useState(3);
    const [isMobile, setIsMobile] = useState(false);
+   const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
    const videoRef = useRef<HTMLVideoElement>(null);
 
    useEffect(() => {
@@ -295,6 +244,17 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
    }, []);
+
+   useEffect(() => {
+      if (expandedVideo) {
+         document.body.style.overflow = 'hidden';
+      } else {
+         document.body.style.overflow = '';
+      }
+      return () => {
+         document.body.style.overflow = '';
+      };
+   }, [expandedVideo]);
 
    useEffect(() => {
       setActiveVideo(0);
@@ -346,7 +306,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                               isMobile ? (
                                  <div className="flex flex-col w-full py-12 gap-24 md:gap-32">
                                     {currentService.videos.slice(0, visibleVideos).map((video: any) => (
-                                       <MobileVideoCard key={video.id} video={video} currentService={currentService} />
+                                       <MobileVideoCard key={video.id} video={video} currentService={currentService} onVideoClick={(url) => setExpandedVideo(url)} />
                                     ))}
                                     {visibleVideos < currentService.videos.length && (
                                        <div className="flex justify-center pb-24">
@@ -358,7 +318,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                  currentService.id === 'shorts' ? (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
                                        {currentService.videos.map((video: any) => (
-                                          <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5">
+                                          <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5 cursor-pointer" onClick={() => setExpandedVideo(video.src)}>
                                              <video
                                                 src={video.src}
                                                 poster={video.src ? video.src.replace('.mp4', '.jpg') : undefined}
@@ -386,7 +346,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                        ))}
                                     </div>
                                  ) : (
-                                    <div className="relative w-full h-[80vh] bg-black group/slider">
+                                     <div className="relative w-full h-[80vh] bg-black group/slider cursor-pointer" onClick={() => currentVideo && setExpandedVideo(currentVideo.src)}>
                                        {currentVideo && (
                                           <>
                                              <video
@@ -398,14 +358,21 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
                                              <div className="absolute inset-0 bg-gradient-to-l from-black/40 to-transparent pointer-events-none" />
 
-                                             <button onClick={handlePrev} className="absolute left-8 top-1/2 -translate-y-1/2 z-40 p-4 text-white/30 hover:text-white transition-colors bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
+                                             {/* Play icon overlay on hover */}
+                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
+                                                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-2xl">
+                                                   <Play size={32} className="text-white ml-[3px]" fill="currentColor" />
+                                                </div>
+                                             </div>
+
+                                             <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="absolute left-8 top-1/2 -translate-y-1/2 z-40 p-4 text-white/30 hover:text-white transition-colors bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
                                                 <ChevronLeft size={32} />
                                              </button>
-                                             <button onClick={handleNext} className="absolute right-8 top-1/2 -translate-y-1/2 z-40 p-4 text-white/30 hover:text-white transition-colors bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
+                                             <button onClick={(e) => { e.stopPropagation(); handleNext(); }} className="absolute right-8 top-1/2 -translate-y-1/2 z-40 p-4 text-white/30 hover:text-white transition-colors bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
                                                 <ChevronRight size={32} />
                                              </button>
 
-                                             <div className="absolute bottom-0 left-0 w-full p-16 z-30 flex justify-between items-end pb-32">
+                                             <div className="absolute bottom-0 left-0 w-full p-16 z-30 flex justify-between items-end pb-32 pointer-events-none">
                                                 <div className="max-w-xl">
                                                    <AnimatePresence mode="wait">
                                                       <motion.div key={activeVideo} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.3 }}>
@@ -414,9 +381,9 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                                       </motion.div>
                                                    </AnimatePresence>
                                                 </div>
-                                                <div className="flex flex-col items-end gap-3 max-h-[50vh] overflow-y-auto pr-4 no-scrollbar">
+                                                <div className="flex flex-col items-end gap-3 max-h-[50vh] overflow-y-auto pr-4 no-scrollbar pointer-events-auto">
                                                    {currentService.videos.map((vid: any, vIdx: number) => (
-                                                      <button key={vid.id} onClick={() => setActiveVideo(vIdx)} className={`flex items-center gap-4 transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100 scale-105' : 'opacity-30 hover:opacity-100'}`}>
+                                                      <button key={vid.id} onClick={(e) => { e.stopPropagation(); setActiveVideo(vIdx); }} className={`flex items-center gap-4 transition-all duration-300 ${activeVideo === vIdx ? 'opacity-100 scale-105' : 'opacity-30 hover:opacity-100'}`}>
                                                          <span className={`text-[10px] font-mono tracking-widest uppercase ${activeVideo === vIdx ? 'text-[#EF5304]' : 'text-white'}`}>{vid.title}</span>
                                                          <div className={`w-1.5 h-1.5 ${activeVideo === vIdx ? 'bg-[#EF5304]' : 'bg-white'}`} />
                                                       </button>
@@ -447,6 +414,46 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                </>
             )}
          </div>
+
+         {/* Video Modal Overlay */}
+         <AnimatePresence>
+            {expandedVideo && (
+               <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md pointer-events-auto"
+                  onClick={() => setExpandedVideo(null)}
+               >
+                  <button
+                     className="absolute top-10 right-10 text-white font-ocr text-sm uppercase tracking-widest z-[110] hover:opacity-70 transition-opacity bg-black/50 px-4 py-2 backdrop-blur-md border border-white/10"
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedVideo(null);
+                     }}
+                  >
+                     [ CLOSE ]
+                  </button>
+                  <motion.div
+                     initial={{ scale: 0.9, opacity: 0 }}
+                     animate={{ scale: 1, opacity: 1 }}
+                     exit={{ scale: 0.9, opacity: 0 }}
+                     transition={{ duration: 0.5, delay: 0.1 }}
+                     className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                     onClick={(e) => e.stopPropagation()}
+                  >
+                     <video
+                        src={expandedVideo}
+                        className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                        autoPlay
+                        controls
+                        playsInline
+                     />
+                  </motion.div>
+               </motion.div>
+            )}
+         </AnimatePresence>
 
          {(showAll || activeSection === 'cta') && (
             <div className="w-full flex justify-center py-20 mt-12 border-t border-black/5" style={{ backgroundColor: data?.footerBgColor || 'transparent' }}>

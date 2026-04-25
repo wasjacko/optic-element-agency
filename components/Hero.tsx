@@ -3,7 +3,7 @@ import { useInView } from 'framer-motion';
 import * as THREE from 'three';
 import { Canvas, useFrame, extend, useThree, ThreeElement } from '@react-three/fiber';
 import { shaderMaterial, useVideoTexture, Html, PerspectiveCamera, Environment } from '@react-three/drei';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import homeContent from '../src/data/homeContent.json';
 
 // --- Material Definition ---
@@ -143,6 +143,13 @@ declare module '@react-three/fiber' {
 // --- Global State for Intro (Module level to survive React lifecycle but reset on page refresh) ---
 let hasIntroPlayed = false;
 
+// Reset on Vite HMR so the intro replays during development
+if (import.meta.hot) {
+    import.meta.hot.on('vite:beforeUpdate', () => {
+        hasIntroPlayed = false;
+    });
+}
+
 
 // --- Components ---
 const VideoFace = React.forwardRef<any, { texture: THREE.VideoTexture; attach: string; videoSize: THREE.Vector2 }>(({ texture, attach, videoSize }, ref) => {
@@ -263,7 +270,7 @@ const GlitchReveal: React.FC<{ text: string, delay?: number, className?: string,
     );
 };
 
-const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean, onExpansionStart?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroExpands, onIntroComplete, content, theme, currentPhase, isMobile, onExpansionStart }) => {
+const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: React.RefObject<HTMLElement | null>, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void, content?: any, theme?: any, currentPhase: number, isMobile?: boolean, onExpansionStart?: () => void, onCubeClick?: () => void }> = ({ videos = [], scale = 1, sectionRef, onContactClick, onIntroExpands, onIntroComplete, content, theme, currentPhase, isMobile, onExpansionStart, onCubeClick }) => {
     const groupRef = useRef<THREE.Group>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const innerMeshRef = useRef<THREE.Mesh>(null);
@@ -626,7 +633,15 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             <group ref={groupRef} scale={scale}>
 
 
-                <mesh ref={meshRef}>
+                <mesh 
+                    ref={meshRef}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (onCubeClick) onCubeClick();
+                    }}
+                    onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
+                    onPointerOut={() => { document.body.style.cursor = 'auto'; }}
+                >
                     <boxGeometry args={[3, 3, 3]} />
                     {[0, 1, 2, 3, 4, 5].map((index) => (
                         <VideoFace key={index} texture={sharedTexture} videoSize={videoSize} attach={`material-${index}`} ref={(el) => { materialRefs.current[index] = el; }} />
@@ -644,11 +659,19 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         </>
     );
 };
-
 // --- Main Hero Component ---
 const CUBE_VIDEO_URL = "/assets/oe-showreel-2026.mp4";
 
-export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => void, onIntroExpands?: () => void, onIntroComplete?: () => void }> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete }) => {
+export interface HeroProps {
+    data?: any;
+    theme?: any;
+    onContactClick?: () => void;
+    onIntroComplete?: () => void;
+    onIntroExpands?: () => void;
+    isIntroAlreadyDone?: boolean;
+}
+
+export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete, isIntroAlreadyDone }) => {
     const content = data || homeContent.hero;
     const currentTheme = theme || homeContent.theme; // Fallback to import if no prop
 
@@ -662,11 +685,27 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
     const isInView = useInView(sectionRef, { margin: "100px" });
-    const phaseRef = useRef(hasIntroPlayed ? 3 : 0);
-    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
-    // Even if it played, we start loadProgress at 0 but speed up the loading time
+    const phaseRef = useRef(0);
+    const [currentPhase, setCurrentPhase] = useState(0);
+    const [isVideoExpanded, setIsVideoExpanded] = useState(false);
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
     const lastScrollTime = useRef(0);
+    // Tracks whether the cube intro expansion is done (allows phase scrolling)
+    const [introExpanded, setIntroExpanded] = useState(hasIntroPlayed);
+    // Tracks whether all phases are done and site should unlock
+    const [phasesComplete, setPhasesComplete] = useState(false);
+
+    // Sync ref with state (though we'll update ref first in handler)
+    useEffect(() => {
+        if (isVideoExpanded) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isVideoExpanded]);
 
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {
@@ -682,15 +721,40 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     }, []);
 
 
-    // Pure JS Scroll Lock - The ONLY bulletproof way to stop Safari rubber-banding and random scroll jumps.
+    // When phases are complete, notify parent
     useEffect(() => {
-        // Once we pass phase 3, we detach completely and let native scrolling take over.
-        if (currentPhase >= 4) return;
+        if (phasesComplete && onIntroComplete) {
+            onIntroComplete();
+        }
+    }, [phasesComplete, onIntroComplete]);
+
+    // On mobile, there are no scroll phases — unlock directly when intro expands
+    useEffect(() => {
+        if (isMobile && introExpanded && !phasesComplete) {
+            setPhasesComplete(true);
+        }
+    }, [isMobile, introExpanded, phasesComplete]);
+
+    // If parent says intro is already done (e.g. navigated away and back), skip everything
+    useEffect(() => {
+        if (isIntroAlreadyDone && !phasesComplete) {
+            setIntroExpanded(true);
+            setPhasesComplete(true);
+        }
+    }, [isIntroAlreadyDone]);
+
+    // Pure JS Scroll Lock - Controls phase transitions via scroll
+    useEffect(() => {
+        // Once phases are done (phase 4+), unlock everything
+        if (phasesComplete || currentPhase >= 4) {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
+            return;
+        }
 
         const preventScroll = (e: Event) => {
             if (isMobile) return;
             if (phaseRef.current >= 4) return;
-            // Kill Safari native scrolling to prevent jumps/rubberbands strictly EVERYWHERE in intro
             if (e.cancelable) e.preventDefault();
         };
 
@@ -698,11 +762,12 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
             if (isMobile) return;
             if (phaseRef.current >= 4) return;
 
-            // Absolutely kill browser smooth scroll (even during loader)
+            // Kill browser smooth scroll during phase transitions
             if (e.cancelable) e.preventDefault();
 
             if (!sectionRef.current) return;
-            if (!hasIntroPlayed) return; // Completely block phase changes until intro finishes expanding
+            // Block phase changes until cube intro expansion is done
+            if (!introExpanded) return;
 
             const now = Date.now();
             const delta = e.deltaY;
@@ -710,8 +775,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
             const direction = Math.sign(delta);
             const currentP = phaseRef.current;
 
-            // Enforce a strict 1.2s delay between phases to restore the "1 scroll = 1 phase" rhythm 
-            // and ignore trackpad momentum from the same physical swipe.
+            // Enforce a strict 1.2s delay between phases
             if (now - lastScrollTime.current > 1200) {
                 const nextP = Math.max(0, Math.min(4, currentP + direction));
                 if (nextP !== currentP) {
@@ -719,23 +783,30 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                     setCurrentPhase(nextP);
                     lastScrollTime.current = now;
 
-                    // Unlock the site when we finally reach Phase 4
-                    if (nextP === 4 && onIntroComplete) {
-                        onIntroComplete();
+                    // Unlock the site when we reach Phase 4
+                    if (nextP === 4) {
+                        setPhasesComplete(true);
                     }
                 }
             }
         };
 
-        // { passive: false } is mandatory in Safari to allow e.preventDefault() and kill rubber-banding.
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchmove', preventScroll, { passive: false });
+
+        // Lock body during phase transitions
+        if (currentPhase < 4) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
 
         return () => {
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchmove', preventScroll);
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
         };
-    }, [loadProgress, isMobile, currentPhase, onIntroComplete]);
+    }, [loadProgress, isMobile, currentPhase, introExpanded, phasesComplete]);
 
 
     // Loader Logic — only runs on first visit
@@ -769,8 +840,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
             if (!hasIntroPlayed) {
                 hasIntroPlayed = true;
                 setLoadProgress(101); // Force-hide loader
-                if (onIntroExpands) onIntroExpands();
-                if (onIntroComplete) onIntroComplete();
+                setIntroExpanded(true);
             }
         }, isMobile ? 3000 : 8000);
 
@@ -786,7 +856,15 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
     const isPhase3Plus = currentPhase >= 3;
 
     return (
-        <section id="home" ref={sectionRef} className="h-screen w-full relative overflow-hidden" style={{ backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505' }}>
+        <section 
+            id="home" 
+            ref={sectionRef} 
+            className="h-screen w-full relative overflow-hidden" 
+            style={{ 
+                backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505',
+                touchAction: currentPhase < 4 ? 'none' : 'auto'
+            }}
+        >
             {isInView && (
                 <Canvas
                     dpr={isMobile ? [1.5, 3] : [1, 3]}
@@ -819,13 +897,14 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                             scale={1}
                             sectionRef={sectionRef}
                             onContactClick={onContactClick}
-                            onIntroComplete={onIntroComplete}
+                            onIntroComplete={() => setIntroExpanded(true)}
                             content={content}
                             theme={currentTheme}
                             currentPhase={isMobile ? 3 : currentPhase}
                             isMobile={isMobile}
-                            onIntroExpands={onIntroExpands}
+                            onIntroExpands={() => setIntroExpanded(true)}
                             onExpansionStart={() => setLoadProgress(101)}
+                            onCubeClick={() => setIsVideoExpanded(true)}
                         />
                     </Suspense>
                 </Canvas>
@@ -977,7 +1056,7 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                         </div>
 
                         {/* Phase 3+: Center Button */}
-                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center transition-opacity duration-700 ${isPhase3Plus && hasIntroPlayed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-60 flex flex-col items-center transition-opacity duration-700 ${isPhase3Plus && introExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             <button
                                 onClick={onContactClick}
                                 className="relative px-10 py-4 border-none pointer-events-auto group overflow-hidden"
@@ -1029,6 +1108,46 @@ export const Hero: React.FC<{ data?: any, theme?: any, onContactClick?: () => vo
                 )}
 
             </div>
+
+            {/* Video Modal Overlay */}
+            <AnimatePresence>
+                {isVideoExpanded && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md pointer-events-auto"
+                        onClick={() => setIsVideoExpanded(false)}
+                    >
+                        <button
+                            className="absolute top-10 right-10 text-white font-ocr text-sm uppercase tracking-widest z-[110] hover:opacity-70 transition-opacity bg-black/50 px-4 py-2 backdrop-blur-md border border-white/10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsVideoExpanded(false);
+                            }}
+                        >
+                            [ CLOSE ]
+                        </button>
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <video
+                                src={CUBE_VIDEO_URL}
+                                className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                autoPlay
+                                controls
+                                playsInline
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };

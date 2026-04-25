@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
 
 const PROJECTS = [
   {
@@ -39,7 +39,7 @@ const CARD_WIDTH = 250;
 const CARD_HEIGHT = 250;
 const GAP = 100;
 
-const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, index: number, scrollX: any }) => {
+const ParabolicCard = React.memo(({ project, index, scrollX, onVideoClick }: { project: any, index: number, scrollX: any, onVideoClick?: () => void }) => {
   const myPosition = index * (CARD_WIDTH + GAP);
 
   const startTime = 5;
@@ -109,7 +109,10 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
         pointerEvents: isCentered ? 'auto' : 'none'
       }}
     >
-      <div className="w-full h-full bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
+      <div 
+        className="w-full h-full bg-neutral-900 overflow-hidden relative shadow-2xl mb-4"
+        onClick={(e) => { e.stopPropagation(); if (onVideoClick) onVideoClick(); }}
+      >
         {/* Tactical Brackets */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20" />
         <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20" />
@@ -145,7 +148,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX }: { project: any, i
   );
 });
 
-const MobileProjectCard = ({ project }: { project: any }) => {
+const MobileProjectCard = ({ project, onVideoClick }: { project: any, onVideoClick?: () => void }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { amount: 0.6 });
@@ -161,7 +164,10 @@ const MobileProjectCard = ({ project }: { project: any }) => {
 
   return (
     <div ref={containerRef} className="min-w-[85vw] snap-center shrink-0">
-      <div className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4">
+      <div 
+        className="w-full aspect-square bg-neutral-900 overflow-hidden relative shadow-2xl mb-4 cursor-pointer"
+        onClick={(e) => { e.stopPropagation(); if (onVideoClick) onVideoClick(); }}
+      >
         {/* Brackets */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
         <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
@@ -208,12 +214,24 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const sectionTitle = title || "PROJECTS";
 
   const [isMobile, setIsMobile] = React.useState(false);
+  const [expandedVideo, setExpandedVideo] = React.useState<string | null>(null);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (expandedVideo) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [expandedVideo]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -246,7 +264,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   ::-webkit-scrollbar { display: none; }
               `}</style>
             {sourceProjects.map((project: any, i: number) => (
-              <MobileProjectCard key={i} project={project} />
+              <MobileProjectCard key={i} project={project} onVideoClick={() => setExpandedVideo(project.src)} />
             ))}
           </div>
           <div className="mt-8">
@@ -281,6 +299,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   index={i}
                   project={project}
                   scrollX={scrollX}
+                  onVideoClick={() => setExpandedVideo(project.src)}
                 />
               ))}
             </div>
@@ -307,6 +326,46 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
           </div>
         </div>
       )}
+
+      {/* Video Modal Overlay */}
+      <AnimatePresence>
+        {expandedVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md pointer-events-auto"
+            onClick={() => setExpandedVideo(null)}
+          >
+            <button
+                className="absolute top-10 right-10 text-white font-ocr text-sm uppercase tracking-widest z-[110] hover:opacity-70 transition-opacity bg-black/50 px-4 py-2 backdrop-blur-md border border-white/10"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedVideo(null);
+                }}
+            >
+                [ CLOSE ]
+            </button>
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <video
+                    src={expandedVideo}
+                    className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                    autoPlay
+                    controls
+                    playsInline
+                />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

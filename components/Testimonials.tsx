@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo, useInView } from 'framer-motion';
-import { Instagram, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { Instagram, ChevronLeft, ChevronRight, Play, Volume2, VolumeX } from 'lucide-react';
 
 const REELS = [
     { id: "R_06", client: "DR. MATT", url: "/assets/testimonial-matt.mp4", thumbnailTime: 1.0 },
@@ -71,9 +71,10 @@ const GOOGLE_REVIEWS = [
 
 
 
-const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isActive: boolean, onClick: () => void, offset: number }) => {
+const ReelCoverflowCard = ({ reel, isActive, offset, onExpand }: { reel: any, isActive: boolean, offset: number, onExpand: (url: string) => void }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isHovered, setIsHovered] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
         if (isActive && videoRef.current) {
@@ -101,9 +102,9 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                 transformStyle: 'preserve-3d',
                 perspective: '1000px'
             }}
-            onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            onClick={() => isActive && onExpand(reel.url || reel.src)}
         >
             <div className="relative w-full h-full">
                 {/* Video / Thumbnail */}
@@ -112,7 +113,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
                     src={reel.url || reel.src}
                     poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                     loop
-                    muted
+                    muted={isMuted}
                     playsInline
                     preload="none"
                     className="w-full h-full object-cover"
@@ -123,14 +124,23 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
 
                 {/* Active State Details */}
                 <div className={`absolute inset-0 flex flex-col justify-between p-8 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start w-full">
                         <div className="bg-white/10 backdrop-blur-md px-3 py-1 border border-white/20">
                             <span className="text-[10px] font-bold text-white uppercase tracking-wider">Play</span>
                         </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsMuted(!isMuted);
+                            }}
+                            className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:bg-black/60 transition-colors pointer-events-auto"
+                        >
+                            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                        </button>
                     </div>
 
-                    <div className="space-y-4">
-                        <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans tracking-tight drop-shadow-lg break-words break-all whitespace-normal">
+                    <div className="space-y-4 pointer-events-none">
+                        <h3 className="text-xl md:text-2xl font-black text-white uppercase leading-tight font-sans tracking-tight drop-shadow-lg whitespace-normal">
                             {reel.client || reel.title}
                         </h3>
                         <div className="flex items-center gap-3">
@@ -144,7 +154,7 @@ const ReelCoverflowCard = ({ reel, isActive, onClick, offset }: { reel: any, isA
     );
 };
 
-const Carousel3D = ({ items }: { items: typeof REELS }) => {
+const Carousel3D = ({ items, onExpand }: { items: typeof REELS, onExpand: (url: string) => void }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [direction, setDirection] = useState(1); // 1 = Next, -1 = Prev
 
@@ -229,11 +239,12 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
                                 reel={item}
                                 isActive={positionIndex === 0}
                                 offset={positionIndex}
+                                onExpand={onExpand}
                                 onClick={() => {
                                     if (positionIndex === 1) handleNext();
-                                    if (positionIndex === -1) handlePrev();
-                                    if (positionIndex === 2) handleNext(); // Jump 2
-                                    if (positionIndex === -2) handlePrev(); // Jump 2
+                                    else if (positionIndex === -1) handlePrev();
+                                    else if (positionIndex === 2) handleNext(); // Jump 2
+                                    else if (positionIndex === -2) handlePrev(); // Jump 2
                                 }}
                             />
                         </motion.div>
@@ -244,10 +255,11 @@ const Carousel3D = ({ items }: { items: typeof REELS }) => {
     );
 };
 
-const MobileReelCard = ({ reel }: { reel: any }) => {
+const MobileReelCard = ({ reel, onExpand }: { reel: any, onExpand: (url: string) => void }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(containerRef, { amount: 0.6 });
+    const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
         if (isInView && videoRef.current) {
@@ -259,7 +271,11 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
     }, [isInView]);
 
     return (
-        <div ref={containerRef} className="relative w-full h-full bg-neutral-900 overflow-hidden">
+        <div 
+            ref={containerRef} 
+            className="relative w-full h-full bg-neutral-900 overflow-hidden cursor-pointer"
+            onClick={() => onExpand(reel.url || reel.src)}
+        >
             {/* Brackets */}
             <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/70 z-20 pointer-events-none" />
             <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-white/70 z-20 pointer-events-none" />
@@ -271,15 +287,26 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
                 src={reel.url || reel.src}
                 poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
                 loop
-                muted
+                muted={isMuted}
                 playsInline
                 className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
 
-            <div className="absolute inset-0 flex flex-col justify-end p-5 pointer-events-none">
+            <div className="absolute inset-0 flex flex-col justify-between p-5 pointer-events-none">
+                <div className="flex justify-end w-full">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMuted(!isMuted);
+                        }}
+                        className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:bg-black/60 transition-colors pointer-events-auto mt-2 mr-2"
+                    >
+                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                    </button>
+                </div>
                 <div className="space-y-3">
-                    <h3 className="text-3xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight break-words break-all whitespace-normal">
+                    <h3 className="text-xl md:text-2xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight whitespace-normal">
                         {reel.client || reel.title}
                     </h3>
                     <div className="flex items-center gap-3">
@@ -292,7 +319,7 @@ const MobileReelCard = ({ reel }: { reel: any }) => {
     );
 };
 
-const FlatVideoCarousel = ({ items }: { items: typeof REELS }) => {
+const FlatVideoCarousel = ({ items, onExpand }: { items: typeof REELS, onExpand: (url: string) => void }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const ITEMS_PER_VIEW = 3; // On desktop
 
@@ -335,7 +362,7 @@ const FlatVideoCarousel = ({ items }: { items: typeof REELS }) => {
                                 key={item.id}
                                 className="w-[calc(33.333%-16px)] shrink-0 aspect-[9/16] transition-shadow duration-500 overflow-hidden"
                             >
-                                <MobileReelCard reel={item} />
+                                <MobileReelCard reel={item} onExpand={onExpand} />
                             </div>
                         ))}
                     </motion.div>
@@ -350,7 +377,7 @@ const FlatVideoCarousel = ({ items }: { items: typeof REELS }) => {
                         key={item.id}
                         className="w-[75vw] sm:w-[50vw] flex-shrink-0 snap-center relative aspect-[9/16] overflow-hidden"
                     >
-                        <MobileReelCard reel={item} />
+                        <MobileReelCard reel={item} onExpand={onExpand} />
                     </div>
                 ))}
             </div>
@@ -418,6 +445,7 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     const [visibleReviews, setVisibleReviews] = useState(3);
     const [isMobile, setIsMobile] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
     const ITEMS_PER_VIEW = 4;
 
     useEffect(() => {
@@ -462,9 +490,9 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                 {/* Content Section */}
                 <div className="mb-20">
                     {!isMobile ? (
-                        <Carousel3D items={activeReels} />
+                        <Carousel3D items={activeReels} onExpand={setExpandedVideo} />
                     ) : (
-                        <FlatVideoCarousel items={activeReels} />
+                        <FlatVideoCarousel items={activeReels} onExpand={setExpandedVideo} />
                     )}
                 </div>
 
@@ -554,6 +582,46 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
                     )}
                 </div>
             </div>
+            
+            {/* Expansion Modal */}
+            <AnimatePresence>
+                {expandedVideo && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-md pointer-events-auto"
+                        onClick={() => setExpandedVideo(null)}
+                    >
+                        <button
+                            className="absolute top-10 right-10 text-white font-ocr text-sm uppercase tracking-widest z-[110] hover:opacity-70 transition-opacity bg-black/50 px-4 py-2 backdrop-blur-md border border-white/10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedVideo(null);
+                            }}
+                        >
+                            [ CLOSE ]
+                        </button>
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                            className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <video
+                                src={expandedVideo}
+                                className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                autoPlay
+                                controls
+                                playsInline
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };

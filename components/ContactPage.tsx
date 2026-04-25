@@ -52,11 +52,7 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
 
                         <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
                            {data?.titleLine1 || "SCHEDULE A"}<br />
-                           {data?.titleLine2 || "CALL"}<br />
-                           <span className="italic" style={{ color: accentColor }}>
-                              {data?.titleLine3 || "WITH"}<br />
-                              {data?.titleLine4 || "SANTIAGO"}
-                           </span>
+                           {data?.titleLine2 || "CALL"}
                         </h1>
 
                         <p className="text-lg md:text-xl font-light max-w-xl leading-relaxed opacity-80" style={{ color: txtColor }}>
@@ -71,7 +67,7 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                               <span className="font-black text-sm uppercase tracking-wider">LOCK IN A DATE</span>
                            </div>
                            <p className="text-sm opacity-60 leading-relaxed" style={{ color: txtColor }}>
-                              Find a time on Santiago's calendar to schedule your call today.
+                              Find a time on our calendar to schedule your call today.
                            </p>
                         </div>
 
@@ -94,11 +90,11 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                      initial={{ opacity: 0, x: 30 }}
                      animate={{ opacity: 1, x: 0 }}
                      transition={{ duration: 0.8 }}
-                     className="w-full h-full min-h-[600px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
+                     className="w-full h-full min-h-[1100px] md:min-h-[1200px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
                   >
                      <iframe
                         src={data?.calendarUrl || "https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd"}
-                        style={{ width: '100%', height: '100%', minHeight: '800px', border: 'none', overflow: 'hidden' }}
+                        style={{ width: '100%', height: '100%', border: 'none', minHeight: '1200px' }}
                         scrolling="no"
                         id="cgeV18JSg30NhG1v1URd_1772211767012"
                         title="Booking Calendar"
