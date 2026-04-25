@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical, RotateCcw, AlertCircle, Clock, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { getCMSContent, saveCMSContent } from '../../src/utils/cms-client';
 
@@ -17,9 +17,9 @@ import { About } from '../About';
 import { ContactPage } from '../ContactPage';
 import { ProcessPage } from '../ProcessPage';
 import { WorksPage } from '../WorksPage';
-import { TheLab } from '../TheLab';
+
 import { Footer } from '../Footer';
-import { BookingsManager } from './BookingsManager';
+
 
 export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const { logout } = useAuth();
@@ -33,8 +33,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [activePage, setActivePage] = useState<string>('home');
     const [activeSection, setActiveSection] = useState<string>('hero');
     const [previewKey, setPreviewKey] = useState(0);
-    const [pendingCount, setPendingCount] = useState(0);
-    const [latestBookings, setLatestBookings] = useState<any[]>([]);
+
     const [isDirty, setIsDirty] = useState(false);
     const [toasts, setToasts] = useState<{ id: string, message: string, type: 'success' | 'error' | 'info' }[]>([]);
 
@@ -159,16 +158,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 setContent(data);
             }
 
-            // Fetch bookings count
-            try {
-                const client = await import('../../src/utils/booking-client');
-                const bData = await client.getAdminBookings();
-                const pending = bData.filter((b: any) => b.status === 'PENDING');
-                setPendingCount(pending.length);
-                setLatestBookings(pending.slice(0, 5));
-            } catch (err) {
-                console.error("Booking count error:", err);
-            }
+
 
             setIsLoading(false);
         };
@@ -294,8 +284,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <NavTab active={activePage === 'about'} onClick={() => { setActivePage('about'); setActiveSection('header'); }} label="About" />
                             <NavTab active={activePage === 'process'} onClick={() => { setActivePage('process'); setActiveSection('header'); }} label="Process" />
                             <NavTab active={activePage === 'works'} onClick={() => { setActivePage('works'); setActiveSection('gallery'); }} label="Works" />
-                            <NavTab active={activePage === 'bookings'} badge={pendingCount} onClick={() => { setActivePage('bookings'); setActiveSection('requests'); }} label="Requests" />
-                            <NavTab active={activePage === 'lab'} onClick={() => { setActivePage('lab'); setActiveSection('content'); }} label="Booking Page" />
                             <NavTab active={activePage === 'contact'} onClick={() => { setActivePage('contact'); setActiveSection('intro'); }} label="Contact" />
                         </div>
                     </div>
@@ -396,32 +384,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </div>
                     )}
 
-                    {activePage === 'bookings' && (
-                        <div className="p-6 space-y-6">
-                            <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4">
-                                <h3 className="text-xs font-bold text-yellow-800 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                    <Clock size={14} /> Attention Required
-                                </h3>
-                                <p className="text-xs text-yellow-700 leading-relaxed">
-                                    You have <strong>{pendingCount}</strong> pending booking requests waiting for confirmation or rejection.
-                                </p>
-                            </div>
 
-                            {latestBookings.length > 0 && (
-                                <div className="space-y-4">
-                                    <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Latest Requests</h3>
-                                    <div className="space-y-2">
-                                        {latestBookings.map(b => (
-                                            <div key={b.id} className="bg-white border border-gray-100 rounded-lg p-3 shadow-sm hover:border-black transition-all cursor-pointer" onClick={() => setActivePage('bookings')}>
-                                                <div className="font-bold text-xs truncate">{b.name}</div>
-                                                <div className="text-[10px] text-gray-500 mt-1">{new Date(b.start).toLocaleDateString()} at {new Date(b.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
 
                     {/* Breadcrumbs */}
                     <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-2 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] z-20">
@@ -964,50 +927,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             </div>
                         )}
 
-                        {activePage === 'lab' && content?.lab && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Bookings Page Configuration</h3>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <ColorInput label="Background" value={content.lab.backgroundColor || '#ffffff'} onChange={(v) => updateField('lab', 'backgroundColor', v)} />
-                                    <ColorInput label="Main Text" value={content.lab.textColor || '#000000'} onChange={(v) => updateField('lab', 'textColor', v)} />
-                                    <ColorInput label="Accent" value={content.lab.accentColor || '#EF5304'} onChange={(v) => updateField('lab', 'accentColor', v)} />
-                                </div>
-                                <InputGroup label="Page Title" value={content.lab.title} onChange={(v) => updateField('lab', 'title', v)} />
-                                <InputGroup label="Booking Form Title" value={content.lab.bookingTitle} onChange={(v) => updateField('lab', 'bookingTitle', v)} />
-                                <InputGroup label="Booking Form Subtitle" value={content.lab.bookingSubtitle} onChange={(v) => updateField('lab', 'bookingSubtitle', v)} />
-                                
-                                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 mt-8">Media Configuration</h3>
-                                <InputGroup label="Main Showcase Video URL (MP4)" value={content.lab.mainVideo} onChange={(v) => updateField('lab', 'mainVideo', v)} />
-                                
-                                <div className="mt-6">
-                                    <label className="text-[10px] font-bold uppercase text-gray-400 block mb-2">Gallery Images</label>
-                                    <ImageListManager 
-                                        images={content.lab.gallery || [
-                                            "/assets/lab/lab_1.jpg", "/assets/lab/lab_2.jpg", "/assets/lab/lab_3.jpg",
-                                            "/assets/lab/lab_4.jpg", "/assets/lab/lab_5.jpg", "/assets/lab/lab_6.jpg",
-                                            "/assets/lab/lab_7.jpg", "/assets/lab/lab_8.jpg", "/assets/lab/lab_9.jpg",
-                                            "/assets/lab/lab_10.jpg", "/assets/lab/lab_11.jpg", "/assets/lab/lab_12.jpg",
-                                            "/assets/lab/lab_13.jpg", "/assets/lab/lab_14.jpg", "/assets/lab/lab_15.jpg",
-                                            "/assets/lab/lab_16.jpg", "/assets/lab/lab_17.jpg", "/assets/lab/lab_18.jpg",
-                                            "/assets/lab/lab_19.jpg", "/assets/lab/lab_20.jpg", "/assets/lab/lab_21.jpg",
-                                            "/assets/lab/lab_22.jpg"
-                                        ]} 
-                                        onChange={(newImages) => updateField('lab', 'gallery', newImages)} 
-                                    />
-                                </div>
-                            </div>
-                        )}
 
-                        {activePage === 'bookings' && (
-                            <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
-                                <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Booking Management</h3>
-                                    <p className="text-sm text-gray-600">
-                                        Use the interface on the right to view, accept, or reject studio booking requests.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
                             </div>
                         </motion.div>
                     </div>
@@ -1018,12 +938,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     
 
 
-                    {activePage === 'bookings' ? (
-                        <div className="w-full h-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-y-auto custom-scrollbar">
-                            <BookingsManager />
-                        </div>
-                    ) : (
-                        /* Preview Container */
+                    {/* Preview Container */}
                         <div id="preview-wrapper" className="bg-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] overflow-hidden relative border border-gray-200 flex flex-col w-full h-full md:rounded-xl">
                             <div key={previewKey} className="w-full h-full overflow-y-auto overflow-x-hidden custom-scrollbar scroll-smooth" id="preview-container" style={{ fontFamily: "'Tactic Sans', system-ui, -apple-system, sans-serif" }}>
                                 {activePage === 'home' && (
@@ -1096,13 +1011,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     </div>
                                 )}
 
-                                {activePage === 'lab' && (
-                                    <div id="preview-lab" className="opacity-100 w-full h-full">
-                                        <div className="bg-white relative w-full h-full">
-                                            <TheLab onContactClick={() => { }} data={content?.lab} />
-                                        </div>
-                                    </div>
-                                )}
+
 
                                 {activePage === 'contact' && (
                                     <div id="preview-contact" className="opacity-100 w-full h-full">
@@ -1114,7 +1023,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
                             </div>
                         </div>
-                    )}
                 </div>
 
             </main >
