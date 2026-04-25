@@ -150,12 +150,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                 { id: 'passionate-few', title: 'PASSIONATE FEW', description: 'MEXICO HOUSE BUILD TRIP', src: 'https://video.wixstatic.com/video/8fb0bb_70e8af86cad140fab13cad5b7aa60fbe/1080p/mp4/file.mp4' },
                                 { id: 'dasfleet', title: 'DASFLEET', description: 'LUX CAR CLUB PROMO', src: 'https://video.wixstatic.com/video/8fb0bb_6a9b9f18c9d549c5a9203f05f19f8c26/1080p/mp4/file.mp4' }
                             ]
-                        },
-                        {
-                            id: 'photo', label: 'Photography', type: 'image', description: 'High-end visual assets.', images: []
-                        },
-                        {
-                            id: 'digital', label: 'Digital Assets', type: 'image', description: 'Strategic motion graphics.', images: []
                         }
                     ];
                 }
@@ -918,75 +912,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                                 </div>
                                             </div>
 
-                                            {/* Photography */}
-                                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                                                    <h4 className="text-sm font-bold uppercase">Photography</h4>
-                                                    <span className="text-[10px] font-mono bg-gray-200 text-black px-2 py-0.5 rounded">IMAGE</span>
-                                                </div>
-                                                <div className="p-4 space-y-6">
-                                                    <ServiceInfoManager
-                                                        service={content?.worksPage?.services?.find((s: any) => s.id === 'photo')}
-                                                        onChange={(updated) => {
-                                                            const services = [...(content?.worksPage?.services || [])];
-                                                            const idx = services.findIndex(s => s.id === 'photo');
-                                                            if (idx !== -1) {
-                                                                services[idx] = { ...services[idx], ...updated };
-                                                                updateField('worksPage', 'services', services);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <div>
-                                                        <label className="text-[10px] font-bold uppercase text-gray-400 block mb-2">Gallery Images</label>
-                                                        <ImageListManager
-                                                            images={content?.worksPage?.services?.find((s: any) => s.id === 'photo')?.images || []}
-                                                            onChange={(newImages) => {
-                                                                const services = [...(content?.worksPage?.services || [])];
-                                                                const idx = services.findIndex(s => s.id === 'photo');
-                                                                if (idx !== -1) {
-                                                                    services[idx] = { ...services[idx], images: newImages };
-                                                                    updateField('worksPage', 'services', services);
-                                                                }
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Digital Assets */}
-                                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                                                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                                                    <h4 className="text-sm font-bold uppercase">Digital Assets</h4>
-                                                    <span className="text-[10px] font-mono bg-gray-200 text-black px-2 py-0.5 rounded">IMAGE</span>
-                                                </div>
-                                                <div className="p-4 space-y-6">
-                                                    <ServiceInfoManager
-                                                        service={content?.worksPage?.services?.find((s: any) => s.id === 'digital')}
-                                                        onChange={(updated) => {
-                                                            const services = [...(content?.worksPage?.services || [])];
-                                                            const idx = services.findIndex(s => s.id === 'digital');
-                                                            if (idx !== -1) {
-                                                                services[idx] = { ...services[idx], ...updated };
-                                                                updateField('worksPage', 'services', services);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <div>
-                                                        <label className="text-[10px] font-bold uppercase text-gray-400 block mb-2">Assets Images</label>
-                                                        <ImageListManager
-                                                            images={content?.worksPage?.services?.find((s: any) => s.id === 'digital')?.images || []}
-                                                            onChange={(newImages) => {
-                                                                const services = [...(content?.worksPage?.services || [])];
-                                                                const idx = services.findIndex(s => s.id === 'digital');
-                                                                if (idx !== -1) {
-                                                                    services[idx] = { ...services[idx], images: newImages };
-                                                                    updateField('worksPage', 'services', services);
-                                                                }
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                         </div>
                                     </>
