@@ -284,7 +284,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             <NavTab active={activePage === 'about'} onClick={() => { setActivePage('about'); setActiveSection('header'); }} label="About" />
                             <NavTab active={activePage === 'process'} onClick={() => { setActivePage('process'); setActiveSection('header'); }} label="Process" />
                             <NavTab active={activePage === 'works'} onClick={() => { setActivePage('works'); setActiveSection('gallery'); }} label="Works" />
-                            <NavTab active={activePage === 'contact'} onClick={() => { setActivePage('contact'); setActiveSection('intro'); }} label="Contact" />
                         </div>
                     </div>
 
