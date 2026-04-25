@@ -69,7 +69,7 @@ function App() {
     const hash = window.location.hash.replace('#', '');
     const path = window.location.pathname.replace('/', '');
     const requestedPage = hash || path;
-    return (['home', 'about', 'work', 'process', 'contact', 'lab', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
+    return (['home', 'about', 'work', 'process', 'lab', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
   });
   const [introCompleted, setIntroCompleted] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
@@ -95,6 +95,36 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Check if we should skip intro based on hash/path
+    const hash = window.location.hash.replace('#', '');
+    const path = window.location.pathname.replace('/', '');
+    const requestedPage = hash || path;
+    
+    if (requestedPage && requestedPage !== 'home' && requestedPage !== '') {
+      setIntroCompleted(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Safety: Reset body overflow whenever activePage changes to prevent stuck scroll locks
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [activePage]);
+
+  useEffect(() => {
+    if (introCompleted) {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      // Force a repaint/reflow to ensure Chrome sees the change
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [introCompleted]);
+
   const navigateTo = (page: Page) => {
     setActivePage(page);
     if (page === 'home') {
@@ -111,7 +141,9 @@ function App() {
   const handleWorksClick = () => navigateTo('work');
   const handleLabClick = () => navigateTo('lab');
   const handleProcessClick = () => navigateTo('process');
-  const handleContactClick = () => navigateTo('contact');
+  const handleContactClick = () => {
+    window.open('https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd', '_blank');
+  };
 
   const pageTransition = {
     initial: { opacity: 0 },
@@ -147,6 +179,7 @@ function App() {
                   theme={cmsContent.theme}
                   onContactClick={handleContactClick}
                   onIntroComplete={() => setIntroCompleted(true)}
+                  isIntroAlreadyDone={introCompleted}
                 />
               </div>
               <div className={`transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0'}`}>
@@ -184,11 +217,7 @@ function App() {
             </motion.div>
           )}
 
-          {activePage === 'contact' && (
-            <motion.div key="contact" {...pageTransition}>
-              <ContactPage data={cmsContent.contact} onBack={handleHomeClick} />
-            </motion.div>
-          )}
+
 
           {activePage === 'admin' && (
             <motion.div key="admin" {...pageTransition} className="admin-side">

@@ -65,7 +65,8 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
             <span>ALL RIGHTS RESERVED.</span>
           </div>
 
-          <div className="flex gap-10 items-center">
+          <div className="flex gap-8 md:gap-10 items-center">
+
             <a href="https://www.facebook.com/opticxelement" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Facebook">
               <Facebook size={18} strokeWidth={1.5} />
             </a>

@@ -119,7 +119,11 @@ export const TheLab: React.FC<TheLabProps & { data?: any }> = ({ onContactClick,
             if (e.key === 'Escape') closeGallery();
         };
         if (isGalleryOpen) window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            // Ensure overflow is restored on unmount
+            document.body.style.overflow = '';
+        };
     }, [isGalleryOpen]);
 
 
