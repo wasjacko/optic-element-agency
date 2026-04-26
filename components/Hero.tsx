@@ -722,7 +722,10 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {
         phaseRef.current = currentPhase;
-    }, [currentPhase]);
+        if (currentPhase >= 3 && onIntroExpands) {
+            onIntroExpands();
+        }
+    }, [currentPhase, onIntroExpands]);
 
     const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 768));
     useEffect(() => {
