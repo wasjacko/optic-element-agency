@@ -255,7 +255,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
   const progressBarWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
 
   return (
-    <section id="works" className="relative w-full" style={{ backgroundColor: data?.projects?.backgroundColor || '#000000', color: data?.projects?.textColor || '#ffffff' }}>
+    <section id="works-section" className="relative w-full" style={{ backgroundColor: data?.projects?.backgroundColor || '#000000', color: data?.projects?.textColor || '#ffffff' }}>
       {isMobile ? (
         <div className="flex flex-col items-center py-10 pb-20 w-full overflow-hidden">
           <h2 className="font-ocr font-black tracking-[0.15em] text-2xl mb-8 uppercase text-center" style={{ color: data?.projects?.titleColor || '#ffffff' }}>{sectionTitle}</h2>

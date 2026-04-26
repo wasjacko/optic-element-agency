@@ -76,6 +76,11 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    // Disable browser's automatic scroll restoration to prevent jumps during transitions
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     updateTheme(homeContent.theme);
     const loadCMS = async () => {
       try {
@@ -94,6 +99,11 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Ensure scroll is reset when the page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activePage]);
 
   useEffect(() => {
     // Check if we should skip intro based on hash/path
@@ -177,7 +187,7 @@ function App() {
         <AnimatePresence mode="wait">
           {activePage === 'home' && (
             <motion.div key="home" {...pageTransition}>
-              <div id="home">
+              <div id="home-section">
                 <Hero
                   data={cmsContent.hero}
                   theme={cmsContent.theme}
