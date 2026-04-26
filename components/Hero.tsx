@@ -761,18 +761,18 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
     // Pure JS Scroll Lock - Controls phase transitions via scroll
     useEffect(() => {
         // Once phases are done (phase 4+), unlock everything
-        if (phasesComplete || currentPhase >= 4) {
+        // On mobile, we never lock the scroll via this effect to ensure natural behavior
+        if (phasesComplete || currentPhase >= 4 || isMobile) {
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
+            if (isMobile) return;
             return;
         }
 
         // Lock immediately (before registering listeners)
         // This ensures no frame gap on re-renders caused by loadProgress changes
-        if (!isMobile) {
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-        }
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
 
         const preventScroll = (e: Event) => {
             if (isMobile) return;
