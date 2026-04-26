@@ -521,7 +521,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
             if (isMobile) {
                 posX = 0;
-                posY += 1.5; // Fixed height on mobile
+                posY += 1.8; // Increased from 1.5 to provide more space from text below
 
                 // Static rotation on mobile (Phase 3 equivalent)
                 rotY = 1.6 + 1.0;
@@ -668,10 +668,11 @@ export interface HeroProps {
     onContactClick?: () => void;
     onIntroComplete?: () => void;
     onIntroExpands?: () => void;
+    onVideoStateChange?: (isOpen: boolean) => void;
     isIntroAlreadyDone?: boolean;
 }
 
-export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete, isIntroAlreadyDone }) => {
+export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntroExpands, onIntroComplete, onVideoStateChange, isIntroAlreadyDone }) => {
     const content = data || homeContent.hero;
     const currentTheme = theme || homeContent.theme; // Fallback to import if no prop
 
@@ -709,6 +710,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {
+        if (onVideoStateChange) onVideoStateChange(isVideoExpanded);
         if (isVideoExpanded) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -716,8 +718,9 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
         }
         return () => {
             document.body.style.overflow = '';
+            if (onVideoStateChange) onVideoStateChange(false);
         };
-    }, [isVideoExpanded]);
+    }, [isVideoExpanded, onVideoStateChange]);
 
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {

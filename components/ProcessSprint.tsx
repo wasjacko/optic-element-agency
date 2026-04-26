@@ -111,7 +111,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
       </div>
 
       {/* 3. CTA BUTTON */}
-      <div className="mt-10 md:mt-16 mb-4 md:mb-8 relative z-10">
+      <div className="mt-16 md:mt-24 mb-12 md:mb-16 relative z-10">
         <button
           onClick={onProcessClick}
           className="px-8 py-4 flex items-center gap-4 group hover:opacity-80 transition-all duration-500"
