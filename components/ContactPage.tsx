@@ -53,9 +53,9 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                            // 15-30 MIN FREE DISCOVERY CALL
                         </motion.span>
 
-                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
-                           {data?.titleLine1 || "SCHEDULE A"}<br />
-                           {data?.titleLine2 || "CALL"}
+                        <h1 className="text-[42px] xs:text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9]">
+                           {data?.titleLine1 || "SCHEDULE"}<br />
+                           <span className="whitespace-nowrap">{data?.titleLine2 || "A CALL"}</span>
                         </h1>
 
                         <p className="text-lg md:text-xl font-light max-w-xl leading-relaxed opacity-80" style={{ color: txtColor }}>
