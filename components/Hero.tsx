@@ -965,7 +965,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                 {/* Intro Texts (Desktop Only) */}
                 {!isMobile && (
-                    <div className={`absolute top-[53%] -translate-y-1/2 left-12 md:left-24 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-700 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className={`absolute top-[56%] -translate-y-1/2 left-12 md:left-24 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-200 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
