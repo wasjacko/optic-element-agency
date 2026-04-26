@@ -685,8 +685,9 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
     ], []);
     const sectionRef = useRef<HTMLElement>(null);
     const isInView = useInView(sectionRef, { margin: "100px" });
-    const phaseRef = useRef(0);
-    const [currentPhase, setCurrentPhase] = useState(0);
+    // On return visits (hasIntroPlayed=true): start at phase 3 so cube + CTA are immediately visible
+    const phaseRef = useRef(hasIntroPlayed ? 3 : 0);
+    const [currentPhase, setCurrentPhase] = useState(hasIntroPlayed ? 3 : 0);
     const [isVideoExpanded, setIsVideoExpanded] = useState(false);
     const [loadProgress, setLoadProgress] = useState(hasIntroPlayed ? 101 : 0);
     const lastScrollTime = useRef(0);
