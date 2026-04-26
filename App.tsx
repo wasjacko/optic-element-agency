@@ -107,14 +107,19 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Safety: Reset body overflow whenever activePage changes to prevent stuck scroll locks
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-    return () => {
+    // Only reset scroll when navigating AWAY from home, or when intro is already done.
+    // Never unlock while Hero is running its scroll-phase intro on home page.
+    if (activePage !== 'home') {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
-    };
-  }, [activePage]);
+    } else if (introCompleted) {
+      // Home page but intro already finished — ensure scroll is free
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    // If activePage === 'home' and intro NOT completed, do NOT touch overflow.
+    // Hero.tsx owns the lock in that case.
+  }, [activePage, introCompleted]);
 
   useEffect(() => {
     if (introCompleted) {
