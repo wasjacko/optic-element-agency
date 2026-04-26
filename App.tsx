@@ -138,7 +138,6 @@ function App() {
     } else {
       window.location.hash = page;
     }
-    window.scrollTo(0, 0);
   };
 
   const handleHomeClick = () => navigateTo('home');

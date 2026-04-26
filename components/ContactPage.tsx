@@ -9,6 +9,9 @@ interface ContactPageProps {
 
 
 export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSection?: string }> = ({ onBack, data, activeSection }) => {
+   useEffect(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+   }, []);
    // No need for external script for the booking iframe since it's hosted externally.
    const showAll = !activeSection;
    const bgColor = data?.backgroundColor || '#ffffff';
