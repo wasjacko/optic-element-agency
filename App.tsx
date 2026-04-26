@@ -139,6 +139,11 @@ function App() {
       // Force a repaint/reflow to ensure Chrome sees the change
       window.dispatchEvent(new Event('resize'));
     }
+    // Global mobile fail-safe
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+    }
   }, [introCompleted]);
 
   const navigateTo = (page: Page) => {

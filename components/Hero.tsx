@@ -727,9 +727,9 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
         }
     }, [currentPhase, onIntroExpands]);
 
-    const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 768));
+    const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 1024));
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        const checkMobile = () => setIsMobile(window.innerWidth < 1024);
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
@@ -891,16 +891,18 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
         <section 
             id="home" 
             ref={sectionRef} 
-            className="h-screen w-full relative overflow-hidden" 
+            className={`h-screen w-full relative ${isMobile ? '' : 'overflow-hidden'}`} 
             style={{ 
                 backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505',
-                touchAction: isMobile ? 'pan-y' : (currentPhase < 4 ? 'none' : 'auto')
+                touchAction: isMobile ? 'pan-y' : (currentPhase < 4 ? 'none' : 'auto'),
+                overflow: isMobile ? 'visible' : 'hidden'
             }}
         >
             {isInView && (
                 <Canvas
                     dpr={isMobile ? [1.5, 3] : [1, 3]}
                     performance={{ min: 0.65 }}
+                    style={isMobile ? { pointerEvents: introExpanded ? 'none' : 'auto' } : {}}
                     gl={{
                         alpha: true,
                         antialias: true,
