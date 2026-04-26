@@ -990,32 +990,32 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                 {/* Intro Texts (Desktop Only) */}
                 {!isMobile && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-32 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
-                            style={{ animation: 'glitchIn 0.4s ease-out 0.7s forwards, glitchOut 0.3s ease-in 2.8s forwards' }}
+                            className="flex flex-col justify-center py-1 gap-2 opacity-0"
+                            style={{ animation: 'simpleFadeIn 0.8s ease-out 0.7s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 <StaticScrambleText text="// OPTIC_ELEMENT_SYS" delay={0.7} />
                             </div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
                                 <StaticScrambleText text="GROWTH.ENGINE.INIT" delay={1.0} />
                             </div>
                         </div>
 
                         {/* Block 2 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
-                            style={{ animation: 'glitchIn 0.4s ease-out 1.5s forwards, glitchOut 0.3s ease-in 2.8s forwards' }}
+                            className="flex flex-col justify-center py-1 gap-2 opacity-0"
+                            style={{ animation: 'simpleFadeIn 0.8s ease-out 1.5s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 <StaticScrambleText text="// OPTICELEMENT.SYSTEM" delay={1.5} />
                             </div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
                                 <StaticScrambleText text="STRATEGY // EXEC" delay={1.8} />
                             </div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
                                 <StaticScrambleText text="GLOBAL_COORDINATES" delay={2.1} />
                             </div>
                         </div>
