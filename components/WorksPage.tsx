@@ -239,6 +239,10 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
    const videoRef = useRef<HTMLVideoElement>(null);
 
    useEffect(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+   }, []);
+
+   useEffect(() => {
       const handleResize = () => setIsMobile(window.innerWidth < 768);
       handleResize();
       window.addEventListener('resize', handleResize);

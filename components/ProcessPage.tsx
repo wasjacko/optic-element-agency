@@ -72,7 +72,7 @@ export const ProcessPage = ({ onContactClick, data, activeSection }: { onContact
 
   useEffect(() => {
     // Force scroll to top when page mounts
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
