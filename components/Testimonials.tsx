@@ -370,7 +370,7 @@ const FlatVideoCarousel = ({ items, onExpand }: { items: typeof REELS, onExpand:
             </div>
 
             {/* Mobile Swipe View */}
-            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-x' }}>
+            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-y' }}>
                 <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
                 {items.map((item) => (
                     <div
@@ -434,7 +434,7 @@ const GoogleReviewCard = ({ review }: { review: typeof BASE_REVIEWS[0] }) => {
     );
 }
 
-export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
+export const Testimonials: React.FC<{ data?: any, onVideoStateChange?: (isOpen: boolean) => void }> = ({ data, onVideoStateChange }) => {
     const activeReels = data?.reels || REELS;
     const activeReviews = data?.reviews || GOOGLE_REVIEWS;
     
@@ -447,6 +447,10 @@ export const Testimonials: React.FC<{ data?: any }> = ({ data }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
     const ITEMS_PER_VIEW = 4;
+
+    useEffect(() => {
+        if (onVideoStateChange) onVideoStateChange(expandedVideo !== null);
+    }, [expandedVideo, onVideoStateChange]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);

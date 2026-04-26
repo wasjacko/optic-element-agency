@@ -102,10 +102,11 @@ interface NavbarProps {
   isScrolled: boolean;
   introCompleted?: boolean;
   introExpanded?: boolean;
+  forceHide?: boolean;
   activePage: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, onPreload, isScrolled, introCompleted = false, introExpanded = false, activePage }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onAboutClick, onWorksClick, onLabClick, onProcessClick, onPreload, isScrolled, introCompleted = false, introExpanded = false, forceHide = false, activePage }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isContactHovered, setIsContactHovered] = useState(false); // For Contact Button Glitch
   const [isBookStudioHovered, setIsBookStudioHovered] = useState(false);
@@ -153,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
   return (
     <motion.nav
       initial={{ y: "-100%" }}
-      animate={{ y: isVisible && (introExpanded || introCompleted || activePage !== 'home') ? "0%" : "-100%" }}
+      animate={{ y: isVisible && (introExpanded || introCompleted || activePage !== 'home') && !forceHide ? "0%" : "-100%" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       className={`fixed top-0 left-0 w-full z-[999] md:border-b border-white/5 will-change-transform backface-hidden`}
       style={{ backgroundColor: 'var(--color-bg)' }}
