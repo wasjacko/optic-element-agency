@@ -217,35 +217,6 @@ const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(
     );
 });
 
-// --- Tactical Scramble Component ---
-const StaticScrambleText: React.FC<{ text: string, delay: number }> = ({ text, delay }) => {
-    const [displayText, setDisplayText] = React.useState("");
-    const chars = "01#$%&@<>[]";
-
-    React.useEffect(() => {
-        let timeout = setTimeout(() => {
-            let iteration = 0;
-            const interval = setInterval(() => {
-                setDisplayText(
-                    text.split("").map((char, index) => {
-                        if (char === " ") return " ";
-                        if (index < Math.floor(iteration)) return text[index];
-                        return chars[Math.floor(Math.random() * chars.length)];
-                    }).join("")
-                );
-
-                if (iteration >= text.length) {
-                    clearInterval(interval);
-                }
-                iteration += 0.4;
-            }, 30);
-        }, delay * 1000);
-        return () => clearTimeout(timeout);
-    }, [text, delay]);
-
-    return <span>{displayText}</span>;
-};
-
 const TacticalText: React.FC<{ children: React.ReactNode, visible: boolean, className?: string, color?: string, weight?: string, size?: string, tracking?: string, noAnimation?: boolean, shadow?: string }> = ({ children, visible, className = "", color, weight = "font-black", size = "text-xl md:text-4xl", tracking = "tracking-tighter", noAnimation = false, shadow = "drop-shadow-md" }) => {
     return (
         <div className={`relative inline-block ${className}`}>
@@ -997,10 +968,10 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                             style={{ animation: 'simpleFadeIn 0.8s ease-out 0.7s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
-                                <StaticScrambleText text="// OPTIC_ELEMENT_SYS" delay={0.7} />
+                                // OPTIC_ELEMENT_SYS
                             </div>
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
-                                <StaticScrambleText text="GROWTH.ENGINE.INIT" delay={1.0} />
+                                GROWTH.ENGINE.INIT
                             </div>
                         </div>
 
@@ -1010,13 +981,13 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                             style={{ animation: 'simpleFadeIn 0.8s ease-out 1.5s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
-                                <StaticScrambleText text="// OPTICELEMENT.SYSTEM" delay={1.5} />
+                                // OPTICELEMENT.SYSTEM
                             </div>
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
-                                <StaticScrambleText text="STRATEGY // EXEC" delay={1.8} />
+                                STRATEGY // EXEC
                             </div>
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none opacity-50">
-                                <StaticScrambleText text="GLOBAL_COORDINATES" delay={2.1} />
+                                GLOBAL_COORDINATES
                             </div>
                         </div>
                     </div>
