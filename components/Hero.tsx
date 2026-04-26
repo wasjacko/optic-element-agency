@@ -982,7 +982,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         {/* Block 2 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
-                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 3.1s forwards' }}
+                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 2.1s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 // OPTICELEMENT.SYSTEM
