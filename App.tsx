@@ -56,7 +56,7 @@ const updateTheme = (theme: any) => {
   root.style.setProperty('--color-accent', theme.accent || '#000000');
 };
 
-type Page = 'home' | 'about' | 'work' | 'process' | 'admin';
+type Page = 'home' | 'about' | 'work' | 'process' | 'contact' | 'admin';
 
 const AdminRoute = ({ onBack }: { onBack: () => void }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -69,7 +69,7 @@ function App() {
     const hash = window.location.hash.replace('#', '');
     const path = window.location.pathname.replace('/', '');
     const requestedPage = hash || path;
-    return (['home', 'about', 'work', 'process', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
+    return (['home', 'about', 'work', 'process', 'contact', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
   });
   const [introCompleted, setIntroCompleted] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
@@ -148,9 +148,7 @@ function App() {
     window.open('https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd', '_blank');
   };
   const handleProcessClick = () => navigateTo('process');
-  const handleContactClick = () => {
-    window.open('https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd', '_blank');
-  };
+  const handleContactClick = () => navigateTo('contact');
 
   const pageTransition = {
     initial: { opacity: 0 },
@@ -218,6 +216,12 @@ function App() {
             </motion.div>
           )}
 
+
+          {activePage === 'contact' && (
+            <motion.div key="contact" {...pageTransition}>
+              <ContactPage data={cmsContent.contact} onBack={handleHomeClick} />
+            </motion.div>
+          )}
 
           {activePage === 'admin' && (
             <motion.div key="admin" {...pageTransition} className="admin-side">
