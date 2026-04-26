@@ -958,18 +958,20 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             {/* UI Overlay - Absolutely Static */}
             <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
 
-                <style>{`
+                    @keyframes glitchIn {
+                        0% { opacity: 0; transform: translateX(-5px) skewX(10deg); filter: blur(5px); }
+                        20% { opacity: 0.8; transform: translateX(2px) skewX(-10deg); filter: blur(2px); }
+                        40% { opacity: 0.5; transform: translateX(-1px) skewX(5deg); filter: blur(3px); }
+                        100% { opacity: 1; transform: translateX(0) skewX(0deg); filter: blur(0px); }
+                    }
+                    @keyframes glitchOut {
+                        0% { opacity: 1; transform: translateX(0); filter: blur(0px); }
+                        20% { opacity: 0.8; transform: translateX(2px) skewX(5deg); filter: blur(2px); }
+                        100% { opacity: 0; transform: translateX(10px) skewX(-10deg); filter: blur(10px); }
+                    }
                     @keyframes simpleFadeIn {
                         from { opacity: 0; }
                         to { opacity: 1; }
-                    }
-                    @keyframes slideInRight {
-                        from { opacity: 0; transform: translateX(100px); }
-                        to { opacity: 1; transform: translateX(0); }
-                    }
-                    @keyframes slideInLeft {
-                        from { opacity: 0; transform: translateX(-100px); }
-                        to { opacity: 1; transform: translateX(0); }
                     }
                     @keyframes simpleFadeOut {
                         from { opacity: 1; }
@@ -990,30 +992,30 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                     <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-32 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-2 opacity-0 border-l border-[#EF5304]/30 pl-6"
-                            style={{ animation: 'simpleFadeIn 0.5s ease-out 0.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                            style={{ animation: 'glitchIn 0.4s ease-out 0.7s forwards, glitchOut 0.3s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[10px] font-bold text-[#EF5304] uppercase tracking-[0.5em] leading-none mb-1">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">
                                 <StaticScrambleText text="// OPTIC_ELEMENT_SYS" delay={0.7} />
                             </div>
-                            <div className="font-ocr text-[8px] font-medium text-white/50 uppercase tracking-[0.4em] leading-none">
-                                <StaticScrambleText text="GROWTH.ENGINE.INIT" delay={1.1} />
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                                <StaticScrambleText text="GROWTH.ENGINE.INIT" delay={1.0} />
                             </div>
                         </div>
 
                         {/* Block 2 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-2 opacity-0 border-l border-white/10 pl-6"
-                            style={{ animation: 'simpleFadeIn 0.5s ease-out 1.5s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                            style={{ animation: 'glitchIn 0.4s ease-out 1.5s forwards, glitchOut 0.3s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[10px] font-bold text-white uppercase tracking-[0.5em] leading-none mb-1">
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">
                                 <StaticScrambleText text="// OPTICELEMENT.SYSTEM" delay={1.5} />
                             </div>
-                            <div className="font-ocr text-[8px] font-medium text-white/40 uppercase tracking-[0.4em] leading-none">
-                                <StaticScrambleText text="STRATEGY // EXEC" delay={1.9} />
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                                <StaticScrambleText text="STRATEGY // EXEC" delay={1.8} />
                             </div>
-                            <div className="font-ocr text-[8px] font-medium text-white/40 uppercase tracking-[0.4em] leading-none">
-                                <StaticScrambleText text="GLOBAL_COORDINATES" delay={2.2} />
+                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none opacity-60">
+                                <StaticScrambleText text="GLOBAL_COORDINATES" delay={2.1} />
                             </div>
                         </div>
                     </div>
