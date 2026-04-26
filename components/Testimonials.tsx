@@ -370,7 +370,7 @@ const FlatVideoCarousel = ({ items, onExpand }: { items: typeof REELS, onExpand:
             </div>
 
             {/* Mobile Swipe View */}
-            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'pan-y' }}>
+            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'auto' }}>
                 <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
                 {items.map((item) => (
                     <div
