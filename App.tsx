@@ -75,6 +75,7 @@ function App() {
   const [introExpanded, setIntroExpanded] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   useEffect(() => {
     // Disable browser's automatic scroll restoration to prevent jumps during transitions
@@ -188,6 +189,7 @@ function App() {
             isScrolled={isScrolled}
             introCompleted={introCompleted}
             introExpanded={introExpanded}
+            forceHide={isVideoModalOpen}
           />
         )}
 
@@ -201,15 +203,16 @@ function App() {
                   onContactClick={handleContactClick}
                   onIntroExpands={() => setIntroExpanded(true)}
                   onIntroComplete={() => setIntroCompleted(true)}
+                  onVideoStateChange={setIsVideoModalOpen}
                   isIntroAlreadyDone={introCompleted}
                 />
               </div>
               <div className={`transition-opacity duration-1000 ${introCompleted ? 'opacity-100' : 'opacity-0'}`}>
                 <LazySection><Brands title={cmsContent.brands?.title} data={cmsContent} /></LazySection>
-                <LazySection><ProcessSprint data={cmsContent.sprint} /></LazySection>
+                <LazySection><ProcessSprint data={cmsContent.sprint} onProcessClick={() => navigateTo('process')} /></LazySection>
                 <LazySection><MissingElements data={cmsContent.missingElements} /></LazySection>
                 <LazySection><Projects data={cmsContent} title={cmsContent.projects?.title} onWorksClick={handleWorksClick} /></LazySection>
-                <LazySection><Testimonials data={cmsContent.testimonials} /></LazySection>
+                <LazySection><Testimonials data={cmsContent.testimonials} onVideoStateChange={setIsVideoModalOpen} /></LazySection>
                 <LazySection><Footer onContactClick={handleContactClick} /></LazySection>
               </div>
             </motion.div>
