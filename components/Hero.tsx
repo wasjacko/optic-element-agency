@@ -941,6 +941,10 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         20% { opacity: 0.8; transform: translateX(2px) skewX(5deg); filter: blur(2px); }
                         100% { opacity: 0; transform: translateX(10px) skewX(-10deg); filter: blur(10px); }
                     }
+                    @keyframes suddenIn {
+                        from { opacity: 0; transform: translateY(5px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
                     @keyframes simpleFadeIn {
                         from { opacity: 0; }
                         to { opacity: 1; }
@@ -961,11 +965,11 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                 {/* Intro Texts (Desktop Only) */}
                 {!isMobile && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className={`absolute top-[53%] -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
-                            style={{ animation: 'simpleFadeIn 0.8s ease-out 0.7s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
+                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 // OPTIC_ELEMENT_SYS
@@ -978,7 +982,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         {/* Block 2 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
-                            style={{ animation: 'simpleFadeIn 0.8s ease-out 1.5s forwards, simpleFadeOut 0.5s ease-in 2.8s forwards' }}
+                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 // OPTICELEMENT.SYSTEM
