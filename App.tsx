@@ -72,6 +72,7 @@ function App() {
     return (['home', 'about', 'work', 'process', 'contact', 'admin'].includes(requestedPage) ? requestedPage : 'home') as Page;
   });
   const [introCompleted, setIntroCompleted] = useState(false);
+  const [introExpanded, setIntroExpanded] = useState(false);
   const [cmsContent, setCmsContent] = useState<any>(homeContent);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -181,6 +182,7 @@ function App() {
             onContactClick={handleContactClick}
             isScrolled={isScrolled}
             introCompleted={introCompleted}
+            introExpanded={introExpanded}
           />
         )}
 
@@ -192,6 +194,7 @@ function App() {
                   data={cmsContent.hero}
                   theme={cmsContent.theme}
                   onContactClick={handleContactClick}
+                  onIntroExpands={() => setIntroExpanded(true)}
                   onIntroComplete={() => setIntroCompleted(true)}
                   isIntroAlreadyDone={introCompleted}
                 />
