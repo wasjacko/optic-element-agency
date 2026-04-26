@@ -693,7 +693,18 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
     // Tracks whether the cube intro expansion is done (allows phase scrolling)
     const [introExpanded, setIntroExpanded] = useState(hasIntroPlayed);
     // Tracks whether all phases are done and site should unlock
-    const [phasesComplete, setPhasesComplete] = useState(false);
+    const [phasesComplete, setPhasesComplete] = useState(hasIntroPlayed);
+
+    // Lock scroll immediately on first paint (before any async effects run)
+    // This prevents the brief scrollable window at the very start of the hero intro
+    React.useLayoutEffect(() => {
+        const isCurrentlyMobile = window.innerWidth < 768;
+        if (!hasIntroPlayed && !isCurrentlyMobile) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
+    }, []); // Run only once on mount
+
 
     // Sync ref with state (though we'll update ref first in handler)
     useEffect(() => {
@@ -752,6 +763,13 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             return;
         }
 
+        // Lock immediately (before registering listeners)
+        // This ensures no frame gap on re-renders caused by loadProgress changes
+        if (!isMobile) {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }
+
         const preventScroll = (e: Event) => {
             if (isMobile) return;
             if (phaseRef.current >= 4) return;
@@ -794,17 +812,11 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchmove', preventScroll, { passive: false });
 
-        // Lock body during phase transitions
-        if (currentPhase < 4) {
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
-        }
-
         return () => {
+            // Only remove listeners on cleanup — DO NOT unlock overflow here.
+            // Overflow is managed entirely by the main effect body above.
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchmove', preventScroll);
-            document.body.style.overflow = '';
-            document.documentElement.style.overflow = '';
         };
     }, [loadProgress, isMobile, currentPhase, introExpanded, phasesComplete]);
 
