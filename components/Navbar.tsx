@@ -236,7 +236,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
               <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white transition-colors" />
               <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white transition-colors" />
 
-              <span className="text-[11px] font-mono font-bold text-black transition-colors uppercase tracking-[0.3em] whitespace-nowrap">
+              <span className="text-[11px] font-mono font-bold text-white transition-colors uppercase tracking-[0.3em] whitespace-nowrap">
                 <HoverGlitchText text="CONTACT US" isHovered={isContactHovered} />
               </span>
             </button>
@@ -312,7 +312,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
                 <button
                   onClick={() => { onContactClick(); setIsOpen(false); }}
-                  className="px-12 py-5 bg-[#EF5304] text-black font-black uppercase tracking-[0.3em] text-[14px] shadow-2xl relative"
+                  className="px-12 py-5 bg-[#EF5304] text-white font-black uppercase tracking-[0.3em] text-[14px] shadow-2xl relative"
                 >
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-black/30 z-20" />
