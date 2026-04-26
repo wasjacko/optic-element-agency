@@ -744,9 +744,20 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
     }, [phasesComplete, onIntroComplete]);
 
     // On mobile, there are no scroll phases — unlock directly when intro expands
+    // Fail-safe: Always unlock after a short delay on mobile regardless of cube state
     useEffect(() => {
-        if (isMobile && introExpanded && !phasesComplete) {
-            setPhasesComplete(true);
+        if (isMobile) {
+            if (introExpanded && !phasesComplete) {
+                setPhasesComplete(true);
+            }
+            // Absolute fail-safe for mobile scroll
+            const timer = setTimeout(() => {
+                if (!phasesComplete) {
+                    setIntroExpanded(true);
+                    setPhasesComplete(true);
+                }
+            }, 3500); 
+            return () => clearTimeout(timer);
         }
     }, [isMobile, introExpanded, phasesComplete]);
 
@@ -760,12 +771,17 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
     // Pure JS Scroll Lock - Controls phase transitions via scroll
     useEffect(() => {
-        // Once phases are done (phase 4+), unlock everything
-        // On mobile, we never lock the scroll via this effect to ensure natural behavior
-        if (phasesComplete || currentPhase >= 4 || isMobile) {
+        // On mobile, we NEVER want to lock the scroll or register these listeners
+        if (isMobile) {
             document.body.style.overflow = '';
             document.documentElement.style.overflow = '';
-            if (isMobile) return;
+            return;
+        }
+
+        // Once phases are done (phase 4+), unlock everything
+        if (phasesComplete || currentPhase >= 4) {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             return;
         }
 
@@ -878,7 +894,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             className="h-screen w-full relative overflow-hidden" 
             style={{ 
                 backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505',
-                touchAction: currentPhase < 4 ? 'none' : 'auto'
+                touchAction: isMobile ? 'pan-y' : (currentPhase < 4 ? 'none' : 'auto')
             }}
         >
             {isInView && (
