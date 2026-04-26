@@ -965,11 +965,11 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                 {/* Intro Texts (Desktop Only) */}
                 {!isMobile && (
-                    <div className={`absolute top-[53%] -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className={`absolute top-[53%] -translate-y-1/2 left-12 md:left-24 flex flex-col md:flex-row items-start gap-12 md:gap-48 transition-opacity duration-700 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
-                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 // OPTIC_ELEMENT_SYS
@@ -982,7 +982,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         {/* Block 2 */}
                         <div
                             className="flex flex-col justify-center py-1 gap-2 opacity-0"
-                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                            style={{ animation: 'suddenIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards' }}
                         >
                             <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-[0.3em] leading-none">
                                 // OPTICELEMENT.SYSTEM
