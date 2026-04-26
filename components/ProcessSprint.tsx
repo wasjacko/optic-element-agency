@@ -20,7 +20,7 @@ export const ProcessSprint: React.FC<{ onProcessClick?: () => void, data?: any }
 
 
   return (
-    <section id="process" className="pt-12 pb-0 md:pt-32 md:pb-8 relative overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data?.backgroundColor || '#000000' }}>
+    <section id="process-sprint" className="pt-12 pb-0 md:pt-32 md:pb-8 relative overflow-hidden flex flex-col items-center justify-center" style={{ backgroundColor: data?.backgroundColor || '#000000' }}>
 
       {/* 1. HEADER */}
       <div className="flex flex-col items-center mb-12 md:mb-24 relative z-10 text-center">
