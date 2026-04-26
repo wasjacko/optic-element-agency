@@ -1044,7 +1044,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                             <button
                                 onClick={onContactClick}
-                                className="mt-4 border border-white/20 px-10 py-4 font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative"
+                                className="mt-4 border border-white/20 px-10 py-4 font-bold uppercase tracking-[0.3em] text-[11px] shadow-2xl relative whitespace-nowrap"
                                 style={{ backgroundColor: content?.ctaBg || '#ffffff', color: content?.ctaText || '#000000' }}
                             >
                                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-black/30 z-20" />
