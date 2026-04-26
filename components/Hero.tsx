@@ -958,6 +958,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             {/* UI Overlay - Absolutely Static */}
             <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
 
+                <style>{`
                     @keyframes glitchIn {
                         0% { opacity: 0; transform: translateX(-5px) skewX(10deg); filter: blur(5px); }
                         20% { opacity: 0.8; transform: translateX(2px) skewX(-10deg); filter: blur(2px); }
