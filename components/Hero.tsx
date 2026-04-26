@@ -217,6 +217,35 @@ const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(
     );
 });
 
+// --- Tactical Scramble Component ---
+const StaticScrambleText: React.FC<{ text: string, delay: number }> = ({ text, delay }) => {
+    const [displayText, setDisplayText] = React.useState("");
+    const chars = "01#$%&@<>[]";
+
+    React.useEffect(() => {
+        let timeout = setTimeout(() => {
+            let iteration = 0;
+            const interval = setInterval(() => {
+                setDisplayText(
+                    text.split("").map((char, index) => {
+                        if (char === " ") return " ";
+                        if (index < Math.floor(iteration)) return text[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join("")
+                );
+
+                if (iteration >= text.length) {
+                    clearInterval(interval);
+                }
+                iteration += 0.4;
+            }, 30);
+        }, delay * 1000);
+        return () => clearTimeout(timeout);
+    }, [text, delay]);
+
+    return <span>{displayText}</span>;
+};
+
 const TacticalText: React.FC<{ children: React.ReactNode, visible: boolean, className?: string, color?: string, weight?: string, size?: string, tracking?: string, noAnimation?: boolean, shadow?: string }> = ({ children, visible, className = "", color, weight = "font-black", size = "text-xl md:text-4xl", tracking = "tracking-tighter", noAnimation = false, shadow = "drop-shadow-md" }) => {
     return (
         <div className={`relative inline-block ${className}`}>
@@ -958,24 +987,34 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
 
                 {/* Intro Texts (Desktop Only) */}
                 {!isMobile && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-24 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 flex flex-col md:flex-row items-start gap-12 md:gap-32 transition-opacity duration-500 ${loadProgress < 101 ? 'opacity-100' : 'opacity-0'}`}>
                         {/* Block 1 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
+                            className="flex flex-col justify-center py-1 gap-2 opacity-0 border-l border-[#EF5304]/30 pl-6"
                             style={{ animation: 'simpleFadeIn 0.5s ease-out 0.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTIC_ELEMENT_SYS</div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GROWTH.ENGINE.INIT</div>
+                            <div className="font-ocr text-[10px] font-bold text-[#EF5304] uppercase tracking-[0.5em] leading-none mb-1">
+                                <StaticScrambleText text="// OPTIC_ELEMENT_SYS" delay={0.7} />
+                            </div>
+                            <div className="font-ocr text-[8px] font-medium text-white/50 uppercase tracking-[0.4em] leading-none">
+                                <StaticScrambleText text="GROWTH.ENGINE.INIT" delay={1.1} />
+                            </div>
                         </div>
 
                         {/* Block 2 */}
                         <div
-                            className="flex flex-col justify-center py-1 gap-1 opacity-0"
-                            style={{ animation: 'simpleFadeIn 0.5s ease-out 1.7s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
+                            className="flex flex-col justify-center py-1 gap-2 opacity-0 border-l border-white/10 pl-6"
+                            style={{ animation: 'simpleFadeIn 0.5s ease-out 1.5s forwards, simpleFadeOut 0.3s ease-in 2.8s forwards' }}
                         >
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">// OPTICELEMENT.SYSTEM</div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">STRATEGY // EXEC</div>
-                            <div className="font-ocr text-[8px] md:text-[9px] font-bold text-white uppercase tracking-widest leading-none">GLOBAL_COORDINATES</div>
+                            <div className="font-ocr text-[10px] font-bold text-white uppercase tracking-[0.5em] leading-none mb-1">
+                                <StaticScrambleText text="// OPTICELEMENT.SYSTEM" delay={1.5} />
+                            </div>
+                            <div className="font-ocr text-[8px] font-medium text-white/40 uppercase tracking-[0.4em] leading-none">
+                                <StaticScrambleText text="STRATEGY // EXEC" delay={1.9} />
+                            </div>
+                            <div className="font-ocr text-[8px] font-medium text-white/40 uppercase tracking-[0.4em] leading-none">
+                                <StaticScrambleText text="GLOBAL_COORDINATES" delay={2.2} />
+                            </div>
                         </div>
                     </div>
                 )}
