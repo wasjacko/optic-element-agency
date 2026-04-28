@@ -161,7 +161,7 @@ function App() {
   const handleAboutClick = () => navigateTo('about');
   const handleWorksClick = () => navigateTo('work');
   const handleLabClick = () => {
-    window.open('https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd', '_blank');
+    window.open('https://plasticitylabs.co', '_blank');
   };
   const handleProcessClick = () => navigateTo('process');
   const handleContactClick = () => navigateTo('contact');

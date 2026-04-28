@@ -178,7 +178,7 @@ const TechChevron = React.forwardRef<THREE.Group, { position: [number, number, n
     )
 });
 
-const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026.mp4";
+const INNER_CUBE_VIDEO = "/assets/oe-showreel-2026-short.mp4";
 
 const InnerCube = React.forwardRef<THREE.Mesh, { texture: THREE.VideoTexture }>(({ texture }, ref) => {
     const localTexture = useMemo(() => texture.clone(), [texture]);
@@ -660,7 +660,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
     );
 };
 // --- Main Hero Component ---
-const CUBE_VIDEO_URL = "/assets/oe-showreel-2026.mp4";
+const CUBE_VIDEO_URL = "/assets/oe-showreel-2026-short.mp4";
 
 export interface HeroProps {
     data?: any;
@@ -1188,16 +1188,18 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                            className="w-[95vw] md:w-[80vw] max-w-6xl aspect-video relative flex items-center justify-center"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <video
-                                src={CUBE_VIDEO_URL}
-                                className="max-w-full max-h-[85vh] object-contain shadow-2xl"
-                                autoPlay
-                                controls
-                                playsInline
-                            />
+                            <iframe 
+                                className="w-full h-full shadow-2xl rounded-lg"
+                                src="https://www.youtube.com/embed/xGqbLjArFAk?si=bZfq8nVqCKDje7gd&autoplay=1" 
+                                title="YouTube video player" 
+                                frameBorder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                referrerPolicy="strict-origin-when-cross-origin" 
+                                allowFullScreen
+                            ></iframe>
                         </motion.div>
                     </motion.div>
                 )}
