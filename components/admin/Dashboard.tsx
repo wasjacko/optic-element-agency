@@ -1432,7 +1432,7 @@ const ReviewListManager = ({ reviews, onChange }: { reviews: any[], onChange: (v
 const TeamListManager = ({ members, onChange }: { members: any[], onChange: (v: any[]) => void }) => {
     // Make sure we have a reference to the default TEAM_MEMBERS in case they want a starting point or if it's empty
     const defaultMembers = [
-        { name: "Santiago", role: "CEO", img: "/santiago-headshot-2025.png" },
+        { name: "Santiago", role: "CEO", img: "/santi-web-photo.png" },
         { name: "Deedee", role: "Relationship Success Manager", img: "/deedee%202025%20headshot.png" },
         { name: "Dez", role: "Client Success manager", img: "/dez%202025%20headshot.png" },
         { name: "Rob", role: "CMO", img: "/rob-headshot-2025.png" },
@@ -1447,7 +1447,7 @@ const TeamListManager = ({ members, onChange }: { members: any[], onChange: (v: 
             id: Date.now().toString(),
             name: "New Member",
             role: "Role",
-            img: "/santiago-headshot-2025.png"
+            img: "/santi-web-photo.png"
         }]);
     };
 
