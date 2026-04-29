@@ -5,6 +5,7 @@ export const CustomCursor = () => {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
     const [isHovering, setIsHovering] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
 
     // Add smooth springs for the cursor follow effect
     const springX = useSpring(mouseX, { stiffness: 1000, damping: 50, mass: 0.1 });
@@ -14,6 +15,13 @@ export const CustomCursor = () => {
         const handleMouseMove = (e: MouseEvent) => {
             mouseX.set(e.clientX - 10);
             mouseY.set(e.clientY - 10);
+            if (!isVisible) setIsVisible(true);
+        };
+
+        const handleMouseLeave = (e: MouseEvent) => {
+            if (e.relatedTarget === null) {
+                setIsVisible(false);
+            }
         };
 
         const handleMouseOver = (e: MouseEvent) => {
@@ -31,20 +39,23 @@ export const CustomCursor = () => {
 
         window.addEventListener('mousemove', handleMouseMove, { passive: true });
         window.addEventListener('mouseover', handleMouseOver, { passive: true });
+        document.addEventListener('mouseleave', handleMouseLeave);
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseover', handleMouseOver);
+            document.removeEventListener('mouseleave', handleMouseLeave);
         };
-    }, []);
+    }, [isVisible]);
 
     return (
         <motion.div
-            className="fixed top-0 left-0 w-5 h-5 pointer-events-none z-[9999] opacity-100 hidden md:flex items-center justify-center transform-gpu"
+            className="fixed top-0 left-0 w-5 h-5 pointer-events-none z-[9999] hidden md:flex items-center justify-center transform-gpu transition-opacity duration-200"
             style={{
                 x: springX,
                 y: springY,
-                scale: isHovering ? 1.5 : 1
+                scale: isHovering ? 1.5 : 1,
+                opacity: isVisible ? 1 : 0
             }}
         >
             <svg viewBox="0 0 100 100" className="w-full h-full" fill="var(--color-primary)">
