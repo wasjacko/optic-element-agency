@@ -195,7 +195,11 @@ const MemberCard = ({ member, index, textColor = '#ffffff' }: { member: typeof T
           <img
             src={member.img}
             alt={member.name}
-            className="w-full h-full object-cover block"
+            className="w-full h-full object-cover block transition-transform duration-300"
+            style={{ 
+              objectPosition: member.objectPosition || 'top',
+              transform: member.scale ? `scale(${member.scale})` : 'none' 
+            }}
             onError={() => setImageError(true)}
           />
         ) : (
