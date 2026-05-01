@@ -95,11 +95,11 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
                 data.testimonials = mergeDefaults(data.testimonials, {
                     title: "VIDEO TESTIMONIALS", reviewsTitle: "CLIENT REVIEWS", reels: [
-                        { id: "R_06", title: "DR. MATT", src: "/assets/testimonial-matt.mp4" },
-                        { id: "R_01", title: "OMAR ELATTAR", src: "/assets/testimonial-omar.mp4" },
-                        { id: "R_02", title: "MATTHEW WELSH", src: "/assets/testimonial-matthew.mp4" },
-                        { id: "R_03", title: "DR. CLARENCE LEE JR.", src: "/assets/testimonial-clarence.mp4" },
-                        { id: "R_07", title: "EUGENE NEAL", src: "/assets/eugene-neal.mp4" },
+                        { id: "R_01", title: "OMAR ELATTAR", src: "https://www.youtube.com/embed/YN9mu2kWyXM" },
+                        { id: "R_06", title: "DR. MATT", src: "https://www.youtube.com/embed/OMHS_XLydHo" },
+                        { id: "R_07", title: "EUGENE NEAL", src: "https://www.youtube.com/embed/AajktDSe9DM" },
+                        { id: "R_02", title: "MATTHEW WELSH", src: "https://www.youtube.com/embed/OT2uVJQd5Tw" },
+                        { id: "R_03", title: "DR. CLARENCE LEE JR.", src: "https://www.youtube.com/embed/FoHSS4KiluE" },
                         { id: "R_08", title: "BRETT", src: "/assets/brett.mp4" }
                     ]
                 });

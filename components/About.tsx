@@ -8,12 +8,12 @@ interface AboutProps {
 }
 
 const TEAM_MEMBERS = [
-  { name: "Santiago", role: "CEO", img: "/santi-web-photo.png" },
+  { name: "Santiago", role: "CEO", img: "/santi-web-photo.png", objectPosition: "center 0%", scale: 1.1, translateY: 20 },
   { name: "Deedee", role: "Relationship Success Manager", img: "/deedee%202025%20headshot.png" },
   { name: "Dez", role: "Client Success manager", img: "/dez%202025%20headshot.png" },
   { name: "Rob", role: "CMO", img: "/rob-headshot-2025.png" },
-  { name: "Nick", role: "Creative lead", img: "/nick-2025-v2.png" },
-  { name: "Ryan", role: "Videographer/Editor", img: "/ryan%202025%20headshot.png" }
+  { name: "Nick", role: "Creative lead", img: "/nick-2025-v2.png", objectPosition: "center 15%", scale: 0.9 },
+  { name: "Ryan", role: "Videographer/Editor", img: "/ryan%202025%20headshot.png", objectPosition: "center 15%", scale: 1.1 }
 ];
 
 // Added Scientific/Chemical Properties to each differentiator
@@ -185,7 +185,7 @@ const MemberCard = ({ member, index, textColor = '#ffffff' }: { member: typeof T
       transition={{ delay: index * 0.02, duration: 0.4 }}
       className="relative flex flex-col group h-full will-change-transform"
     >
-      <div className="relative w-full aspect-[4/5] overflow-hidden rounded-sm">
+      <div className="relative w-full aspect-square overflow-hidden rounded-sm">
         {/* Corner Brackets */}
         <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-white/50 z-20 pointer-events-none" />
         <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/50 z-20 pointer-events-none" />
@@ -195,10 +195,10 @@ const MemberCard = ({ member, index, textColor = '#ffffff' }: { member: typeof T
           <img
             src={member.img}
             alt={member.name}
-            className="w-full h-full object-cover block transition-transform duration-300"
-            style={{ 
+            className="w-full h-full object-cover block"
+            style={{
               objectPosition: member.objectPosition || 'top',
-              transform: member.scale ? `scale(${member.scale})` : 'none' 
+              transform: `${member.scale ? `scale(${member.scale})` : ''} ${member.translateY ? `translateY(${member.translateY}px)` : ''}`.trim() || 'none'
             }}
             onError={() => setImageError(true)}
           />
