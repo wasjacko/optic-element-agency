@@ -238,12 +238,6 @@
                         "title": "KOFFEE CO.",
                         "description": "PREMIUM COMMERCIAL",
                         "src": "/assets/koffee-commercial.mp4"
-                    },
-                    {
-                        "id": "dasfleet",
-                        "title": "DASFLEET",
-                        "description": "LUX CAR CLUB",
-                        "src": "/assets/dasfleet-short.mp4"
                     }
                 ]
             },
@@ -351,12 +345,6 @@
                         "title": "PASSIONATE FEW SHORT",
                         "description": "HOUSE BUILD TRIP",
                         "src": "/assets/passionate-few-short.mp4"
-                    },
-                    {
-                        "id": "dasfleet-short",
-                        "title": "DASFLEET SHORT",
-                        "description": "LUX CAR CLUB",
-                        "src": "/assets/dasfleet-short.mp4"
                     }
                 ]
             }

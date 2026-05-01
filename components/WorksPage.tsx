@@ -84,14 +84,7 @@ const SERVICES = [
             title: 'KOFFEE CO.',
             description: 'PREMIUM COMMERCIAL',
             src: '/assets/koffee-commercial.mp4'
-         },
-         {
-            id: 'dasfleet',
-            title: 'DASFLEET',
-            description: 'LUX CAR CLUB',
-            src: '/assets/dasfleet-short.mp4'
-         },
-
+         }
       ]
    },
    {
