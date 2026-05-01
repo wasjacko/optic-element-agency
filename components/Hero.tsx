@@ -1191,15 +1191,18 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                             className="w-[95vw] md:w-[80vw] max-w-6xl aspect-video relative flex items-center justify-center"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <iframe 
-                                className="w-full h-full shadow-2xl rounded-lg"
-                                src="https://www.youtube.com/embed/xGqbLjArFAk?si=bZfq8nVqCKDje7gd&autoplay=1" 
-                                title="YouTube video player" 
-                                frameBorder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                referrerPolicy="strict-origin-when-cross-origin" 
-                                allowFullScreen
-                            ></iframe>
+                            <div className="w-full h-full relative rounded-lg overflow-hidden shadow-2xl">
+                                <iframe 
+                                    className="w-full h-full scale-[1.02] pointer-events-none"
+                                    src="https://www.youtube.com/embed/3xTzTELklNA?autoplay=1&controls=0&modestbranding=1&rel=0" 
+                                    title="oE Showreel 2026" 
+                                    frameBorder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    referrerPolicy="strict-origin-when-cross-origin" 
+                                    allowFullScreen
+                                ></iframe>
+                                <div className="absolute inset-0 pointer-events-none border border-white/10 rounded-lg"></div>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

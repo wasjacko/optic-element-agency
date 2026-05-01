@@ -165,63 +165,73 @@
                 "videos": [
                     {
                         "id": "pv-recap",
-                        "title": "PV RECAP",
+                        "title": "GFI RECAP",
                         "description": "EVENT HIGHLIGHTS",
-                        "src": "/assets/pv-recap.mov"
+                        "src": "/assets/pv-recap.mov",
+                        "youtubeUrl": "https://www.youtube.com/embed/KjWoY2ZHHwI"
                     },
                     {
                         "id": "founders-circle",
                         "title": "FOUNDERS CIRCLE",
                         "description": "VSL PROJECT",
-                        "src": "/assets/founders-circle.mp4"
+                        "src": "/assets/founders-circle.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/iHsFac4iYnk"
                     },
                     {
                         "id": "grant-cardone",
                         "title": "GRANT CARDONE",
                         "description": "500B CRISIS",
-                        "src": "/assets/grant-cardone.mp4"
+                        "src": "/assets/grant-cardone.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/OMHldyJ87ww"
                     },
                     {
                         "id": "andrew-vsl",
                         "title": "ANDREW VSL",
                         "description": "BRAND STORY",
-                        "src": "/assets/andrew-vsl.mp4"
+                        "src": "/assets/andrew-vsl.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/0LujkK4Jkt4"
                     },
                     {
                         "id": "ex-mafia",
                         "title": "EX-MAFIA BOSS",
                         "description": "YOUTUBE PROMO",
-                        "src": "/assets/ex-mafia.mp4"
+                        "src": "/assets/ex-mafia.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/NIZ7vDfhfWE"
                     },
                     {
                         "id": "the-one",
                         "title": "THE ONE",
                         "description": "PREMIUM FEATURE",
-                        "src": "/assets/the-one.mp4"
+                        "src": "/assets/the-one.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/xvPn2AR0KG4"
                     },
                     {
                         "id": "property-06",
-                        "title": "PROPERTY 06",
+                        "title": "PROPERTY",
                         "description": "REAL ESTATE SHOWCASE",
-                        "src": "/assets/property-06.mp4"
+                        "src": "/assets/property-06.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/PHg8-F9ufmU"
                     },
                     {
                         "id": "property-07",
                         "title": "PROPERTY 07",
                         "description": "REAL ESTATE SHOWCASE",
-                        "src": "/assets/property-07.mp4"
+                        "src": "/assets/property-07.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/ouT3BCPA2kI"
                     },
                     {
                         "id": "season-trailer",
                         "title": "SEASON TRAILER",
                         "description": "SHOW HIGHLIGHTS",
-                        "src": "/assets/season-trailer.mp4"
+                        "src": "/assets/season-trailer.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/RyYyVGys4mY"
                     },
                     {
                         "id": "real-estate-advice",
                         "title": "100M CRE ADVICE",
                         "description": "INVESTING ADVICE",
-                        "src": "/assets/real-estate-advice.mp4"
+                        "src": "/assets/real-estate-advice.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/du6x4K04Sgg"
                     },
                     {
                         "id": "koffee",
@@ -234,12 +244,6 @@
                         "title": "DASFLEET",
                         "description": "LUX CAR CLUB",
                         "src": "/assets/dasfleet-short.mp4"
-                    },
-                    {
-                        "id": "passionate-few",
-                        "title": "PASSIONATE FEW",
-                        "description": "HOUSE BUILD TRIP",
-                        "src": "/assets/passionate-few-short.mp4"
                     }
                 ]
             },
@@ -253,19 +257,22 @@
                         "id": "snapinsta-1",
                         "title": "SOCIAL EDIT 01",
                         "description": "CONTENT STRATEGY",
-                        "src": "/assets/snapinsta-1.mp4"
+                        "src": "/assets/snapinsta-1.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/jwGXEf68eqg"
                     },
                     {
                         "id": "valor-eoy-2025",
                         "title": "VALOR EOY 2025",
                         "description": "EVENT HIGHLIGHTS",
-                        "src": "/assets/valor-eoy-2025.mp4"
+                        "src": "/assets/valor-eoy-2025.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/-f0c3xQ44OA"
                     },
                     {
                         "id": "lambros-v3",
                         "title": "LAMBROS V3",
                         "description": "SOCIAL EDIT",
-                        "src": "/assets/lambros-v3.mp4"
+                        "src": "/assets/lambros-v3.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/aOOALlkjrXU"
                     },
                     {
                         "id": "merch-edit-v3",
@@ -277,37 +284,43 @@
                         "id": "snapinsta-2",
                         "title": "SOCIAL EDIT 02",
                         "description": "VIRAL HOOK",
-                        "src": "/assets/snapinsta-2.mp4"
+                        "src": "/assets/snapinsta-2.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/9TYW54ip3Xw"
                     },
                     {
                         "id": "snapinsta-3",
                         "title": "SOCIAL EDIT 03",
                         "description": "STORYTELLING",
-                        "src": "/assets/snapinsta-3.mp4"
+                        "src": "/assets/snapinsta-3.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/xplasEaGe2s"
                     },
                     {
                         "id": "snapinsta-4",
                         "title": "SOCIAL EDIT 04",
                         "description": "BRAND REACH",
-                        "src": "/assets/snapinsta-4.mp4"
+                        "src": "/assets/snapinsta-4.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/HbX2rxyP0io"
                     },
                     {
                         "id": "snapinsta-5",
                         "title": "SOCIAL EDIT 05",
                         "description": "HIGH IMPACT",
-                        "src": "/assets/snapinsta-5.mp4"
+                        "src": "/assets/snapinsta-5.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/svh-ZIAQ9qI"
                     },
                     {
                         "id": "dog-treats",
                         "title": "DOG TREATS",
                         "description": "PRODUCT HIGHLIGHT",
-                        "src": "/assets/dog-treats.mp4"
+                        "src": "/assets/dog-treats.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/kSi_UvXYcT0"
                     },
                     {
                         "id": "follower-ad-1",
                         "title": "FOLLOWER AD 1",
                         "description": "SOCIAL AD",
-                        "src": "/assets/follower-ad-1.mp4"
+                        "src": "/assets/follower-ad-1.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/_shwYXJweJE"
                     },
                     {
                         "id": "alyssa-v3",

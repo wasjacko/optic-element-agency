@@ -4,11 +4,11 @@ import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo, useInVi
 import { Instagram, ChevronLeft, ChevronRight, Play, Volume2, VolumeX } from 'lucide-react';
 
 const REELS = [
-    { id: "R_06", client: "DR. MATT", url: "/assets/testimonial-matt.mp4", thumbnailTime: 1.0 },
-    { id: "R_01", client: "OMAR ELATTAR", url: "/assets/testimonial-omar.mp4", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
-    { id: "R_02", client: "MATTHEW WELSH", url: "/assets/testimonial-matthew.mp4", thumbnailTime: 1.0 },
-    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "/assets/testimonial-clarence.mp4", instagram: "https://www.instagram.com/drclarenceleejr/" },
-    { id: "R_07", client: "EUGENE NEAL", url: "/assets/eugene-neal.mp4", thumbnailTime: 0.5 },
+    { id: "R_01", client: "OMAR ELATTAR", url: "https://www.youtube.com/embed/YN9mu2kWyXM", instagram: "https://www.instagram.com/omar_therockstar/", thumbnailTime: 0.5 },
+    { id: "R_06", client: "DR. MATT", url: "https://www.youtube.com/embed/OMHS_XLydHo", thumbnailTime: 1.0 },
+    { id: "R_07", client: "EUGENE NEAL", url: "https://www.youtube.com/embed/AajktDSe9DM", thumbnailTime: 0.5 },
+    { id: "R_02", client: "MATTHEW WELSH", url: "https://www.youtube.com/embed/OT2uVJQd5Tw", thumbnailTime: 1.0 },
+    { id: "R_03", client: "DR. CLARENCE LEE JR.", url: "https://www.youtube.com/embed/FoHSS4KiluE", instagram: "https://www.instagram.com/drclarenceleejr/" },
     { id: "R_08", client: "BRETT", url: "/assets/brett.mp4", thumbnailTime: 1.0 }
 ];
 
@@ -108,16 +108,26 @@ const ReelCoverflowCard = ({ reel, isActive, offset, onExpand }: { reel: any, is
         >
             <div className="relative w-full h-full">
                 {/* Video / Thumbnail */}
-                <video
-                    ref={videoRef}
-                    src={reel.url || reel.src}
-                    poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
-                    loop
-                    muted={isMuted}
-                    playsInline
-                    preload="none"
-                    className="w-full h-full object-cover"
-                />
+                {(reel.url || reel.src)?.includes('youtube.com/embed') ? (
+                    <iframe
+                        src={`${reel.url || reel.src}?autoplay=${isActive ? 1 : 0}&mute=${isMuted ? 1 : 0}&controls=0&loop=1&playlist=${(reel.url || reel.src).split('/').pop()}`}
+                        className="w-full h-full object-cover pointer-events-none"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        style={{ border: 'none' }}
+                    />
+                ) : (
+                    <video
+                        ref={videoRef}
+                        src={reel.url || reel.src}
+                        poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
+                        loop
+                        muted={isMuted}
+                        playsInline
+                        preload="none"
+                        className="w-full h-full object-cover"
+                    />
+                )}
 
                 {/* Overlay Gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
@@ -255,24 +265,21 @@ const Carousel3D = ({ items, onExpand }: { items: typeof REELS, onExpand: (url: 
     );
 };
 
-const MobileReelCard = ({ reel, onExpand }: { reel: any, onExpand: (url: string) => void }) => {
+const MobileReelCard = ({ reel, onExpand, isActive = true }: { reel: any, onExpand: (url: string) => void, isActive?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(containerRef, { amount: 0.6 });
     const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
-        if (isInView && videoRef.current) {
+        if (isActive && videoRef.current) {
             videoRef.current.play().catch(() => { });
         } else if (videoRef.current) {
             videoRef.current.pause();
             videoRef.current.currentTime = 0;
         }
-    }, [isInView]);
+    }, [isActive]);
 
     return (
         <div 
-            ref={containerRef} 
             className="relative w-full h-full bg-neutral-900 overflow-hidden cursor-pointer"
             onClick={() => onExpand(reel.url || reel.src)}
         >
@@ -282,104 +289,155 @@ const MobileReelCard = ({ reel, onExpand }: { reel: any, onExpand: (url: string)
             <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-white/70 z-20 pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/70 z-20 pointer-events-none" />
 
-            <video
-                ref={videoRef}
-                src={reel.url || reel.src}
-                poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
-                loop
-                muted={isMuted}
-                playsInline
-                className="w-full h-full object-cover"
-            />
+            {(reel.url || reel.src)?.includes('youtube.com/embed') ? (
+                <iframe
+                    src={`${reel.url || reel.src}?autoplay=${isActive ? 1 : 0}&mute=${isMuted ? 1 : 0}&controls=0&loop=1&playlist=${(reel.url || reel.src).split('/').pop()}`}
+                    className="w-full h-full object-cover pointer-events-none"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    style={{ border: 'none' }}
+                />
+            ) : (
+                <video
+                    ref={videoRef}
+                    src={reel.url || reel.src}
+                    poster={(reel.url || reel.src)?.replace(/\.(mp4|mov)/i, '.jpg')}
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    className="w-full h-full object-cover"
+                />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
 
-            <div className="absolute inset-0 flex flex-col justify-between p-5 pointer-events-none">
-                <div className="flex justify-end w-full">
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsMuted(!isMuted);
-                        }}
-                        className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:bg-black/60 transition-colors pointer-events-auto mt-2 mr-2"
-                    >
-                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                    </button>
-                </div>
-                <div className="space-y-3">
-                    <h3 className="text-xl md:text-2xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight whitespace-normal">
-                        {reel.client || reel.title}
-                    </h3>
-                    <div className="flex items-center gap-3">
-                        <span className="h-[2px] w-8 bg-[#EF5304]"></span>
-                        <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr font-bold">Watch</span>
+            {isActive && (
+                <div className="absolute inset-0 flex flex-col justify-between p-5 pointer-events-none">
+                    <div className="flex justify-end w-full">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsMuted(!isMuted);
+                            }}
+                            className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:bg-black/60 transition-colors pointer-events-auto mt-2 mr-2"
+                        >
+                            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                        </button>
+                    </div>
+                    <div className="space-y-3">
+                        <h3 className="text-xl md:text-2xl font-black text-white uppercase leading-tight font-sans drop-shadow-lg tracking-tight whitespace-normal">
+                            {reel.client || reel.title}
+                        </h3>
+                        <div className="flex items-center gap-3">
+                            <span className="h-[2px] w-8 bg-[#EF5304]"></span>
+                            <span className="text-[10px] text-gray-300 uppercase tracking-[0.2em] font-ocr font-bold">Watch</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
 
-const FlatVideoCarousel = ({ items, onExpand }: { items: typeof REELS, onExpand: (url: string) => void }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const ITEMS_PER_VIEW = 3; // On desktop
+const InfiniteVideoCarousel = ({ items, onExpand }: { items: typeof REELS, onExpand: (url: string) => void }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
 
-    const nextSlide = () => {
-        setCurrentIndex((prev) => (prev + 1) % Math.ceil(items.length - ITEMS_PER_VIEW + 1));
+    const handleNext = () => {
+        setActiveIndex(prev => (prev + 1) % items.length);
     };
 
-    const prevSlide = () => {
-        setCurrentIndex((prev) => (prev - 1 + Math.ceil(items.length - ITEMS_PER_VIEW + 1)) % Math.ceil(items.length - ITEMS_PER_VIEW + 1));
+    const handlePrev = () => {
+        setActiveIndex(prev => (prev - 1 + items.length) % items.length);
     };
 
     return (
-        <div className="relative w-full">
-            {/* Desktop View */}
-            <div className="hidden md:block relative w-full max-w-5xl mx-auto px-12">
-                {/* Prev Arrow */}
-                <button
-                    onClick={prevSlide}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-full"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-
-                {/* Next Arrow */}
-                <button
-                    onClick={nextSlide}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center text-gray-400 hover:text-black hover:scale-110 transition-all rounded-full"
-                >
-                    <ChevronRight size={24} />
-                </button>
-
-                <div className="py-10 overflow-visible">
-                    <motion.div
-                        className="flex gap-6"
-                        animate={{ x: `calc(-${currentIndex * (100 / ITEMS_PER_VIEW)}% - ${currentIndex * (24 / ITEMS_PER_VIEW)}px)` }}
-                        transition={{ type: "spring", stiffness: 90, damping: 20, mass: 1 }}
-                    >
-                        {items.map((item) => (
-                            <div
-                                key={item.id}
-                                className="w-[calc(33.333%-16px)] shrink-0 aspect-[9/16] transition-shadow duration-500 overflow-hidden"
-                            >
-                                <MobileReelCard reel={item} onExpand={onExpand} />
-                            </div>
-                        ))}
-                    </motion.div>
+        <div className="relative w-full h-[450px] md:h-[550px] flex items-center justify-center overflow-visible mt-10">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                <div className="w-full max-w-[1000px] flex justify-between px-4 md:px-0">
+                    <button onClick={handlePrev} className="bg-white text-black w-12 h-12 flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.1)] pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100 rounded-full">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button onClick={handleNext} className="bg-white text-black w-12 h-12 flex items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.1)] pointer-events-auto hover:scale-110 transition-transform cursor-pointer border border-gray-100 rounded-full">
+                        <ChevronRight size={24} />
+                    </button>
                 </div>
             </div>
 
-            {/* Mobile Swipe View */}
-            <div className="flex md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide py-10 gap-4 -mx-8 px-8 w-[calc(100%+4rem)]" style={{ scrollSnapType: 'x mandatory', touchAction: 'auto' }}>
-                <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
-                {items.map((item) => (
-                    <div
-                        key={item.id}
-                        className="w-[75vw] sm:w-[50vw] flex-shrink-0 snap-center relative aspect-[9/16] overflow-hidden"
-                    >
-                        <MobileReelCard reel={item} onExpand={onExpand} />
-                    </div>
-                ))}
+            <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                {items.map((item) => {
+                    const originalIndex = items.indexOf(item);
+                    const slot = (originalIndex - activeIndex + items.length) % items.length;
+
+                    // Map items to a symmetric range [-2, -1, 0, 1, 2]
+                    let positionIndex = slot;
+                    if (slot > items.length / 2) positionIndex = slot - items.length;
+
+                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                    
+                    const isActive = positionIndex === 0;
+                    const scale = isActive ? 1 : 0.85; // Side videos are smaller
+                    
+                    const w = isMobile ? 220 : 300;
+                    const gap = isMobile ? 20 : 40;
+                    
+                    let x = 0;
+                    if (positionIndex !== 0) {
+                        const sign = Math.sign(positionIndex);
+                        const absPos = Math.abs(positionIndex);
+                        
+                        const firstOffset = (w / 2) + gap + (w * scale / 2);
+                        
+                        if (absPos === 1) {
+                            x = sign * firstOffset;
+                        } else {
+                            const extraOffset = (absPos - 1) * ((w * scale) + gap);
+                            x = sign * (firstOffset + extraOffset);
+                        }
+                    }
+
+                    const zIndex = 50 - Math.abs(positionIndex) * 10;
+                    const opacity = isActive ? 1 : 0.5;
+                    const isVisible = Math.abs(positionIndex) <= 1;
+
+                    return (
+                        <motion.div
+                            key={item.id}
+                            className="absolute will-change-transform"
+                            initial={false}
+                            animate={{
+                                x,
+                                scale: scale,
+                                zIndex: isVisible ? zIndex : -1,
+                                opacity: isVisible ? opacity : 0,
+                            }}
+                            transition={{
+                                type: "tween",
+                                ease: "easeInOut",
+                                duration: 0.4
+                            }}
+                            style={{
+                                width: w + 'px',
+                                height: isMobile ? '390px' : '533px',
+                                pointerEvents: isVisible ? 'auto' : 'none'
+                            }}
+                        >
+                            <MobileReelCard 
+                                reel={item} 
+                                onExpand={onExpand} 
+                                isActive={isActive} 
+                            />
+                            {/* Click overlay for inactive cards to bring them to center */}
+                            {!isActive && (
+                                <div 
+                                    className="absolute inset-0 z-50 cursor-pointer"
+                                    onClick={() => {
+                                        if (positionIndex > 0) handleNext();
+                                        if (positionIndex < 0) handlePrev();
+                                    }}
+                                />
+                            )}
+                        </motion.div>
+                    );
+                })}
             </div>
         </div>
     );
@@ -493,11 +551,7 @@ export const Testimonials: React.FC<{ data?: any, onVideoStateChange?: (isOpen: 
 
                 {/* Content Section */}
                 <div className="mb-20">
-                    {!isMobile ? (
-                        <Carousel3D items={activeReels} onExpand={setExpandedVideo} />
-                    ) : (
-                        <FlatVideoCarousel items={activeReels} onExpand={setExpandedVideo} />
-                    )}
+                    <InfiniteVideoCarousel items={activeReels} onExpand={setExpandedVideo} />
                 </div>
 
                 {/* Google Testimonials Header & Nav */}
@@ -612,16 +666,25 @@ export const Testimonials: React.FC<{ data?: any, onVideoStateChange?: (isOpen: 
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                            className="relative flex items-center justify-center"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <video
-                                src={expandedVideo}
-                                className="max-w-full max-h-[85vh] object-contain shadow-2xl"
-                                autoPlay
-                                controls
-                                playsInline
-                            />
+                            {expandedVideo?.includes('youtube.com/embed') ? (
+                                <iframe
+                                    src={`${expandedVideo}?autoplay=1`}
+                                    className="w-[315px] h-[560px] max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                />
+                            ) : (
+                                <video
+                                    src={expandedVideo}
+                                    className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                                    autoPlay
+                                    controls
+                                    playsInline
+                                />
+                            )}
                         </motion.div>
                     </motion.div>
                 )}

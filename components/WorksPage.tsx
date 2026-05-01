@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SERVICES = [
    {
@@ -11,63 +11,73 @@ const SERVICES = [
       videos: [
          {
             id: 'pv-recap',
-            title: 'PV RECAP',
+            title: 'GFI RECAP',
             description: 'EVENT HIGHLIGHTS',
-            src: '/assets/pv-recap.mov'
+            src: '/assets/pv-recap.mov',
+            youtubeUrl: 'https://www.youtube.com/embed/KjWoY2ZHHwI'
          },
          {
             id: 'founders-circle',
             title: 'FOUNDERS CIRCLE',
             description: 'VSL PROJECT',
-            src: '/assets/founders-circle.mp4'
+            src: '/assets/founders-circle.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/iHsFac4iYnk'
          },
          {
             id: 'grant-cardone',
             title: 'GRANT CARDONE',
             description: '500B CRISIS',
-            src: '/assets/grant-cardone.mp4'
+            src: '/assets/grant-cardone.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/OMHldyJ87ww'
          },
          {
             id: 'andrew-vsl',
             title: 'ANDREW VSL',
             description: 'BRAND STORY',
-            src: '/assets/andrew-vsl.mp4'
+            src: '/assets/andrew-vsl.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/0LujkK4Jkt4'
          },
          {
             id: 'ex-mafia',
             title: 'EX-MAFIA BOSS',
             description: 'YOUTUBE PROMO',
-            src: '/assets/ex-mafia.mp4'
+            src: '/assets/ex-mafia.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/NIZ7vDfhfWE'
          },
          {
             id: 'the-one',
             title: 'THE ONE',
             description: 'PREMIUM FEATURE',
-            src: '/assets/the-one.mp4'
+            src: '/assets/the-one.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/xvPn2AR0KG4'
          },
          {
             id: 'property-06',
-            title: 'PROPERTY 06',
+            title: 'PROPERTY',
             description: 'REAL ESTATE SHOWCASE',
-            src: '/assets/property-06.mp4'
+            src: '/assets/property-06.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/PHg8-F9ufmU'
          },
          {
             id: 'property-07',
             title: 'PROPERTY 07',
             description: 'REAL ESTATE SHOWCASE',
-            src: '/assets/property-07.mp4'
+            src: '/assets/property-07.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/ouT3BCPA2kI'
          },
          {
             id: 'season-trailer',
             title: 'SEASON TRAILER',
             description: 'SHOW HIGHLIGHTS',
-            src: '/assets/season-trailer.mp4'
+            src: '/assets/season-trailer.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/RyYyVGys4mY'
          },
          {
             id: 'real-estate-advice',
             title: '100M CRE ADVICE',
             description: 'INVESTING ADVICE',
-            src: '/assets/real-estate-advice.mp4'
+            src: '/assets/real-estate-advice.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/du6x4K04Sgg'
          },
          {
             id: 'koffee',
@@ -81,12 +91,7 @@ const SERVICES = [
             description: 'LUX CAR CLUB',
             src: '/assets/dasfleet-short.mp4'
          },
-         {
-            id: 'passionate-few',
-            title: 'PASSIONATE FEW',
-            description: 'HOUSE BUILD TRIP',
-            src: '/assets/passionate-few-short.mp4'
-         }
+
       ]
    },
    {
@@ -99,19 +104,22 @@ const SERVICES = [
             id: 'snapinsta-1',
             title: 'SOCIAL EDIT 01',
             description: 'CONTENT STRATEGY',
-            src: '/assets/snapinsta-1.mp4'
+            src: '/assets/snapinsta-1.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/jwGXEf68eqg'
          },
          {
             id: 'valor-eoy-2025',
             title: 'VALOR EOY 2025',
             description: 'EVENT HIGHLIGHTS',
-            src: '/assets/valor-eoy-2025.mp4'
+            src: '/assets/valor-eoy-2025.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/-f0c3xQ44OA'
          },
          {
             id: 'lambros-v3',
             title: 'LAMBROS V3',
             description: 'SOCIAL EDIT',
-            src: '/assets/lambros-v3.mp4'
+            src: '/assets/lambros-v3.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/aOOALlkjrXU'
          },
          {
             id: 'merch-edit-v3',
@@ -123,37 +131,43 @@ const SERVICES = [
             id: 'snapinsta-2',
             title: 'SOCIAL EDIT 02',
             description: 'VIRAL HOOK',
-            src: '/assets/snapinsta-2.mp4'
+            src: '/assets/snapinsta-2.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/9TYW54ip3Xw'
          },
          {
             id: 'snapinsta-3',
             title: 'SOCIAL EDIT 03',
             description: 'STORYTELLING',
-            src: '/assets/snapinsta-3.mp4'
+            src: '/assets/snapinsta-3.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/xplasEaGe2s'
          },
          {
             id: 'snapinsta-4',
             title: 'SOCIAL EDIT 04',
             description: 'BRAND REACH',
-            src: '/assets/snapinsta-4.mp4'
+            src: '/assets/snapinsta-4.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/HbX2rxyP0io'
          },
          {
             id: 'snapinsta-5',
             title: 'SOCIAL EDIT 05',
             description: 'HIGH IMPACT',
-            src: '/assets/snapinsta-5.mp4'
+            src: '/assets/snapinsta-5.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/svh-ZIAQ9qI'
          },
          {
             id: 'dog-treats',
             title: 'DOG TREATS',
             description: 'PRODUCT HIGHLIGHT',
-            src: '/assets/dog-treats.mp4'
+            src: '/assets/dog-treats.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/kSi_UvXYcT0'
          },
          {
             id: 'follower-ad-1',
             title: 'FOLLOWER AD 1',
             description: 'SOCIAL AD',
-            src: '/assets/follower-ad-1.mp4'
+            src: '/assets/follower-ad-1.mp4',
+            youtubeUrl: 'https://www.youtube.com/embed/_shwYXJweJE'
          },
          {
             id: 'alyssa-v3',
@@ -203,7 +217,7 @@ const MobileVideoCard = ({ video, currentService, onVideoClick }: { video: any, 
    return (
       <div
          className={`cursor-pointer group relative w-full bg-black/5 overflow-hidden mx-auto ${currentService.id === 'shorts' ? 'aspect-[9/16] max-w-md' : 'aspect-[16/9]'}`}
-         onClick={() => onVideoClick(video.src)}
+         onClick={() => onVideoClick(video.youtubeUrl || video.src)}
       >
          <video
             src={video.src ? `${video.src}#t=0.001` : ''}
@@ -214,13 +228,6 @@ const MobileVideoCard = ({ video, currentService, onVideoClick }: { video: any, 
             muted
             preload="metadata"
          />
-
-         {/* Custom Big Play Button overlay */}
-         <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/10">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-white/5 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/10 shadow-lg z-20">
-               <Play size={24} className="text-white ml-[3px]" fill="currentColor" />
-            </div>
-         </div>
 
          <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 bg-gradient-to-t from-black/90 pointer-events-none z-10">
             <h3 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">{video.title}</h3>
@@ -236,6 +243,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
    const [visibleVideos, setVisibleVideos] = useState(3);
    const [isMobile, setIsMobile] = useState(false);
    const [expandedVideo, setExpandedVideo] = useState<string | null>(null);
+   const [isVerticalModal, setIsVerticalModal] = useState(false);
    const videoRef = useRef<HTMLVideoElement>(null);
 
    useEffect(() => {
@@ -310,7 +318,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                               isMobile ? (
                                  <div className="flex flex-col w-full py-12 gap-24 md:gap-32">
                                     {currentService.videos.slice(0, visibleVideos).map((video: any) => (
-                                       <MobileVideoCard key={video.id} video={video} currentService={currentService} onVideoClick={(url) => setExpandedVideo(url)} />
+                                       <MobileVideoCard key={video.id} video={video} currentService={currentService} onVideoClick={(url) => { setExpandedVideo(url); setIsVerticalModal(currentService.id === 'shorts'); }} />
                                     ))}
                                     {visibleVideos < currentService.videos.length && (
                                        <div className="flex justify-center pb-24">
@@ -322,7 +330,7 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                  currentService.id === 'shorts' ? (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
                                        {currentService.videos.map((video: any) => (
-                                          <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5 cursor-pointer" onClick={() => setExpandedVideo(video.src)}>
+                                          <div key={video.id} className="relative aspect-[9/16] group overflow-hidden bg-black/5 cursor-pointer" onClick={() => { setExpandedVideo(video.youtubeUrl || video.src); setIsVerticalModal(true); }}>
                                              <video
                                                 src={video.src}
                                                 poster={video.src ? video.src.replace('.mp4', '.jpg') : undefined}
@@ -350,24 +358,17 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                                        ))}
                                     </div>
                                  ) : (
-                                     <div className="relative w-full h-[80vh] bg-black group/slider cursor-pointer" onClick={() => currentVideo && setExpandedVideo(currentVideo.src)}>
+                                     <div className="relative w-full h-[80vh] bg-black group/slider cursor-pointer" onClick={() => { if (currentVideo) { setExpandedVideo(currentVideo.youtubeUrl || currentVideo.src); setIsVerticalModal(false); } }}>
                                        {currentVideo && (
                                           <>
                                              <video
                                                 key={currentVideo.src}
                                                 src={currentVideo.src}
                                                 className="w-full h-full object-cover opacity-80"
-                                                autoPlay muted loop playsInline preload="auto"
+                                                autoPlay muted loop playsInline preload="metadata"
                                              />
                                              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
                                              <div className="absolute inset-0 bg-gradient-to-l from-black/40 to-transparent pointer-events-none" />
-
-                                             {/* Play icon overlay on hover */}
-                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
-                                                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-2xl">
-                                                   <Play size={32} className="text-white ml-[3px]" fill="currentColor" />
-                                                </div>
-                                             </div>
 
                                              <button onClick={(e) => { e.stopPropagation(); handlePrev(); }} className="absolute left-8 top-1/2 -translate-y-1/2 z-40 p-4 text-white/30 hover:text-white transition-colors bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
                                                 <ChevronLeft size={32} />
@@ -444,16 +445,28 @@ export const WorksPage: React.FC<WorksPageProps & { data?: any, activeSection?: 
                      animate={{ scale: 1, opacity: 1 }}
                      exit={{ scale: 0.9, opacity: 0 }}
                      transition={{ duration: 0.5, delay: 0.1 }}
-                     className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                      className={`${isVerticalModal ? 'w-[85vw] md:w-[30vw] max-w-md aspect-[9/16]' : 'w-[95vw] md:w-[80vw] max-w-6xl aspect-video'} relative flex items-center justify-center`}
                      onClick={(e) => e.stopPropagation()}
                   >
-                     <video
-                        src={expandedVideo}
-                        className="max-w-full max-h-[85vh] object-contain shadow-2xl"
-                        autoPlay
-                        controls
-                        playsInline
-                     />
+                     {expandedVideo?.includes('youtube.com') ? (
+                        <div className="w-full h-full relative rounded-lg overflow-hidden shadow-2xl bg-black">
+                           <iframe
+                              src={`${expandedVideo}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3`}
+                              className="w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                           />
+                        </div>
+                     ) : (
+                        <video
+                           src={expandedVideo}
+                           className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                           autoPlay
+                           controls
+                           playsInline
+                        />
+                     )}
                   </motion.div>
                </motion.div>
             )}

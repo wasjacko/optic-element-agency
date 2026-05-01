@@ -70,7 +70,7 @@ export const Footer: React.FC<{ onContactClick?: () => void }> = ({ onContactCli
             <a href="https://www.facebook.com/opticxelement" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Facebook">
               <Facebook size={18} strokeWidth={1.5} />
             </a>
-            <a href="https://www.instagram.com/opticelement.co/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
+            <a href="https://www.instagram.com/opticelement.co?igsh=NTc4MTIwNjQ2YQ%3D%3D" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
               <Instagram size={18} strokeWidth={1.5} />
             </a>
             <a href="https://www.youtube.com/channel/UCshhDjajuDEy1spbRy7npDQ" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="YouTube">

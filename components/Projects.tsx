@@ -3,34 +3,44 @@ import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence 
 
 const PROJECTS = [
   {
-    title: "PROPERTY 06",
-    subtitle: "NUMERO 0001",
-    src: "/assets/property-06.mp4",
-    poster: "/assets/property-06.jpg"
+    id: 'grant-cardone',
+    title: "GRANT CARDONE",
+    subtitle: "500B CRISIS",
+    src: "/assets/grant-cardone.mp4",
+    poster: "/assets/grant-cardone.jpg",
+    youtubeUrl: 'https://www.youtube.com/embed/OMHldyJ87ww'
   },
   {
-    title: "THE ONE",
-    subtitle: "NUMERO 0002",
-    src: "/assets/the-one.mp4",
-    poster: "/assets/the-one.jpg"
+    id: 'andrew-vsl',
+    title: "ANDREW VSL",
+    subtitle: "BRAND STORY",
+    src: "/assets/andrew-vsl.mp4",
+    poster: "/assets/andrew-vsl.jpg",
+    youtubeUrl: 'https://www.youtube.com/embed/0LujkK4Jkt4'
   },
   {
-    title: "SEASON TRAILER",
-    subtitle: "NUMERO 0003",
-    src: "/assets/season-trailer.mp4",
-    poster: "/assets/season-trailer.jpg"
-  },
-  {
-    title: "PROPERTY 07",
-    subtitle: "NUMERO 0004",
-    src: "/assets/property-07.mp4",
-    poster: "/assets/property-07.jpg"
-  },
-  {
-    title: "MAFIA BOSS",
-    subtitle: "NUMERO 0005",
+    id: 'ex-mafia',
+    title: "EX-MAFIA BOSS",
+    subtitle: "YOUTUBE PROMO",
     src: "/assets/ex-mafia.mp4",
-    poster: "/assets/ex-mafia.jpg"
+    poster: "/assets/ex-mafia.jpg",
+    youtubeUrl: 'https://www.youtube.com/embed/NIZ7vDfhfWE'
+  },
+  {
+    id: 'the-one',
+    title: "THE ONE",
+    subtitle: "PREMIUM FEATURE",
+    src: "/assets/the-one.mp4",
+    poster: "/assets/the-one.jpg",
+    youtubeUrl: 'https://www.youtube.com/embed/xvPn2AR0KG4'
+  },
+  {
+    id: 'property-06',
+    title: "PROPERTY",
+    subtitle: "REAL ESTATE SHOWCASE",
+    src: "/assets/property-06.mp4",
+    poster: "/assets/property-06.jpg",
+    youtubeUrl: 'https://www.youtube.com/embed/PHg8-F9ufmU'
   }
 ];
 
@@ -264,7 +274,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   ::-webkit-scrollbar { display: none; }
               `}</style>
             {sourceProjects.map((project: any, i: number) => (
-              <MobileProjectCard key={i} project={project} onVideoClick={() => setExpandedVideo(project.src)} />
+              <MobileProjectCard key={i} project={project} onVideoClick={() => setExpandedVideo(project.youtubeUrl || project.src)} />
             ))}
           </div>
           <div className="mt-8">
@@ -299,7 +309,7 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                   index={i}
                   project={project}
                   scrollX={scrollX}
-                  onVideoClick={() => setExpandedVideo(project.src)}
+                  onVideoClick={() => setExpandedVideo(project.youtubeUrl || project.src)}
                 />
               ))}
             </div>
@@ -352,16 +362,28 @@ export const Projects: React.FC<{ onWorksClick?: () => void, title?: string, dat
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="w-[95vw] md:w-[80vw] max-h-[85vh] relative flex items-center justify-center"
+                className="w-[95vw] md:w-[65vw] aspect-video relative flex items-center justify-center"
                 onClick={(e) => e.stopPropagation()}
             >
-                <video
-                    src={expandedVideo}
-                    className="max-w-full max-h-[85vh] object-contain shadow-2xl"
-                    autoPlay
-                    controls
-                    playsInline
-                />
+                {expandedVideo.includes('youtube.com') ? (
+                    <div className="w-full h-full relative rounded-lg overflow-hidden shadow-2xl bg-black">
+                        <iframe
+                            src={`${expandedVideo}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&controls=1`}
+                            className="w-full h-full"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                        />
+                    </div>
+                ) : (
+                    <video
+                        src={expandedVideo}
+                        className="max-w-full max-h-[85vh] object-contain shadow-2xl"
+                        autoPlay
+                        controls
+                        playsInline
+                    />
+                )}
             </motion.div>
           </motion.div>
         )}
