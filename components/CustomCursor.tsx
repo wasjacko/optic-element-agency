@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export const CustomCursor = () => {
@@ -6,6 +6,7 @@ export const CustomCursor = () => {
     const mouseY = useMotionValue(0);
     const [isHovering, setIsHovering] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
+    const isForceHiddenRef = useRef(false);
 
     // Add smooth springs for the cursor follow effect
     const springX = useSpring(mouseX, { stiffness: 1000, damping: 50, mass: 0.1 });
@@ -15,7 +16,21 @@ export const CustomCursor = () => {
         const handleMouseMove = (e: MouseEvent) => {
             mouseX.set(e.clientX - 10);
             mouseY.set(e.clientY - 10);
-            if (!isVisible) setIsVisible(true);
+            if (!isVisible && !isForceHiddenRef.current) setIsVisible(true);
+
+            // Active hit-testing bypasses browser deferred hover states
+            const target = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+            if (target) {
+                if (target.tagName === 'A' ||
+                    target.tagName === 'BUTTON' ||
+                    target.closest('a') ||
+                    target.closest('button') ||
+                    target.classList.contains('cursor-pointer')) {
+                    setIsHovering(true);
+                } else {
+                    setIsHovering(false);
+                }
+            }
         };
 
         const handleMouseLeave = (e: MouseEvent) => {
@@ -24,27 +39,25 @@ export const CustomCursor = () => {
             }
         };
 
-        const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'A' ||
-                target.tagName === 'BUTTON' ||
-                target.closest('a') ||
-                target.closest('button') ||
-                target.classList.contains('cursor-pointer')) {
-                setIsHovering(true);
-            } else {
-                setIsHovering(false);
-            }
+        const forceHide = () => {
+            isForceHiddenRef.current = true;
+            setIsVisible(false);
+        };
+        const forceShow = () => {
+            isForceHiddenRef.current = false;
+            setIsVisible(true);
         };
 
         window.addEventListener('mousemove', handleMouseMove, { passive: true });
-        window.addEventListener('mouseover', handleMouseOver, { passive: true });
         document.addEventListener('mouseleave', handleMouseLeave);
+        window.addEventListener('force-hide-cursor', forceHide);
+        window.addEventListener('force-show-cursor', forceShow);
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseover', handleMouseOver);
             document.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('force-hide-cursor', forceHide);
+            window.removeEventListener('force-show-cursor', forceShow);
         };
     }, [isVisible]);
 

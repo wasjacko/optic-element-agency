@@ -6,7 +6,7 @@ export async function getCMSContent(): Promise<any> {
         if (!res.ok) throw new Error("Failed to fetch content");
         return await res.json();
     } catch (e) {
-        console.error("CMS Client Error:", e);
+        console.warn("CMS unavailable, using local content fallback");
         return null;
     }
 }

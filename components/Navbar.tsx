@@ -11,53 +11,56 @@ const NAV_ITEMS = [
 
 const HoverGlitchText: React.FC<{ text: string, isHovered: boolean }> = ({ text, isHovered }) => {
   const spanRef = useRef<HTMLSpanElement>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (isHovered) {
-      let iteration = -1.5; // Starts negative for a very brief 50ms full-word glitch before reveal
-      let rAFId: number;
+    if (isHovered && spanRef.current) {
+      let iteration = -1.5;
       const glitchChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]<>-_";
-
-      const loop = () => {
-        if (spanRef.current) {
-          const newText = text.split("").map((char, index) => {
-            if (char === " ") return " ";
-
-            // Individual character jitter (+/- 20% approx)
-            const jitter = Math.sin(index * 987.654) * 0.6;
-
-            // If the "reveal wave" (plus jitter) has passed this character AND iteration is positive
-            if (iteration > 0 && index < iteration + jitter) {
-              return text[index];
-            }
-
-            // Otherwise, keep glitching it
-            return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-          }).join("");
-
-          spanRef.current.textContent = newText;
-
-          if (iteration < text.length) {
-            iteration += 0.15;
-            rAFId = requestAnimationFrame(loop);
-          } else {
-            spanRef.current.textContent = text;
+      
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      
+      intervalRef.current = window.setInterval(() => {
+        if (!spanRef.current) return;
+        
+        const newText = text.split("").map((char, index) => {
+          if (char === " ") return " ";
+          const jitter = Math.sin(index * 987.654) * 0.6;
+          
+          if (iteration > 0 && index < iteration + jitter) {
+            return text[index];
           }
+          return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }).join("");
+        
+        spanRef.current.textContent = newText;
+        
+        if (iteration >= text.length) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          spanRef.current.textContent = text;
         }
-      };
-
-      rAFId = requestAnimationFrame(loop);
-      return () => cancelAnimationFrame(rAFId);
+        
+        iteration += 0.3; // Speed
+      }, 30); // ~33fps, bypasses Safari's rAF block
+      
     } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       if (spanRef.current && spanRef.current.textContent !== text) {
         spanRef.current.textContent = text;
       }
     }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [isHovered, text]);
 
   return (
     <span className="relative inline-block">
-      <span className="opacity-0">{text}</span>
+      <span className="text-transparent selection:bg-transparent">{text}</span>
       <span ref={spanRef} className="absolute top-0 left-0 pointer-events-none">{text}</span>
     </span>
   );
@@ -65,6 +68,7 @@ const HoverGlitchText: React.FC<{ text: string, isHovered: boolean }> = ({ text,
 
 const NavItem: React.FC<{ item: typeof NAV_ITEMS[0], activePage: string, handleLinkClick: any, onPreload: any }> = ({ item, activePage, handleLinkClick, onPreload }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const linkRef = useRef<HTMLAnchorElement>(null);
 
   const isActive =
     (item.label === 'HOME' && activePage === 'home') ||
@@ -72,18 +76,26 @@ const NavItem: React.FC<{ item: typeof NAV_ITEMS[0], activePage: string, handleL
     (item.label === 'PROJECTS' && activePage === 'work') ||
     (item.label === 'OUR PROCESS' && activePage === 'process');
 
+  const handleEnter = () => {
+    setIsHovered(true);
+    if (onPreload) onPreload(item.href.replace('#', ''));
+  };
+
+  const handleLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
     <a
+      ref={linkRef}
       href={item.href}
       onClick={(e) => handleLinkClick(e, item)}
-      onMouseEnter={() => {
-        setIsHovered(true);
-        onPreload?.(item.href.replace('#', ''));
-      }}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative group flex flex-col items-center justify-center py-1 whitespace-nowrap"
+      onPointerEnter={handleEnter}
+      onPointerLeave={handleLeave}
+      className="relative group flex flex-col items-center justify-center py-4 px-2 -my-3 whitespace-nowrap cursor-pointer pointer-events-auto bg-transparent"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
     >
-      <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em]">
+      <span className="text-[11px] font-mono font-bold text-white transition-colors duration-300 uppercase tracking-[0.2em] group-hover:text-white">
         <HoverGlitchText text={item.label} isHovered={isHovered} />
       </span>
       <span className={`absolute bottom-0 left-0 h-[1px] bg-[var(--color-primary)] transition-all duration-300 ease-[0.16,1,0.3,1] ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
@@ -153,16 +165,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
   return (
     <motion.nav
-      initial={{ y: "-100%" }}
-      animate={{ y: isVisible && (introExpanded || introCompleted || activePage !== 'home') && !forceHide ? "0%" : "-100%" }}
+      initial={{ top: "-100px" }}
+      animate={{ top: isVisible && (introExpanded || introCompleted || activePage !== 'home') && !forceHide ? "0px" : "-100px" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 w-full z-[999] md:border-b border-white/5 will-change-transform backface-hidden`}
-      style={{ backgroundColor: 'var(--color-bg)' }}
+      className={`fixed left-0 w-full z-[999999] md:border-b border-white/5`}
+      style={{ backgroundColor: 'var(--color-bg)', isolation: 'isolate' }}
     >
       {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat mix-blend-overlay" />
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat z-[-1]" />
 
-      <div className="flex justify-center w-full px-10 md:px-32">
+      <div className="flex justify-center w-full px-10 md:px-32 relative z-50 pointer-events-auto">
         <div className="relative w-full max-w-[1800px] py-4 flex items-center justify-between">
 
 
@@ -208,10 +220,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
             {/* Tactical Contact Button */}
             {/* Book Studio Button */}
             <button
+              id="book-studio-btn"
               onClick={onLabClick}
-              onMouseEnter={() => setIsBookStudioHovered(true)}
-              onMouseLeave={() => setIsBookStudioHovered(false)}
-              className="hidden md:block group relative px-8 py-3 bg-white/5 hover:bg-white transition-all duration-500 overflow-hidden border border-white/10 hover:border-white"
+              onPointerEnter={() => setIsBookStudioHovered(true)}
+              onPointerLeave={() => setIsBookStudioHovered(false)}
+              className="hidden md:block group relative px-8 py-3 bg-white/5 hover:bg-white transition-all duration-500 overflow-hidden border border-white/10 hover:border-white cursor-pointer pointer-events-auto"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               {/* Brackets/Corners */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white group-hover:border-black transition-colors" />
@@ -226,10 +240,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onContactClick, onHomeClick, onA
 
             {/* Tactical Contact Button - Orange Secondary */}
             <button
+              id="contact-us-btn"
               onClick={onContactClick}
-              onMouseEnter={() => setIsContactHovered(true)}
-              onMouseLeave={() => setIsContactHovered(false)}
-              className="hidden md:block group relative px-8 py-3 bg-[#EF5304] hover:bg-[#EF5304]/90 transition-all duration-500 overflow-hidden"
+              onPointerEnter={() => setIsContactHovered(true)}
+              onPointerLeave={() => setIsContactHovered(false)}
+              className="hidden md:block group relative px-8 py-3 bg-[#EF5304] hover:bg-[#EF5304]/90 transition-all duration-500 overflow-hidden cursor-pointer pointer-events-auto"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               {/* Brackets/Corners */}
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white transition-colors" />

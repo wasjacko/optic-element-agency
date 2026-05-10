@@ -587,7 +587,7 @@ export const Testimonials: React.FC<{ data?: any, onVideoStateChange?: (isOpen: 
                                 >
                                     {sliderReviews.map((review: any, i: number) => (
                                         <motion.div
-                                            key={review.id}
+                                            key={`${review.id}_${i}`}
                                             className="min-w-full md:min-w-[25%] px-3 shrink-0"
                                         >
                                             <GoogleReviewCard review={review} />

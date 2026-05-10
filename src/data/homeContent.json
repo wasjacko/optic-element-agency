@@ -12,7 +12,8 @@
         "phase2": "We Build",
         "phase2Highlight": "Leverage",
         "cta": "READY TO BUILD ?",
-        "backgroundColor": "#121212"
+        "backgroundColor": "#121212",
+        "youtubeUrl": "https://www.youtube.com/embed/M8zkdJ3Z4zc?autoplay=1"
     },
     "video": {
         "title": "Main Reel",
@@ -237,7 +238,8 @@
                         "id": "koffee",
                         "title": "KOFFEE CO.",
                         "description": "PREMIUM COMMERCIAL",
-                        "src": "/assets/koffee-commercial.mp4"
+                        "src": "/assets/koffee-commercial.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/upCapqvkDGE"
                     }
                 ]
             },
@@ -320,19 +322,22 @@
                         "id": "alyssa-v3",
                         "title": "ALYSSA V3",
                         "description": "BRAND EDIT",
-                        "src": "/assets/alyssa-v3.mp4"
+                        "src": "/assets/alyssa-v3.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/_YH_y0KjULI"
                     },
                     {
                         "id": "cost-of-alone",
                         "title": "THE COST OF ALONE",
                         "description": "STRATEGY & GROWTH",
-                        "src": "/assets/cost-of-alone.mp4"
+                        "src": "/assets/cost-of-alone.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/JIm373j-8C4"
                     },
                     {
                         "id": "nutrient-timing",
                         "title": "NUTRIENT TIMING",
                         "description": "PERFORMANCE & NUTRITION",
-                        "src": "/assets/nutrient-timing.mp4"
+                        "src": "/assets/nutrient-timing.mp4",
+                        "youtubeUrl": "https://www.youtube.com/embed/IcICcvYgnkA"
                     },
                     {
                         "id": "wix-short-1",

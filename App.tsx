@@ -2,7 +2,6 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // --- Shared Components (Synchronous) ---
-import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Dashboard } from './components/admin/Dashboard';
@@ -10,6 +9,7 @@ import { LoginPage } from './components/admin/LoginPage';
 import { AuthProvider, useAuth } from './components/auth/AuthContext';
 import { getCMSContent } from './src/utils/cms-client';
 import homeContent from './src/data/homeContent.json';
+import { CustomCursor } from './components/CustomCursor';
 
 // --- Lazy Components ---
 const factories = {
@@ -175,8 +175,8 @@ function App() {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen text-white bg-[#050505]" style={{ backgroundColor: 'var(--color-bg)' }}>
-        {activePage !== 'admin' && <CustomCursor />}
+      <CustomCursor />
+      <div className="min-h-screen text-white bg-[#050505] outline-none" style={{ backgroundColor: 'var(--color-bg)' }}>
         {activePage !== 'admin' && (
           <Navbar
             activePage={activePage}

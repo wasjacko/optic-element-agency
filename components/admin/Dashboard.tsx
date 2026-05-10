@@ -1277,6 +1277,11 @@ const VideoListManager = ({ videos, onChange }: { videos: any[], onChange: (v: a
                             <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Video Source (MP4 URL)</label>
                             <input className="w-full text-xs p-2 border border-gray-200 rounded font-mono text-gray-600 focus:border-black focus:ring-1 focus:ring-black outline-none" value={video.src} onChange={e => updateVideo(idx, 'src', e.target.value)} />
                         </div>
+
+                        <div>
+                            <label className="text-[10px] font-bold uppercase text-gray-400 block mb-1">YouTube Embed URL (Optional, overrides MP4 in modal)</label>
+                            <input className="w-full text-xs p-2 border border-gray-200 rounded font-mono text-gray-600 focus:border-black focus:ring-1 focus:ring-black outline-none" value={video.youtubeUrl || ''} onChange={e => updateVideo(idx, 'youtubeUrl', e.target.value)} />
+                        </div>
                     </div>
                 </div>
             ))}

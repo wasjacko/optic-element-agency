@@ -168,8 +168,11 @@
     -moz-osx-font-smoothing: grayscale;
     @apply bg-[#050505] text-white selection:bg-white selection:text-black;
     position: relative;
-    overflow-x: hidden;
+    cursor: none;
   }
+
+
+
 
   /* Typography Overrides for "Secondary/Tech" feel */
   p,
