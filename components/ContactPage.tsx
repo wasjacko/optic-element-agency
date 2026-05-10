@@ -94,6 +94,8 @@ export const ContactPage: React.FC<ContactPageProps & { data?: any, activeSectio
                      animate={{ opacity: 1, x: 0 }}
                      transition={{ duration: 0.8 }}
                      className="w-full h-full min-h-[1100px] md:min-h-[1200px] bg-white/5 rounded-2xl overflow-hidden border border-white/10"
+                     onMouseEnter={() => window.dispatchEvent(new Event('force-hide-cursor'))}
+                     onMouseLeave={() => window.dispatchEvent(new Event('force-show-cursor'))}
                   >
                      <iframe
                         src={data?.calendarUrl || "https://api.leadconnectorhq.com/widget/booking/cgeV18JSg30NhG1v1URd"}

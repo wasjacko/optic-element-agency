@@ -355,7 +355,8 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
             globalMouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
             globalMouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
         };
-        window.addEventListener('mousemove', handleMouseMove);
+
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
@@ -639,8 +640,6 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
                         e.stopPropagation();
                         if (onCubeClick) onCubeClick();
                     }}
-                    onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
-                    onPointerOut={() => { document.body.style.cursor = 'auto'; }}
                 >
                     <boxGeometry args={[3, 3, 3]} />
                     {[0, 1, 2, 3, 4, 5].map((index) => (
@@ -897,7 +896,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             className={`h-screen w-full relative ${isMobile ? '' : 'overflow-hidden'}`} 
             style={{ 
                 backgroundColor: content?.backgroundColor || currentTheme?.background || '#050505',
-                touchAction: isMobile ? 'pan-y' : (currentPhase < 4 ? 'none' : 'auto'),
+                touchAction: 'auto',
                 overflow: isMobile ? 'visible' : 'hidden'
             }}
         >
@@ -948,7 +947,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
             )}
 
             {/* UI Overlay - Absolutely Static */}
-            <div className="absolute inset-0 pointer-events-none z-10 w-full h-full">
+            <div className="absolute inset-x-0 bottom-0 top-32 pointer-events-none z-10 w-full">
 
                 <style>{`
                     @keyframes glitchIn {
@@ -1193,9 +1192,9 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         >
                             <div className="w-full h-full relative rounded-lg overflow-hidden shadow-2xl">
                                 <iframe 
-                                    className="w-full h-full scale-[1.02] pointer-events-none"
-                                    src="https://www.youtube.com/embed/3xTzTELklNA?autoplay=1&controls=0&modestbranding=1&rel=0" 
-                                    title="oE Showreel 2026" 
+                                    className="w-full h-full scale-[1.02]"
+                                    src={content?.hero?.youtubeUrl || "https://www.youtube.com/embed/M8zkdJ3Z4zc?autoplay=1"} 
+                                    title="Show Reel Final" 
                                     frameBorder="0" 
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                                     referrerPolicy="strict-origin-when-cross-origin" 

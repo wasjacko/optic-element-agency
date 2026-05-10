@@ -146,7 +146,7 @@ const ParabolicCard = React.memo(({ project, index, scrollX, onVideoClick }: { p
                 e.currentTarget.play().catch(() => { });
               }
             }}
-            className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+            className="w-full h-full object-cover opacity-100 transition-opacity duration-500"
           />
         </div>
       </div>
@@ -192,7 +192,7 @@ const MobileProjectCard = ({ project, onVideoClick }: { project: any, onVideoCli
             muted
             playsInline
             preload="metadata"
-            className="w-full h-full object-cover opacity-90 transition-opacity duration-700"
+            className="w-full h-full object-cover opacity-100 transition-opacity duration-700"
           />
         </div>
       </div>
