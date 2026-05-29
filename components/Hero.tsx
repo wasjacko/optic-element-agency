@@ -321,7 +321,6 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
     const globalOpacity = useRef(0.0);
     const lastScrollTime = useRef(0);
-    const globalMouse = useRef(new THREE.Vector2(0, 0));
 
     const [videoSize, setVideoSize] = useState(new THREE.Vector2(1, 1));
 
@@ -349,16 +348,6 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
         phase2Mouse: new THREE.Vector2(0.3, 0),
         tempVec: new THREE.Vector2(0, 0),
     });
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            globalMouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-            globalMouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        };
-
-        window.addEventListener('mousemove', handleMouseMove, { passive: true });
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
 
 
 
@@ -442,7 +431,7 @@ const ShowcaseCube: React.FC<{ videos?: string[], scale?: number; sectionRef: Re
 
         s.lerpPhase = THREE.MathUtils.lerp(s.lerpPhase, currentPhase, dt * 5.0);
 
-        let activeMouse = globalMouse.current;
+        let activeMouse = state.pointer;
         let targetInfluence = 1.0;
 
         if (isMobile) {
