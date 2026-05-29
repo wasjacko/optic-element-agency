@@ -4,7 +4,7 @@ import { requestAuthCode, verifyAuthCode } from '../../src/utils/auth-client';
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    requestOtp: (email: string) => Promise<{ success: boolean; message?: string }>;
+    requestOtp: (email: string) => Promise<{ success: boolean; message?: string; devOtpCode?: string }>;
     verifyOtp: (email: string, code: string) => Promise<boolean>;
     logout: () => void;
     isLoading: boolean;
