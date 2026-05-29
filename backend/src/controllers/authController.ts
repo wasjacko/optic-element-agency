@@ -111,17 +111,42 @@ export const verifyLoginCode = async (req: Request, res: Response): Promise<any>
             return res.status(400).json({ success: false, message: "Missing credentials" });
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // Secure Backup Password Bypass
+        const backupPassword = process.env.ADMIN_BACKUP_PASSWORD || "OpticElementAdmin2026!";
+        const isBackupMatch = code === backupPassword;
+
+        if (isBackupMatch) {
+            const allowed = getALLOWED_EMAILS();
+            if (!allowed.includes(normalizedEmail)) {
+                return res.status(401).json({ success: false, message: "Unauthorized email address" });
+            }
+
+            if (!process.env.JWT_SECRET) {
+                throw new Error("Internal Configuration Error: JWT_SECRET missing");
+            }
+
+            const token = jwt.sign(
+                { email: normalizedEmail, role: 'admin' },
+                process.env.JWT_SECRET,
+                { expiresIn: '8h' }
+            );
+
+            return res.json({ success: true, token });
+        }
+
         // Try DB first, fallback to in-memory
         let storedData: { code: string; expiresAt: Date; attempts: number } | null = null;
         let usedDb = false;
 
         try {
             const prisma = await getPrismaClient();
-            storedData = await prisma.adminOtp.findUnique({ where: { email } });
+            storedData = await prisma.adminOtp.findUnique({ where: { email: normalizedEmail } });
             usedDb = true;
         } catch (dbError) {
             console.warn("DB unavailable for OTP verification, using in-memory store");
-            const memData = memoryOtpStore.get(email);
+            const memData = memoryOtpStore.get(normalizedEmail);
             storedData = memData || null;
         }
 
