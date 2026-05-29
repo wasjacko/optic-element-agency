@@ -88,7 +88,14 @@ export const requestLoginCode = async (req: Request, res: Response): Promise<any
         }
 
         // Send Email
-        await sendLoginCode(email, code);
+        try {
+            await sendLoginCode(email, code);
+        } catch (emailError) {
+            console.error(`[Auth] Failed to send login email to ${email}:`, emailError);
+            // We do not fail the request if email sending fails.
+            // This ensures that if the email delivery service fails or is restricted (e.g. Resend free tier),
+            // the user is still transitioned to the verification code screen where they can use the backup password.
+        }
 
         const responseData: any = { success: true, message: "Code sent." };
         if (process.env.NODE_ENV !== 'production') {
