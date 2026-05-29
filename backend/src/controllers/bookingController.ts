@@ -25,7 +25,7 @@ export const createBooking = async (req: Request, res: Response): Promise<void> 
         const endDate = new Date(end);
 
         // 2. Transactional Overlap Check & Creation
-        const newBooking = await prisma.$transaction(async (tx) => {
+        const newBooking = await prisma.$transaction(async (tx: any) => {
             // Logic: Overlap if (start < existingEnd) AND (end > existingStart)
             // And Status is CONFIRMED or PENDING (valid for 30m)
 

@@ -27,6 +27,13 @@ export const requestLoginCode = async (req: Request, res: Response): Promise<any
         const allowed = getALLOWED_EMAILS();
 
         if (!email || !allowed.includes(email)) {
+            // In development, return a helpful error so the developer knows the email is unauthorized
+            if (process.env.NODE_ENV !== 'production') {
+                return res.status(403).json({
+                    success: false,
+                    message: `Email not authorized in ALLOWED_EMAILS. Allowed list: ${allowed.join(", ")}`
+                });
+            }
             // Security: Always return success to prevent timing attacks/enumeration
             await new Promise(r => setTimeout(r, 1000));
             return res.json({ success: true, message: "Code sent if email is authorized." });
@@ -83,7 +90,12 @@ export const requestLoginCode = async (req: Request, res: Response): Promise<any
         // Send Email
         await sendLoginCode(email, code);
 
-        return res.json({ success: true, message: "Code sent." });
+        const responseData: any = { success: true, message: "Code sent." };
+        if (process.env.NODE_ENV !== 'production') {
+            responseData.devOtpCode = code;
+        }
+
+        return res.json(responseData);
 
     } catch (error) {
         console.error("Login Request Error:", error);

@@ -17,6 +17,19 @@ const transporter = nodemailer.createTransport({
 
 const isEmailConfigured = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
 
+function getSenderEmail() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const user = process.env.SMTP_USER || '';
+  const fromEmail = process.env.FROM_EMAIL || '';
+  
+  // Gmail SMTP strictly requires the 'from' address to match the authenticated user
+  // to prevent SPF/DMARC alignment failure and silent delivery rejection.
+  if (host.includes('gmail.com') || host.includes('google')) {
+    return user;
+  }
+  return fromEmail || user;
+}
+
 export async function sendAdminRequestEmail(booking: any, token: string) {
   if (!isEmailConfigured) {
     console.log('[Mock Email] Admin Request:', booking);
@@ -26,7 +39,7 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
   const confirmUrl = `${getBaseUrl()}/api/bookings/confirm?token=${token}`;
   const cancelUrl = `${getBaseUrl()}/api/bookings/cancel?token=${token}`;
 
-  const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
+  const from = getSenderEmail();
   const to = process.env.ADMIN_EMAIL;
 
   if (!to) {
@@ -58,7 +71,7 @@ export async function sendClientPendingEmail(booking: any) {
   if (!isEmailConfigured) return;
 
   await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+    from: getSenderEmail(),
     to: booking.email,
     subject: 'Booking Request Received - Optic Element',
     html: `
@@ -76,7 +89,7 @@ export async function sendClientConfirmationEmail(booking: any) {
   if (!isEmailConfigured) return;
 
   await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+    from: getSenderEmail(),
     to: booking.email,
     subject: 'Booking CONFIRMED - Optic Element',
     html: `
@@ -93,7 +106,7 @@ export async function sendClientCancellationEmail(booking: any) {
   if (!isEmailConfigured) return;
 
   await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+    from: getSenderEmail(),
     to: booking.email,
     subject: 'Booking Status Update - Optic Element',
     html: `
@@ -111,7 +124,7 @@ export async function sendLoginCode(email: string, code: string) {
   }
 
   await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+    from: getSenderEmail(),
     to: email,
     subject: 'Your Dashboard Login Code',
     html: `
@@ -128,3 +141,4 @@ export async function sendLoginCode(email: string, code: string) {
     `
   });
 }
+

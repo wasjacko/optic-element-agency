@@ -65,7 +65,13 @@ export const LoginPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 const res = await requestOtp(email);
                 if (res.success) {
                     setStep('CODE');
-                    setMessage("✓ Code sent — check your inbox.");
+                    if (res.devOtpCode) {
+                        setMessage(`✓ Code sent. [Dev mode OTP: ${res.devOtpCode}]`);
+                        setCode(res.devOtpCode);
+                        console.log(`[DEV ONLY] OTP Code: ${res.devOtpCode}`);
+                    } else {
+                        setMessage("✓ Code sent — check your inbox.");
+                    }
                     startCooldown();
                 } else {
                     setError(true);
@@ -104,7 +110,12 @@ export const LoginPage: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         try {
             const res = await requestOtp(email);
             if (res.success) {
-                setMessage("✓ New code sent — check your inbox.");
+                if (res.devOtpCode) {
+                    setMessage(`✓ New code sent. [Dev mode OTP: ${res.devOtpCode}]`);
+                    setCode(res.devOtpCode);
+                } else {
+                    setMessage("✓ New code sent — check your inbox.");
+                }
                 startCooldown();
             } else {
                 setError(true);
