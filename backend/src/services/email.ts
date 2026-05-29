@@ -1,10 +1,10 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 // Helpers
 const getBaseUrl = () => process.env.API_URL || 'http://localhost:3000';
 
-// Configure Nodemailer transporter
-// Use SMTP credentials from .env
+// Configure Nodemailer transporter (SMTP fallback)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '465'),
@@ -15,31 +15,59 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const isEmailConfigured = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
+// Configure Resend client (recommended for Vercel/serverless to bypass SMTP port blocking)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-function getSenderEmail() {
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const user = process.env.SMTP_USER || '';
-  const fromEmail = process.env.FROM_EMAIL || '';
-  
-  // Gmail SMTP strictly requires the 'from' address to match the authenticated user
-  // to prevent SPF/DMARC alignment failure and silent delivery rejection.
-  if (host.includes('gmail.com') || host.includes('google')) {
-    return user;
-  }
-  return fromEmail || user;
-}
+export const isEmailConfigured = !!(
+  process.env.RESEND_API_KEY || 
+  (process.env.SMTP_USER && process.env.SMTP_PASS)
+);
 
-export async function sendAdminRequestEmail(booking: any, token: string) {
+/**
+ * Unified email sending helper that abstracts Resend API and Nodemailer SMTP.
+ */
+async function sendMailHelper(options: { to: string; subject: string; html: string }) {
   if (!isEmailConfigured) {
-    console.log('[Mock Email] Admin Request:', booking);
+    console.log(`[Mock Email Mocked] To: ${options.to} | Subject: ${options.subject}`);
     return;
   }
 
+  if (resend) {
+    // Resend REST API Client
+    const from = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+    console.log(`[Email] Sending via Resend API from "${from}" to "${options.to}"...`);
+    const response = await resend.emails.send({
+      from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+    
+    if (response.error) {
+      console.error("Resend API failed to send email:", response.error);
+      throw new Error(`Resend Error: ${response.error.message}`);
+    }
+    return response.data;
+  } else {
+    // Nodemailer SMTP Client
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const from = (host.includes('gmail.com') || host.includes('google'))
+      ? (process.env.SMTP_USER || '')
+      : (process.env.FROM_EMAIL || process.env.SMTP_USER || '');
+
+    console.log(`[Email] Sending via SMTP from "${from}" to "${options.to}"...`);
+    return await transporter.sendMail({
+      from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+  }
+}
+
+export async function sendAdminRequestEmail(booking: any, token: string) {
   const confirmUrl = `${getBaseUrl()}/api/bookings/confirm?token=${token}`;
   const cancelUrl = `${getBaseUrl()}/api/bookings/cancel?token=${token}`;
-
-  const from = getSenderEmail();
   const to = process.env.ADMIN_EMAIL;
 
   if (!to) {
@@ -47,8 +75,7 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
     return;
   }
 
-  await transporter.sendMail({
-    from,
+  await sendMailHelper({
     to,
     subject: `New Booking Request: ${booking.name}`,
     html: `
@@ -68,10 +95,7 @@ export async function sendAdminRequestEmail(booking: any, token: string) {
 }
 
 export async function sendClientPendingEmail(booking: any) {
-  if (!isEmailConfigured) return;
-
-  await transporter.sendMail({
-    from: getSenderEmail(),
+  await sendMailHelper({
     to: booking.email,
     subject: 'Booking Request Received - Optic Element',
     html: `
@@ -86,10 +110,7 @@ export async function sendClientPendingEmail(booking: any) {
 }
 
 export async function sendClientConfirmationEmail(booking: any) {
-  if (!isEmailConfigured) return;
-
-  await transporter.sendMail({
-    from: getSenderEmail(),
+  await sendMailHelper({
     to: booking.email,
     subject: 'Booking CONFIRMED - Optic Element',
     html: `
@@ -103,10 +124,7 @@ export async function sendClientConfirmationEmail(booking: any) {
 }
 
 export async function sendClientCancellationEmail(booking: any) {
-  if (!isEmailConfigured) return;
-
-  await transporter.sendMail({
-    from: getSenderEmail(),
+  await sendMailHelper({
     to: booking.email,
     subject: 'Booking Status Update - Optic Element',
     html: `
@@ -118,13 +136,7 @@ export async function sendClientCancellationEmail(booking: any) {
 }
 
 export async function sendLoginCode(email: string, code: string) {
-  if (!isEmailConfigured) {
-    console.log(`[Mock Email] Login Code for admin: ${code}`);
-    return;
-  }
-
-  await transporter.sendMail({
-    from: getSenderEmail(),
+  await sendMailHelper({
     to: email,
     subject: 'Your Dashboard Login Code',
     html: `
@@ -141,4 +153,3 @@ export async function sendLoginCode(email: string, code: string) {
     `
   });
 }
-
