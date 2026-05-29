@@ -270,13 +270,6 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
                 <div className="w-full px-10 md:px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-4 overflow-x-auto custom-scrollbar">
-                        <button 
-                            onClick={onBack}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400 hover:text-black mr-2"
-                            title="Back to Website"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
                         <span className="font-bold text-lg tracking-tight mr-4 shrink-0">OPTIC ELEMENT</span>
 
                         <div className="flex items-center gap-1 shrink-0">
