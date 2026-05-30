@@ -1032,7 +1032,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                             <div className="flex flex-col gap-8 w-full items-center">
                                 {/* Block 1 */}
                                 <div className="flex flex-col items-center w-full gap-0">
-                                    <h2 className="text-lg sm:text-xl font-black tracking-widest text-white/95 uppercase text-center w-full">
+                                    <h2 className="text-lg sm:text-xl font-black tracking-widest uppercase text-center w-full" style={{ color: content?.textColor || 'rgba(255,255,255,0.95)' }}>
                                         {content?.phase1 || homeContent.hero.phase1}
                                     </h2>
                                     <h2 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter drop-shadow-xl uppercase text-center w-full" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
@@ -1042,7 +1042,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                                 
                                 {/* Block 2 */}
                                 <div className="flex flex-col items-center w-full gap-0">
-                                    <h2 className="text-lg sm:text-xl font-black tracking-widest text-white/95 uppercase text-center w-full">
+                                    <h2 className="text-lg sm:text-xl font-black tracking-widest uppercase text-center w-full" style={{ color: content?.textColor || 'rgba(255,255,255,0.95)' }}>
                                         {content?.phase2 || homeContent.hero.phase2}
                                     </h2>
                                     <h2 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter drop-shadow-xl uppercase text-center w-full" style={{ color: content?.highlightColor || theme?.primary || homeContent.theme?.primary }}>
@@ -1073,7 +1073,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-[22%] max-w-[90vw] md:max-w-4xl text-right">
                             {isPhase1 && (
                                 <div className="flex flex-col md:flex-row items-end md:items-center justify-end gap-1 md:gap-2" style={{ animation: 'slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                                    <TacticalText visible={isPhase1} color="#ffffff">
+                                    <TacticalText visible={isPhase1} color={content?.textColor || '#ffffff'}>
                                         {content?.phase1 || homeContent.hero.phase1}
                                     </TacticalText>
                                     <TacticalText visible={isPhase1} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
@@ -1087,7 +1087,7 @@ export const Hero: React.FC<HeroProps> = ({ data, theme, onContactClick, onIntro
                         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-[22%] max-w-[90vw] md:max-w-4xl text-left">
                             {isPhase2 && (
                                 <div className="flex flex-col md:flex-row items-start md:items-center justify-start gap-1 md:gap-2" style={{ animation: 'slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                                    <TacticalText visible={isPhase2} color="#ffffff">
+                                    <TacticalText visible={isPhase2} color={content?.textColor || '#ffffff'}>
                                         {content?.phase2 || homeContent.hero.phase2}
                                     </TacticalText>
                                     <TacticalText visible={isPhase2} color={content?.highlightColor || theme?.primary || homeContent.theme?.primary}>
