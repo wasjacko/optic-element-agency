@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical, RotateCcw, AlertCircle, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, LogOut, Save, FileText, Check, Loader2, ArrowLeft, Eye, Smartphone, Monitor, Trash2, ArrowUp, ArrowDown, Plus, GripVertical, RotateCcw, AlertCircle, ChevronRight, Undo2, Redo2, History } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { getCMSContent, saveCMSContent } from '../../src/utils/cms-client';
 
@@ -36,6 +36,15 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const [isDirty, setIsDirty] = useState(false);
     const [toasts, setToasts] = useState<{ id: string, message: string, type: 'success' | 'error' | 'info' }[]>([]);
+
+    // Undo/Redo/History States
+    const [undoStack, setUndoStack] = useState<{ content: any; label: string; timestamp: number }[]>([]);
+    const [redoStack, setRedoStack] = useState<{ content: any; label: string; timestamp: number }[]>([]);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+    // Refs for history throttling/grouping
+    const lastPushTimeRef = useRef<number>(0);
+    const lastActiveFieldRef = useRef<string>('');
 
     const addToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
         const id = Math.random().toString(36).substr(2, 9);
@@ -156,6 +165,10 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 if (!data.lab) data.lab = { title: "THE LAB", bookingTitle: "Project Details", bookingSubtitle: "Tell us about your shoot requirements." };
 
                 setContent(data);
+                setUndoStack([]);
+                setRedoStack([]);
+                lastPushTimeRef.current = 0;
+                lastActiveFieldRef.current = '';
             }
 
 
@@ -180,14 +193,25 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     // Keyboard Shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            // Save: Cmd+S or Ctrl+S
             if ((e.metaKey || e.ctrlKey) && e.key === 's') {
                 e.preventDefault();
                 handleSave();
             }
+            // Undo: Cmd+Z or Ctrl+Z
+            if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                handleUndo();
+            }
+            // Redo: Cmd+Shift+Z or Ctrl+Shift+Z or Cmd+Y or Ctrl+Y
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                e.preventDefault();
+                handleRedo();
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [content, isDirty]);
+    }, [content, isDirty, undoStack, redoStack]);
 
     const handleSave = async () => {
         if (!content) return;
@@ -215,10 +239,15 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     };
 
     const handleReset = async () => {
+        setIsResetting(true);
         const freshData = await getCMSContent();
         if (freshData) {
             setContent(freshData);
             setIsDirty(false);
+            setUndoStack([]);
+            setRedoStack([]);
+            lastPushTimeRef.current = 0;
+            lastActiveFieldRef.current = '';
             addToast('Edits reverted.', 'info');
         } else {
             addToast('Failed to reset.', 'error');
@@ -226,8 +255,40 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         setIsResetting(false);
     };
 
+    // Helper to format history label
+    const getHistoryLabel = (section: string, field: string): string => {
+        const sec = section.charAt(0).toUpperCase() + section.slice(1);
+        const fld = field
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase());
+        return `Edit ${sec} > ${fld}`;
+    };
+
     const updateField = (section: string, field: string, value: any) => {
         setIsDirty(true);
+
+        if (content) {
+            const now = Date.now();
+            const timeDiff = now - lastPushTimeRef.current;
+            const fieldKey = `${section}.${field}`;
+
+            // If a different field is edited or more than 1.5 seconds have elapsed, record state
+            if (lastActiveFieldRef.current !== fieldKey || timeDiff > 1500) {
+                const clonedContent = JSON.parse(JSON.stringify(content));
+                const label = getHistoryLabel(section, field);
+                
+                setUndoStack(prev => {
+                    const next = [...prev, { content: clonedContent, label, timestamp: now }];
+                    if (next.length > 50) next.shift(); // Limit to 50 items
+                    return next;
+                });
+                setRedoStack([]); // Clear redo stack on new action
+                
+                lastPushTimeRef.current = now;
+                lastActiveFieldRef.current = fieldKey;
+            }
+        }
+
         setContent((prev: any) => ({
             ...prev,
             [section]: {
@@ -235,6 +296,69 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 [field]: value
             }
         }));
+    };
+
+    const handleUndo = () => {
+        if (undoStack.length === 0) return;
+        const currentCloned = JSON.parse(JSON.stringify(content));
+        
+        setUndoStack(prev => {
+            const next = [...prev];
+            const previousEntry = next.pop();
+            
+            if (previousEntry) {
+                const label = previousEntry.label;
+                setRedoStack(rPrev => [...rPrev, { content: currentCloned, label, timestamp: Date.now() }]);
+                
+                setContent(previousEntry.content);
+                setIsDirty(true);
+                addToast(`Undo: ${previousEntry.label}`, 'info');
+                
+                lastPushTimeRef.current = 0;
+                lastActiveFieldRef.current = '';
+            }
+            return next;
+        });
+    };
+
+    const handleRedo = () => {
+        if (redoStack.length === 0) return;
+        const currentCloned = JSON.parse(JSON.stringify(content));
+        
+        setRedoStack(prev => {
+            const next = [...prev];
+            const nextEntry = next.pop();
+            
+            if (nextEntry) {
+                const label = nextEntry.label;
+                setUndoStack(uPrev => [...uPrev, { content: currentCloned, label, timestamp: Date.now() }]);
+                
+                setContent(nextEntry.content);
+                setIsDirty(true);
+                addToast(`Redo: ${nextEntry.label}`, 'info');
+                
+                lastPushTimeRef.current = 0;
+                lastActiveFieldRef.current = '';
+            }
+            return next;
+        });
+    };
+
+    const handleRestoreHistory = (index: number) => {
+        if (index < 0 || index >= undoStack.length) return;
+        const currentCloned = JSON.parse(JSON.stringify(content));
+        const targetEntry = undoStack[index];
+        
+        setRedoStack(prev => [...prev, { content: currentCloned, label: `Restore from history`, timestamp: Date.now() }]);
+        setUndoStack(prev => prev.slice(0, index));
+        
+        setContent(targetEntry.content);
+        setIsDirty(true);
+        addToast(`Restored to: ${targetEntry.label}`, 'success');
+        setIsHistoryOpen(false);
+
+        lastPushTimeRef.current = 0;
+        lastActiveFieldRef.current = '';
     };
 
     if (isLoading || !content) {
@@ -281,7 +405,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0">
-                        <div className="flex items-center gap-4 relative">
+                        <div className="flex items-center gap-2 relative">
                             {isDirty && (
                                 <motion.div 
                                     initial={{ scale: 0 }}
@@ -291,22 +415,117 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                                     Unsaved Changes
                                 </motion.div>
                             )}
+
+                            {/* Undo Button */}
                             <button
+                                type="button"
+                                onClick={handleUndo}
+                                disabled={undoStack.length === 0}
+                                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:hover:bg-white"
+                                title="Undo (Cmd+Z)"
+                            >
+                                <Undo2 size={13} />
+                                <span>Undo</span>
+                            </button>
+
+                            {/* Redo Button */}
+                            <button
+                                type="button"
+                                onClick={handleRedo}
+                                disabled={redoStack.length === 0}
+                                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:hover:bg-white"
+                                title="Redo (Cmd+Shift+Z)"
+                            >
+                                <Redo2 size={13} />
+                                <span>Redo</span>
+                            </button>
+
+                            {/* History Dropdown Trigger */}
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                    className={`bg-white hover:bg-gray-100 text-gray-700 border ${isHistoryOpen ? 'border-black' : 'border-gray-200'} px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all`}
+                                    title="View Edit History"
+                                >
+                                    <History size={13} />
+                                    <span>History</span>
+                                    {undoStack.length > 0 && (
+                                        <span className="bg-gray-900 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                                            {undoStack.length}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {/* Overlay to close dropdown on click outside */}
+                                {isHistoryOpen && (
+                                    <div 
+                                        className="fixed inset-0 z-40 bg-transparent" 
+                                        onClick={() => setIsHistoryOpen(false)} 
+                                    />
+                                )}
+
+                                {/* Dropdown popover */}
+                                {isHistoryOpen && (
+                                    <div className="absolute right-0 top-10 w-72 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[350px]">
+                                        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Edit History</span>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setIsHistoryOpen(false)}
+                                                className="text-xs font-bold text-gray-400 hover:text-black"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                        <div className="flex-1 overflow-y-auto divide-y divide-gray-50 custom-scrollbar max-h-[250px]">
+                                            {undoStack.length === 0 ? (
+                                                <div className="px-4 py-6 text-center text-xs text-gray-400">
+                                                    No edit history yet.
+                                                </div>
+                                            ) : (
+                                                [...undoStack].reverse().map((entry, revIdx) => {
+                                                    const originalIdx = undoStack.length - 1 - revIdx;
+                                                    const timeString = new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                                    return (
+                                                        <button
+                                                            type="button"
+                                                            key={entry.timestamp + '-' + originalIdx}
+                                                            onClick={() => handleRestoreHistory(originalIdx)}
+                                                            className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex flex-col gap-0.5 group"
+                                                        >
+                                                            <span className="text-xs font-medium text-gray-700 group-hover:text-black">{entry.label}</span>
+                                                            <span className="text-[9px] text-gray-400">{timeString}</span>
+                                                        </button>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Revert Changes Button */}
+                            <button
+                                type="button"
                                 onClick={handleReset}
                                 disabled={isResetting || isSaving || !isDirty}
-                                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all disabled:opacity-30"
-                                title="Revert to last saved version"
+                                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-30"
+                                title="Revert all changes to last saved version"
                             >
-                                {isResetting ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
-                                {isResetting ? 'Resetting...' : 'Undo'}
+                                {isResetting ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
+                                <span>{isResetting ? 'Resetting...' : 'Revert All'}</span>
                             </button>
+
+                            {/* Save Button */}
                             <button
+                                type="button"
                                 onClick={handleSave}
                                 disabled={isSaving || !isDirty}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95 ${isDirty ? 'bg-black text-white shadow-black/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'}`}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg active:scale-95 ${isDirty ? 'bg-black text-white shadow-black/20' : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'}`}
                             >
-                                {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                                {isSaving ? 'Saving...' : 'Save Changes'}
+                                {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+                                <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
                             </button>
                         </div>
                         <div className="h-4 w-[1px] bg-gray-200 mx-2"></div>
