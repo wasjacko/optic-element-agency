@@ -530,7 +530,7 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                             </button>
                         </div>
                         <div className="h-4 w-[1px] bg-gray-200 mx-2"></div>
-                        <button onClick={() => { if (isDirty && !window.confirm('Unsaved changes will be lost. Exit?')) return; logout(); onBack(); }} className="text-xs font-medium text-gray-500 hover:text-black hover:underline px-2 py-1">Exit</button>
+                        <button onClick={() => { if (isDirty && !window.confirm('Unsaved changes will be lost. Log Out?')) return; logout(); }} className="text-xs font-medium text-gray-500 hover:text-black hover:underline px-2 py-1">Log Out</button>
                     </div>
                 </div>
             </header>
