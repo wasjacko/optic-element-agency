@@ -79,7 +79,8 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 };
 
                 data.hero = mergeDefaults(data.hero, {
-                    title: "VISUAL MATTER", phase1: "BRANDS WE", phase1Highlight: "SERVE", phase2: "NOT ON", phase2Highlight: "THE MENU", cta: "VIEW OUR WORK"
+                    title: "VISUAL MATTER", phase1: "BRANDS WE", phase1Highlight: "SERVE", phase2: "NOT ON", phase2Highlight: "THE MENU", cta: "VIEW OUR WORK",
+                    backgroundColor: "#121212", textColor: "#ffffff", highlightColor: "#EF5304", ctaBg: "#ffffff", ctaText: "#000000"
                 });
 
                 data.brands = mergeDefaults(data.brands, {
@@ -88,7 +89,8 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         "Investor Lift", "The Passionate Few", "LGC I Power",
                         "The Coffe Co", "Devotion To Dogs", "The Maverick Entrepreneur",
                         "Exhort Else", "Mindcore", "Minico Shibin", "Unbroken Fitness Solution"
-                    ]
+                    ],
+                    backgroundColor: "#0d0d0d", titleColor: "#EF5304", kpiNumberColor: "#ffffff", kpiLabelColor: "#EF5304"
                 });
 
                 data.sprint = mergeDefaults(data.sprint, {
@@ -103,7 +105,9 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 });
 
                 data.testimonials = mergeDefaults(data.testimonials, {
-                    title: "VIDEO TESTIMONIALS", reviewsTitle: "CLIENT REVIEWS", reels: [
+                    title: "VIDEO TESTIMONIALS", reviewsTitle: "CLIENT REVIEWS",
+                    backgroundColor: "#ffffff", titleColor: "#000000", accentColor: "#EF5304",
+                    reels: [
                         { id: "R_01", title: "OMAR ELATTAR", src: "https://www.youtube.com/embed/YN9mu2kWyXM" },
                         { id: "R_06", title: "DR. MATT", src: "https://www.youtube.com/embed/OMHS_XLydHo" },
                         { id: "R_07", title: "EUGENE NEAL", src: "https://www.youtube.com/embed/AajktDSe9DM" },
@@ -113,7 +117,12 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     ]
                 });
 
-                data.video = mergeDefaults(data.video, { title: "Showreel", videoUrl: "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4" });
+                data.video = mergeDefaults(data.video, { 
+                    title: "Showreel", 
+                    videoUrl: "https://lightcoral-hawk-369217.hostingersite.com/wp-content/uploads/2025/06/Video-Optic-element.mp4",
+                    backgroundColor: "#000000",
+                    accentColor: "#EF5304"
+                });
 
                 data.projects = mergeDefaults(data.projects, {
                     title: "PROJECTS", cta: "VIEW OUR WORK", videos: [
@@ -125,11 +134,47 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     ]
                 });
 
-                data.about = mergeDefaults(data.about, { title: "Who We Are", teamCta: "JOIN THE TEAM", videoUrl: "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4" });
-                data.contact = mergeDefaults(data.contact, { titleLine1: "SCHEDULE A", titleLine2: "CALL", titleLine3: "WITH", titleLine4: "SANTIAGO", description: "Book a call with our team. This call is to learn more about your business and if Optic Element is a good fit to help you achieve your goals." });
-                data.processPage = mergeDefaults(data.processPage, { title: "Our Process", subtitle: "Our strategy to get you leads with content" });
+                data.about = mergeDefaults(data.about, { 
+                    title: "Who We Are", teamCta: "JOIN THE TEAM", 
+                    videoUrl: "https://video.wixstatic.com/video/8fb0bb_3101935948d84d248cbb6453b7ba87e8/720p/mp4/file.mp4",
+                    backgroundColor: "#ffffff", textColor: "#000000", accentColor: "#EF5304", teamBgColor: "#000000", teamTextColor: "#ffffff"
+                });
+                
+                data.contact = mergeDefaults(data.contact, { 
+                    titleLine1: "SCHEDULE A", titleLine2: "CALL", titleLine3: "WITH", titleLine4: "SANTIAGO", 
+                    description: "Book a call with our team. This call is to learn more about your business and if Optic Element is a good fit to help you achieve your goals.",
+                    backgroundColor: "#ffffff", textColor: "#000000", accentColor: "#EF5304"
+                });
 
-                data.worksPage = mergeDefaults(data.worksPage, { cta: "SCHEDULE_CALL" });
+                data.processPage = mergeDefaults(data.processPage, { 
+                    title: "Our Process", subtitle: "Our strategy to get you leads with content",
+                    backgroundColor: "#000000", textColor: "#ffffff", accentColor: "#EF5304"
+                });
+
+                data.worksPage = mergeDefaults(data.worksPage, { 
+                    cta: "SCHEDULE_CALL",
+                    backgroundColor: "#ffffff", textColor: "#000000", accentColor: "#EF5304",
+                    footerBgColor: "transparent", ctaBgColor: "#000000", ctaTextColor: "#ffffff", ctaHoverColor: "#EF5304"
+                });
+
+                // Initialize default missingElements style properties if missing
+                if (Array.isArray(data.missingElements)) {
+                    data.missingElements = {
+                        items: data.missingElements,
+                        backgroundColor: "#ffffff",
+                        cardBg: "#ffffff",
+                        accentColor: "#000000",
+                        textColor: "#000000"
+                    };
+                } else {
+                    data.missingElements = mergeDefaults(data.missingElements, {
+                        backgroundColor: "#ffffff",
+                        cardBg: "#ffffff",
+                        accentColor: "#000000",
+                        textColor: "#000000",
+                        items: []
+                    });
+                }
                 // Initialize default services for Works Page if missing
                 if (!data.worksPage.services) {
                     data.worksPage.services = [
