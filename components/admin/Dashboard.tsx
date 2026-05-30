@@ -193,18 +193,19 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     // Keyboard Shortcuts
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            const key = e.key.toLowerCase();
             // Save: Cmd+S or Ctrl+S
-            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+            if ((e.metaKey || e.ctrlKey) && key === 's') {
                 e.preventDefault();
                 handleSave();
             }
             // Undo: Cmd+Z or Ctrl+Z
-            if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+            if ((e.metaKey || e.ctrlKey) && key === 'z' && !e.shiftKey) {
                 e.preventDefault();
                 handleUndo();
             }
             // Redo: Cmd+Shift+Z or Ctrl+Shift+Z or Cmd+Y or Ctrl+Y
-            if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            if ((e.metaKey || e.ctrlKey) && (key === 'y' || (key === 'z' && e.shiftKey))) {
                 e.preventDefault();
                 handleRedo();
             }
