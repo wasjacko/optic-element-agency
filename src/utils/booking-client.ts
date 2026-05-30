@@ -1,3 +1,5 @@
+import { getInMemoryToken } from './auth-client';
+
 const API_URL = "/api";
 
 export interface Booking {
@@ -33,7 +35,7 @@ export async function createBooking(data: any): Promise<{ success: boolean; mess
 
 export async function getAdminBookings(): Promise<Booking[]> {
     try {
-        const token = localStorage.getItem('oe_admin_session');
+        const token = getInMemoryToken();
         const res = await fetch(`${API_URL}/admin/bookings`, {
             headers: {
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -49,7 +51,7 @@ export async function getAdminBookings(): Promise<Booking[]> {
 
 export async function updateBookingStatus(id: string, status: 'CONFIRMED' | 'CANCELLED'): Promise<{ success: boolean; message?: string }> {
     try {
-        const token = localStorage.getItem('oe_admin_session');
+        const token = getInMemoryToken();
         const res = await fetch(`${API_URL}/admin/bookings/${id}/status`, {
             method: 'POST',
             headers: { 

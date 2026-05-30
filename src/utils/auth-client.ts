@@ -1,5 +1,15 @@
 const API_URL = "/api";
 
+let inMemoryToken: string | null = null;
+
+export function setInMemoryToken(token: string | null) {
+    inMemoryToken = token;
+}
+
+export function getInMemoryToken(): string | null {
+    return inMemoryToken;
+}
+
 export async function requestAuthCode(email: string): Promise<{ success: boolean; message?: string }> {
     try {
         const res = await fetch(`${API_URL}/auth/send-code`, {

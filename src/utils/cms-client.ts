@@ -1,3 +1,5 @@
+import { getInMemoryToken } from './auth-client';
+
 const API_URL = "/api";
 
 export async function getCMSContent(): Promise<any> {
@@ -13,7 +15,7 @@ export async function getCMSContent(): Promise<any> {
 
 export async function saveCMSContent(content: any): Promise<{ success: boolean; message?: string }> {
     try {
-        const token = localStorage.getItem('oe_admin_session');
+        const token = getInMemoryToken();
         const res = await fetch(`${API_URL}/cms/content`, {
             method: 'POST',
             headers: { 

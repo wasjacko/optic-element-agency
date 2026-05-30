@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { requestAuthCode, verifyAuthCode } from '../../src/utils/auth-client';
+import { requestAuthCode, verifyAuthCode, setInMemoryToken } from '../../src/utils/auth-client';
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -17,11 +17,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Security Configurations
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60 * 1000; // 1 Minute
-const SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000; // 30 Days
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Rate Limiting States
     const [attempts, setAttempts] = useState(0);
@@ -40,42 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => clearInterval(timer);
     }, [lockoutUntil]);
 
-    // Check Session on Start
-    useEffect(() => {
-        const checkSession = () => {
-            try {
-                const session = localStorage.getItem('oe_admin_session');
-                const lastActivity = localStorage.getItem('oe_admin_last_activity');
-                
-                if (session && lastActivity) {
-                    const isTimeout = (Date.now() - parseInt(lastActivity)) > SESSION_TIMEOUT;
-                    if (!isTimeout) {
-                        setIsAuthenticated(true);
-                    } else {
-                        localStorage.removeItem('oe_admin_session');
-                        localStorage.removeItem('oe_admin_last_activity');
-                    }
-                }
-            } catch (e) {
-                console.error("Auth session check error:", e);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        checkSession();
-    }, []);
-
-    // Update Activity Timestamp on clicks to keep session alive
-    useEffect(() => {
-        const updateActivity = () => {
-            if (isAuthenticated) {
-                localStorage.setItem('oe_admin_last_activity', Date.now().toString());
-            }
-        };
-        window.addEventListener('click', updateActivity);
-        return () => window.removeEventListener('click', updateActivity);
-    }, [isAuthenticated]);
-
     const requestOtp = async (email: string) => {
         if (Date.now() < lockoutUntil) return { success: false, message: "System Locked" };
         const res = await requestAuthCode(email);
@@ -90,8 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.success) {
             setAttempts(0);
             setLockoutUntil(0);
-            localStorage.setItem('oe_admin_session', res.token || 'valid');
-            localStorage.setItem('oe_admin_last_activity', Date.now().toString());
+            setInMemoryToken(res.token || 'valid');
             setIsAuthenticated(true);
             return true;
         } else {
@@ -105,8 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
-        localStorage.removeItem('oe_admin_session');
-        localStorage.removeItem('oe_admin_last_activity');
+        setInMemoryToken(null);
         setIsAuthenticated(false);
     };
 
