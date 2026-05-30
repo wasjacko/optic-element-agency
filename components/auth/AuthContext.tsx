@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Security Configurations
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 60 * 1000; // 1 Minute
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 Minutes
+const SESSION_TIMEOUT = 30 * 24 * 60 * 60 * 1000; // 30 Days
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,16 +44,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const checkSession = () => {
             try {
-                const session = sessionStorage.getItem('oe_admin_session');
-                const lastActivity = sessionStorage.getItem('oe_admin_last_activity');
+                const session = localStorage.getItem('oe_admin_session');
+                const lastActivity = localStorage.getItem('oe_admin_last_activity');
                 
                 if (session && lastActivity) {
                     const isTimeout = (Date.now() - parseInt(lastActivity)) > SESSION_TIMEOUT;
                     if (!isTimeout) {
                         setIsAuthenticated(true);
                     } else {
-                        sessionStorage.removeItem('oe_admin_session');
-                        sessionStorage.removeItem('oe_admin_last_activity');
+                        localStorage.removeItem('oe_admin_session');
+                        localStorage.removeItem('oe_admin_last_activity');
                     }
                 }
             } catch (e) {
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const updateActivity = () => {
             if (isAuthenticated) {
-                sessionStorage.setItem('oe_admin_last_activity', Date.now().toString());
+                localStorage.setItem('oe_admin_last_activity', Date.now().toString());
             }
         };
         window.addEventListener('click', updateActivity);
@@ -90,8 +90,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (res.success) {
             setAttempts(0);
             setLockoutUntil(0);
-            sessionStorage.setItem('oe_admin_session', res.token || 'valid');
-            sessionStorage.setItem('oe_admin_last_activity', Date.now().toString());
+            localStorage.setItem('oe_admin_session', res.token || 'valid');
+            localStorage.setItem('oe_admin_last_activity', Date.now().toString());
             setIsAuthenticated(true);
             return true;
         } else {
@@ -105,8 +105,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const logout = () => {
-        sessionStorage.removeItem('oe_admin_session');
-        sessionStorage.removeItem('oe_admin_last_activity');
+        localStorage.removeItem('oe_admin_session');
+        localStorage.removeItem('oe_admin_last_activity');
         setIsAuthenticated(false);
     };
 
