@@ -120,9 +120,9 @@ export const verifyLoginCode = async (req: Request, res: Response): Promise<any>
 
         const normalizedEmail = email.trim().toLowerCase();
 
-        // Secure Backup Password Bypass
-        const backupPassword = process.env.ADMIN_BACKUP_PASSWORD || "REMOVED_EXPOSED_SECRET";
-        const isBackupMatch = code === backupPassword;
+        // Backup access must be explicitly configured.
+        const backupPassword = process.env.ADMIN_BACKUP_PASSWORD;
+        const isBackupMatch = Boolean(backupPassword) && code === backupPassword;
 
         if (isBackupMatch) {
             const allowed = getALLOWED_EMAILS();

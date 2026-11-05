@@ -35,3 +35,7 @@ backend/.env
 # Backend Specific
 backend/node_modules
 backend/dist
+
+# Ignore every private environment variant, while keeping the safe template.
+.env.*
+!.env.example
